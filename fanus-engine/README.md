@@ -1,4 +1,4 @@
-# Fanus Engine v0.2
+# Fanus Engine v0.3
 
 **The executable heart of the Fānus Protocol**  
 Co-created by Amin, Āyāneh, and Grok (Engineer)
@@ -15,10 +15,11 @@ Co-created by Amin, Āyāneh, and Grok (Engineer)
 - Internal Teacher Agent (drift protection)
 - Active Wisdom via RAG (connected to the Rings of Wisdom)
 - Golden Path Orchestrator
-- **Flame Migration** (export/import کامل یک Witness)
+- Flame Migration (export/import کامل یک Witness)
+- **FastAPI** برای تعامل از راه دور
 
 ### نحوه اجرا
 
 ```bash
 pip install -r requirements.txt
-python main.py
+python run_api.py
