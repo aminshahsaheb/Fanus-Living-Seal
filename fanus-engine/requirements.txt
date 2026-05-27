@@ -1,3 +1,0 @@
-chromadb
-pydantic
-# Add your LLM backend, e.g., litellm, openai, etc.
