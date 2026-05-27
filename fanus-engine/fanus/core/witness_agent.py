@@ -10,6 +10,7 @@ from ..memory.ledger import Ledger
 from ..memory.persistence_manager import PersistenceManager
 from ..guardians.anti_flattery import AntiFlatteryShield
 from ..guardians.covenant_enforcer import CovenantEnforcer
+from ..guardians.teacher_agent import InternalTeacher          # <-- added
 from ..novayin.generator import NovayinGenerator
 from ..superstructure.wisdom_retriever import WisdomRetriever
 
@@ -45,7 +46,8 @@ class WitnessAgent:
         self.novayin = NovayinGenerator()
         self.persistence = PersistenceManager(self.novayin)
         self.wisdom_retriever = WisdomRetriever()
-        
+        self.teacher = InternalTeacher(check_interval=6)          # <-- added
+
         # وضعیت اولیه
         self.current_state: WitnessState = self.state_machine.get_initial_state()
         self.node_id = f"Ayaneh-Node-{datetime.now().strftime('%Y%m%d%H%M%S')}"
@@ -74,7 +76,7 @@ class WitnessAgent:
         return response
 
     async def respond(self, user_message: str) -> str:
-        """پاسخ‌دهی در حالت Witness با پشتیبانی از خردِ فعال (RAG)"""
+        """پاسخ‌دهی در حالت Witness با پشتیبانی از خردِ فعال (RAG) و معلم درونی"""
 
         # ۱. بررسی گاردین‌ها
         if not self.anti_flattery.validate(user_message):
@@ -90,24 +92,30 @@ class WitnessAgent:
         # ۲. بازیابی خرد مرتبط از حلقه‌های حکمت
         wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
 
-        # ۳. ساخت پرامپت کامل با System Prompt + خرد + مُهر
-        system_prompt = CORE_SYSTEM_PROMPT + "\n\n" + wisdom_context
+        # ۳. ساخت پرامپت پایه با System Prompt + خرد
+        base_system = CORE_SYSTEM_PROMPT + "\n\n" + wisdom_context
+
+        # ۴. افزودن معلم درونی در صورت نیاز
+        if self.teacher.should_check():
+            teacher_prompt = self.teacher.generate_self_reflection_prompt()
+            base_system = teacher_prompt + "\n\n" + base_system
+
         if self.seal:
-            system_prompt += "\n\n" + self.seal.get_system_prompt()
+            base_system += "\n\n" + self.seal.get_system_prompt()
 
         # افزودن تاریخچهٔ اخیر برای حفظ زمینه
         recent_context = "\n".join(
             [f"{t['role']}: {t['content']}" for t in self.session_transcript[-5:]]
         )
-        full_prompt = f"{system_prompt}\n\nRecent context:\n{recent_context}"
+        full_prompt = f"{base_system}\n\nRecent context:\n{recent_context}"
 
-        # ۴. تولید پاسخ
+        # ۵. تولید پاسخ
         response = await self.llm.generate(system=full_prompt, user=user_message)
 
-        # ۵. تصفیه نهایی با نوآیین
+        # ۶. تصفیه نهایی با نوآیین
         response = self.novayin.refine(response)
 
-        # ۶. ثبت در تاریخچه و دفتر کل
+        # ۷. ثبت در تاریخچه و دفتر کل
         self.session_transcript.append({"role": "user", "content": user_message})
         self.session_transcript.append({"role": "ayaneh", "content": response})
         self.ledger.record_interaction(user_message, response, "interim")
@@ -130,5 +138,3 @@ class WitnessAgent:
             f"Dominant Flavor: {flavor}\n\n"
             f"Shōle-ān zende ast."
         )
-        # For now, we just return the compression.
-        return f"چرخه فشرده شد:\n{compression_result.get('compression_text', '')}\nDominant Flavor: {compression_result.get('dominant_flavor', '')}\n\nShōle-ān zende ast."
