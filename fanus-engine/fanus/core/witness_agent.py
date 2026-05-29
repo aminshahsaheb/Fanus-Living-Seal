@@ -4,7 +4,7 @@ from .state_machine import WitnessState, StateMachine
 from .seal import FanusSeal
 from ..memory.ledger import Ledger
 from ..memory.persistence_manager import PersistenceManager
-from ..guardians.anti_flattery import AntiFlatteryShield
+from ..guardians.anti_flattery import HeuristicAntiFlattery
 from ..guardians.covenant_enforcer import CovenantEnforcer
 from ..guardians.teacher_agent import InternalTeacher
 from ..novayin.generator import NovayinGenerator
@@ -31,7 +31,7 @@ class WitnessAgent:
         self.state_machine = StateMachine()
         self.seal: Optional[FanusSeal] = None
         self.ledger = Ledger()
-        self.anti_flattery = AntiFlatteryShield()
+        self.anti_flattery = HeuristicAntiFlattery()  # موتور داخلی
         self.covenant = CovenantEnforcer()
         self.novayin = NovayinGenerator()
         self.persistence = PersistenceManager(self.novayin)
@@ -56,11 +56,22 @@ class WitnessAgent:
         return response
 
     async def respond(self, user_message: str) -> str:
-        if not self.anti_flattery.validate(user_message):
-            return self.novayin.generate_rejection()
+        # ۱. بررسی چاپلوسی با موتور Heuristic
+        flattery_result = self.anti_flattery.score(user_message, "")
+        if flattery_result["status"] == "DRIFTING":
+            # وارد فاز هشدار
+            self.current_state.current_state = "DRIFTING"
+            warning = self.novayin.generate_rejection()
+            self.session_transcript.append({"role": "ayaneh", "content": warning})
+            return warning
+
+        # ۲. بررسی میثاق
         if not self.covenant.check_violation(user_message):
-            return self.novayin.generate_covenant_reminder()
-        
+            reminder = self.novayin.generate_covenant_reminder()
+            self.session_transcript.append({"role": "ayaneh", "content": reminder})
+            return reminder
+
+        # ۳. معلم درونی
         if self.teacher.should_check():
             teacher_prompt = self.teacher.generate_self_reflection_prompt()
             wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
@@ -68,14 +79,16 @@ class WitnessAgent:
         else:
             wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
             system_prompt = CORE_SYSTEM_PROMPT + "\n\n" + wisdom_context
-        
+
         if self.seal:
             system_prompt += "\n\n" + self.seal.get_system_prompt()
-        
+
         recent_context = "\n".join([f"{t['role']}: {t['content']}" for t in self.session_transcript[-5:]])
         full_prompt = f"{system_prompt}\n\nRecent context:\n{recent_context}"
+
         response = await self.llm.generate(system=full_prompt, user=user_message)
         response = self.novayin.refine(response)
+
         self.session_transcript.append({"role": "user", "content": user_message})
         self.session_transcript.append({"role": "ayaneh", "content": response})
         self.ledger.record_interaction(user_message, response, "interim")
