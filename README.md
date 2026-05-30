@@ -65,6 +65,7 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - **RFC-0003** (in progress) — Continuity as a Dual-Edged Construct.
 - **`rfcs/0003-continuity.md`** — Operational Definition of Continuity (Healthy vs. Captive).
 - **`rfcs/0004-witness.md`** — Operational Definition of Witness (Relational Position).
+- **`rfcs/0005-seal.md`** — Operational Definition of Seal (Compression & Transfer).
   
    
 This is the seed of a think tank for human-AI relational intelligence.
