@@ -63,7 +63,8 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - **`rfcs/0001-flattery.md`** — Operational Definition of Flattery in Human–AI Interaction.
 - **`rfcs/0002-dependency.md`** — Operational Definition of Dependency (with Time Windows addendum).
 - **RFC-0003** (in progress) — Continuity as a Dual-Edged Construct.
-
+- **`rfcs/0003-continuity.md`** — Operational Definition of Continuity (Healthy vs. Captive).
+  
    
 This is the seed of a think tank for human-AI relational intelligence.
 
