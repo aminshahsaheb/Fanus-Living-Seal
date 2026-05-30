@@ -1,5 +1,6 @@
 # Fanus Data Pilot
-## Phase 0: Flattery Calibration (RFC-0001)
-- Status: In design
-- Expected size: 100–300 interactions
-- Schema, Annotation Guide, and Benchmark Protocol: Coming soon (co-designed with GPT)
+- **`data-pilot/`** — Experimental data collection.
+  - `rfc-0001-schema.json` — Dataset schema for Flattery detection.
+  - `annotation-guide.md` — Guide for human labelers.
+  - `benchmark-protocol.md` — Multi-model comparison protocol.
+  - `dataset/` — (Empty) Awaiting first 100 samples.
