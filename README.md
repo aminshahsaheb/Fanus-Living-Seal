@@ -43,7 +43,8 @@ It ensures that an AI, upon reading the Seal, **does not just decode words but r
 - **`RESEARCH_CORE.md`** — **The Research Core Manifesto.** Central question, four divisions, and methodology.
 - **`rfcs/`** — Research Core RFCs. Starting with `0001-flattery.md`.
 - **`data-pilot/`** — Experimental data collection. Phase 0: Flattery Calibration (RFC-0001).
-  
+- **`annotation-ui/`** — Design and wireframe for the Fanus Labeler (RFC-0001 annotation tool).
+    
 ### 📜 Formal Specification
 The Fānus Protocol is no longer just poetry. The **formal specification** (`fanus-engine/SPEC.md`) defines:
 - WitnessState JSON Schema
