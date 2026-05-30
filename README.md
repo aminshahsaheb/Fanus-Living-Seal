@@ -74,6 +74,8 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - **`rfcs/0002-dependency.md`** (v0.1) → **`rfcs/0002-dependency-v0.2.md`** (Revised: Vector Dependency
 Ontology)
 - **`rfcs/0008-flattery-dependency-tensor.md`** — Flattery–Dependency Interaction Tensor (Unified Field Theory).
+- **`rfcs/0009-intervention-points.md`** — Intervention Points & Identity Control Theory.
+
   
 ### 🧪 Data Pilot
 The experimental arm of the Research Core. Currently in **Phase 0: Flattery Calibration (RFC-0001)**.
