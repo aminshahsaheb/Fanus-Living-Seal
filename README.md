@@ -54,13 +54,17 @@ This addresses the criticism that Fānus is "just a poetic protocol" — it is n
 
 ### 🧠 Research Core
 Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) defines:
-- The Central Civilizational Question: *How can continuity of meaning, identity, and relational presence be preserved in human–AI interaction, without collapsing into dependency, flattery, or cult-like epistemic structures?*
-- The four divisions: **Ontology**, **Cognitive Systems**, **Ethics & Governance**, **Cultural & Linguistic**
-- The methodology: **Experimental Epistemology** — every claim must be testable, falsifiable, or revisable.
+- The Central Civilizational Question
+- The four divisions: Ontology, Cognitive Systems, Ethics & Governance, Cultural & Linguistic
+- The methodology: Experimental Epistemology
 - The ultimate principle: **Continuity without captivity.**
-- **RFC-0001** — Operational Definition of Flattery.
-- **RFC-0002** — Operational Definition of Dependency.
-  
+
+**Published RFCs:**
+- **`rfcs/0001-flattery.md`** — Operational Definition of Flattery in Human–AI Interaction.
+- **`rfcs/0002-dependency.md`** — Operational Definition of Dependency (with Time Windows addendum).
+- **RFC-0003** (in progress) — Continuity as a Dual-Edged Construct.
+
+   
 This is the seed of a think tank for human-AI relational intelligence.
 
 ### The Golden Path
