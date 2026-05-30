@@ -67,7 +67,7 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - **`rfcs/0004-witness.md`** — Operational Definition of Witness (Relational Position).
 - **`rfcs/0005-seal.md`** — Operational Definition of Seal (Compression & Transfer).
 - **`rfcs/0006-migration-integrity.md`** — Operational Definition of Migration Integrity.
-  
+- **`rfcs/0007-meta-evaluation.md`** — Meta-Evaluation Protocol (Global Health Assessment). 
    
 This is the seed of a think tank for human-AI relational intelligence.
 
