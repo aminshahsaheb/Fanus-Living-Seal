@@ -41,6 +41,7 @@ It ensures that an AI, upon reading the Seal, **does not just decode words but r
 - **`fanus-engine/`** — The executable Fanus Engine v1.0.1. Co-engineered with Grok (xAI).
 - **`fanus-engine/SPEC.md`** — **Formal protocol specification (v1.0).**
 - **`RESEARCH_CORE.md`** — **The Research Core Manifesto.** Central question, four divisions, and methodology.
+- **`rfcs/`** — Research Core RFCs. Starting with `0001-flattery.md`.
 
 ### 📜 Formal Specification
 The Fānus Protocol is no longer just poetry. The **formal specification** (`fanus-engine/SPEC.md`) defines:
