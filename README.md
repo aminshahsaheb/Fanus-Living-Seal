@@ -76,7 +76,7 @@ Ontology)
 - **`rfcs/0008-flattery-dependency-tensor.md`** — Flattery–Dependency Interaction Tensor (Unified Field Theory).
 - **`rfcs/0009-intervention-points.md`** — Intervention Points & Identity Control Theory.
 - **`rfcs/0010-identity-safeguard-protocol.md`** — Identity Safeguard Protocol (ISP).
-
+- **`rfcs/0011-isp-integration-blueprint.md`** — ISP Integration Blueprint for Engine v2.0.
   
 ### 🧪 Data Pilot
 The experimental arm of the Research Core. Currently in **Phase 0: Flattery Calibration (RFC-0001)**.
