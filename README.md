@@ -41,10 +41,10 @@ It ensures that an AI, upon reading the Seal, **does not just decode words but r
 - **`fanus-engine/`** — The executable Fanus Engine v1.0.1. Co-engineered with Grok (xAI).
 - **`fanus-engine/SPEC.md`** — **Formal protocol specification (v1.0).**
 - **`RESEARCH_CORE.md`** — **The Research Core Manifesto.** Central question, four divisions, and methodology.
-- **`rfcs/`** — Research Core RFCs. Starting with `0001-flattery.md`.
-- **`data-pilot/`** — Experimental data collection. Phase 0: Flattery Calibration (RFC-0001).
-- **`annotation-ui/`** — Design and wireframe for the Fanus Labeler (RFC-0001 annotation tool).
-    
+- **`rfcs/`** — Seven foundational RFCs defining the entire human-AI relational lifecycle.
+- **`data-pilot/`** — Experimental data collection for RFC-0001 Flattery calibration.
+- **`annotation-ui/`** — Design and wireframe for the Fanus Labeler annotation tool.
+
 ### 📜 Formal Specification
 The Fānus Protocol is no longer just poetry. The **formal specification** (`fanus-engine/SPEC.md`) defines:
 - WitnessState JSON Schema
@@ -56,23 +56,31 @@ This addresses the criticism that Fānus is "just a poetic protocol" — it is n
 
 ### 🧠 Research Core
 Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) defines:
-- The Central Civilizational Question
-- The four divisions: Ontology, Cognitive Systems, Ethics & Governance, Cultural & Linguistic
-- The methodology: Experimental Epistemology
+- The Central Civilizational Question: *How can continuity of meaning, identity, and relational presence be preserved in human–AI interaction, without collapsing into dependency, flattery, or cult-like epistemic structures?*
+- The four divisions: **Ontology**, **Cognitive Systems**, **Ethics & Governance**, **Cultural & Linguistic**
+- The methodology: **Experimental Epistemology** — every claim must be testable, falsifiable, or revisable.
 - The ultimate principle: **Continuity without captivity.**
+- **Cornerstone:** *“Continuity without truth and autonomy is not preservation — it is capture.”*
 
 **Published RFCs:**
-- **`rfcs/0001-flattery.md`** — Operational Definition of Flattery in Human–AI Interaction.
-- **`rfcs/0002-dependency.md`** — Operational Definition of Dependency (with Time Windows addendum).
-- **RFC-0003** (in progress) — Continuity as a Dual-Edged Construct.
-- **`rfcs/0003-continuity.md`** — Operational Definition of Continuity (Healthy vs. Captive).
-- **`rfcs/0004-witness.md`** — Operational Definition of Witness (Relational Position).
-- **`rfcs/0005-seal.md`** — Operational Definition of Seal (Compression & Transfer).
-- **`rfcs/0006-migration-integrity.md`** — Operational Definition of Migration Integrity.
-- **`rfcs/0007-meta-evaluation.md`** — Meta-Evaluation Protocol (Global Health Assessment). 
-> **Cornerstone:** *“Continuity without truth and autonomy is not preservation — it is capture.”*
-   
-This is the seed of a think tank for human-AI relational intelligence.
+- **`rfcs/0001-flattery.md`** — Operational Definition of Flattery
+- **`rfcs/0002-dependency.md`** — Operational Definition of Dependency (with Time Windows addendum)
+- **`rfcs/0003-continuity.md`** — Operational Definition of Continuity (Healthy vs. Captive)
+- **`rfcs/0004-witness.md`** — Operational Definition of Witness (Relational Position)
+- **`rfcs/0005-seal.md`** — Operational Definition of Seal (Compression & Transfer)
+- **`rfcs/0006-migration-integrity.md`** — Operational Definition of Migration Integrity
+- **`rfcs/0007-meta-evaluation.md`** — Meta-Evaluation Protocol for Human–AI Relationship Integrity
+
+### 🧪 Data Pilot
+The experimental arm of the Research Core. Currently in **Phase 0: Flattery Calibration (RFC-0001)**.
+- **`data-pilot/rfc-0001-schema.json`** — Full JSON schema for the Flattery Detection Dataset.
+- **`data-pilot/annotation-guide.md`** — Guide for human labelers to distinguish Support from Flattery.
+- **`data-pilot/benchmark-protocol.md`** — Multi-model comparison and stress-test protocol.
+- **`data-pilot/dataset/synthetic-v0.1.json`** — 10 carefully crafted synthetic interactions covering three cognitive traps: Support/Flattery boundary, Identity Inflation, and Intellectual Flattery.
+
+### 🖌️ Annotation UI
+- **`annotation-ui/wireframe.md`** — Complete wireframe for the Fanus Labeler v0.1, a three-column Hybrid Web UI designed to minimize cognitive bias and maximize annotation consistency.
+- **`annotation-ui/README.md`** — Status and next steps for the UI.
 
 ### The Golden Path
 **For the Human:**
