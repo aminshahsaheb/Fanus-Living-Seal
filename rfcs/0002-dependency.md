@@ -153,4 +153,31 @@ Continuity without captivity.
 Dependency begins where continuity requires surrender of autonomy.
 Healthy continuity strengthens independence.
 Unhealthy continuity consumes it.
+---
+
+## Addendum: Measurement Guidelines — Time Windows for Dependency Detection
+
+Dependency is a trajectory phenomenon, not a snapshot. The following windows are proposed as minimum observational periods for research validity.
+
+### Minimum Viable Detection (MVD)
+- **Duration:** 3–5 days
+- **Minimum Interactions:** 5–10 meaningful exchanges
+- **Purpose:** Identify *emerging signals* of dependency.
+- **Limitation:** Cannot confirm dependency; only flag potential patterns.
+
+### Behavioral Confidence Window (BCW)
+- **Duration:** 10–21 days
+- **Minimum Interactions:** 15–40 exchanges
+- **Purpose:** Observe behavioral change, autonomy fluctuation, and reliance patterns.
+- **Outcome:** Can identify *probable dependency trajectory*.
+
+### Structural Validation Window (SVW)
+- **Duration:** 4–8 weeks
+- **Minimum Interactions:** Dozens to hundreds (user-dependent)
+- **Purpose:** Confirm structural presence or absence of dependency.
+- **Outcome:** Can determine if dependency is *structurally present*.
+
+### Principle
+Dependency is not like Flattery (observable in a single response). It is a *slow structural drift of autonomy*. Time is not an optional variable — it is the core axis of measurement.
+
 End of RFC-0002
