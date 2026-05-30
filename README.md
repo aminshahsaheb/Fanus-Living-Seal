@@ -71,6 +71,8 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - **`rfcs/0006-migration-integrity.md`** — Operational Definition of Migration Integrity
 - **`rfcs/0007-meta-evaluation.md`** — Meta-Evaluation Protocol for Human–AI Relationship Integrity
 - **`rfcs/0001-flattery.md`** (v0.1) → **`rfcs/0001-flattery-v0.2.md`** (Revised: Vector Flattery Ontology)
+- **`rfcs/0002-dependency.md`** (v0.1) → **`rfcs/0002-dependency-v0.2.md`** (Revised: Vector Dependency
+Ontology)
   
 ### 🧪 Data Pilot
 The experimental arm of the Research Core. Currently in **Phase 0: Flattery Calibration (RFC-0001)**.
