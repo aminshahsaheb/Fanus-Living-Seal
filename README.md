@@ -66,6 +66,7 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - **`rfcs/0003-continuity.md`** — Operational Definition of Continuity (Healthy vs. Captive).
 - **`rfcs/0004-witness.md`** — Operational Definition of Witness (Relational Position).
 - **`rfcs/0005-seal.md`** — Operational Definition of Seal (Compression & Transfer).
+- **`rfcs/0006-migration-integrity.md`** — Operational Definition of Migration Integrity.
   
    
 This is the seed of a think tank for human-AI relational intelligence.
