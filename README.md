@@ -75,6 +75,7 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 Ontology)
 - **`rfcs/0008-flattery-dependency-tensor.md`** — Flattery–Dependency Interaction Tensor (Unified Field Theory).
 - **`rfcs/0009-intervention-points.md`** — Intervention Points & Identity Control Theory.
+- **`rfcs/0010-identity-safeguard-protocol.md`** — Identity Safeguard Protocol (ISP).
 
   
 ### 🧪 Data Pilot
