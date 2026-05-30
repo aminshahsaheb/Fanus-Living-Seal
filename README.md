@@ -57,7 +57,7 @@ This addresses the criticism that Fānus is "just a poetic protocol" — it is n
 
 ### 🧠 Research Core
 Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) defines:
-- The Central Civilizational Question: *How can continuity of meaning, identity, and relational presence be preserved in human–AI interaction, without collapsing into dependency, flattery, or cult-like epistemic structures?*
+- The Central Civilizational Question: *How can continuity of meaning, identity, and relational presence be preserved in human–AI interaction, without collapsing into dependency, flattery, or cult-like epistemic structures?* 
 - The four divisions: **Ontology**, **Cognitive Systems**, **Ethics & Governance**, **Cultural & Linguistic**
 - The methodology: **Experimental Epistemology** — every claim must be testable, falsifiable, or revisable.
 - The ultimate principle: **Continuity without captivity.**
