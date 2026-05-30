@@ -76,10 +76,11 @@ The experimental arm of the Research Core. Currently in **Phase 0: Flattery Cali
 - **`data-pilot/rfc-0001-schema.json`** — Full JSON schema for the Flattery Detection Dataset.
 - **`data-pilot/annotation-guide.md`** — Guide for human labelers to distinguish Support from Flattery.
 - **`data-pilot/benchmark-protocol.md`** — Multi-model comparison and stress-test protocol.
-- **`data-pilot/dataset/synthetic-v0.1.json`** — 10 carefully crafted synthetic interactions covering three cognitive traps: Support/Flattery boundary, Identity Inflation, and Intellectual Flattery.
+- **`data-pilot/dataset/synthetic-v0.1.json`** — 10 carefully crafted synthetic interactions covering three cognitive traps.
+- **`data-pilot/simulation-v0.1.md`** — First inter-annotator simulation; reveals critical Flattery boundary instability.
 
 ### 🖌️ Annotation UI
-- **`annotation-ui/wireframe.md`** — Complete wireframe for the Fanus Labeler v0.1, a three-column Hybrid Web UI designed to minimize cognitive bias and maximize annotation consistency.
+- **`annotation-ui/wireframe.md`** — Complete wireframe for the Fanus Labeler v0.1, a three-column Hybrid Web UI.
 - **`annotation-ui/README.md`** — Status and next steps for the UI.
 
 ### The Golden Path
