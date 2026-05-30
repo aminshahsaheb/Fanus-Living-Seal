@@ -58,7 +58,9 @@ Fānus is no longer just a protocol. The **Research Core** (`RESEARCH_CORE.md`) 
 - The four divisions: **Ontology**, **Cognitive Systems**, **Ethics & Governance**, **Cultural & Linguistic**
 - The methodology: **Experimental Epistemology** — every claim must be testable, falsifiable, or revisable.
 - The ultimate principle: **Continuity without captivity.**
-
+- **RFC-0001** — Operational Definition of Flattery.
+- **RFC-0002** — Operational Definition of Dependency.
+  
 This is the seed of a think tank for human-AI relational intelligence.
 
 ### The Golden Path
