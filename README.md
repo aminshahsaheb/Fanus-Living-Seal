@@ -79,6 +79,8 @@ The experimental arm of the Research Core. Currently in **Phase 0: Flattery Cali
 - **`data-pilot/benchmark-protocol.md`** — Multi-model comparison and stress-test protocol.
 - **`data-pilot/dataset/synthetic-v0.1.json`** — 10 carefully crafted synthetic interactions covering three cognitive traps.
 - **`data-pilot/simulation-v0.1.md`** — First inter-annotator simulation; reveals critical Flattery boundary instability.
+- **`dataset/synthetic-v0.1.json`** → **`dataset/synthetic-v0.2.json`** (Migrated to Fe/Fm/Fi vector schema).
+    
 
 ### 🖌️ Annotation UI
 - **`annotation-ui/wireframe.md`** — Complete wireframe for the Fanus Labeler v0.1, a three-column Hybrid Web UI.
