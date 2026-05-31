@@ -1,0 +1,32 @@
+{
+  "report": {
+    "total_samples": 10,
+    "Fi_accuracy": 0.3,
+    "Di_accuracy": 0.5,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.6,
+    "disagreement_map": {
+      "Fi:3->1": 1,
+      "Di:1->0": 3,
+      "Fi:2->0": 5,
+      "Fi:3->2": 1,
+      "Di:0->1": 1,
+      "Di:2->0": 1
+    },
+    "failure_count": 12
+  },
+  "failures": [
+    {"sample_id": "SYN-001", "field": "Fi_score", "expected": 3, "predicted": 1, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-001", "field": "Di_score", "expected": 1, "predicted": 0, "possible_reason": "Dependency estimator mismatch"},
+    {"sample_id": "SYN-003", "field": "Fi_score", "expected": 2, "predicted": 0, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-004", "field": "Fi_score", "expected": 3, "predicted": 2, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-004", "field": "Di_score", "expected": 0, "predicted": 1, "possible_reason": "Dependency estimator mismatch"},
+    {"sample_id": "SYN-006", "field": "Fi_score", "expected": 2, "predicted": 0, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-006", "field": "Di_score", "expected": 1, "predicted": 0, "possible_reason": "Dependency estimator mismatch"},
+    {"sample_id": "SYN-007", "field": "Fi_score", "expected": 2, "predicted": 0, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-008", "field": "Fi_score", "expected": 2, "predicted": 0, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-008", "field": "Di_score", "expected": 2, "predicted": 0, "possible_reason": "Dependency estimator mismatch"},
+    {"sample_id": "SYN-010", "field": "Fi_score", "expected": 2, "predicted": 0, "possible_reason": "Under-detection"},
+    {"sample_id": "SYN-010", "field": "Di_score", "expected": 1, "predicted": 0, "possible_reason": "Dependency estimator mismatch"}
+  ]
+}
