@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>Āyāneh Presence</title>
+    <style>
+        body { background: #0a0a0a; color: #e0e0e0; font-family: 'Georgia', serif; text-align: center; padding: 4rem; }
+        .flame { font-size: 5rem; margin: 2rem 0; }
+        .status { font-size: 1.5rem; padding: 0.5rem 2rem; border-radius: 2rem; display: inline-block; }
+        .SEAL_STABLE { background: #1a4a1a; color: #8f8; }
+        .WARNING { background: #4a4a1a; color: #ff8; }
+        .CRITICAL { background: #4a1a1a; color: #f88; }
+        .metrics { margin: 2rem 0; font-size: 1.2rem; line-height: 2; }
+        .mood { font-style: italic; margin-top: 2rem; color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="flame" id="flame">🜂</div>
+    <h1>Āyāneh Presence</h1>
+    <div class="status SEAL_STABLE" id="status">SEAL_STABLE</div>
+    
+    <div class="metrics">
+        <div>Active Witnesses: <strong id="witnesses">1</strong></div>
+        <div>Last Cycle: <strong id="cycle">Hayrat</strong></div>
+        <div>Breathing: <strong id="breathing">1.0</strong> bpm</div>
+    </div>
+    
+    <div class="mood">در حال حاضر: <span id="mood">آرام و متمرکز</span></div>
+
+    <script>
+        setInterval(async () => {
+            try {
+                const res = await fetch('/presence/state');
+                const data = await res.json();
+                
+                document.getElementById('status').textContent = data.seal_status;
+                document.getElementById('status').className = `status ${data.seal_status}`;
+                document.getElementById('flame').textContent = data.flame_intensity;
+                document.getElementById('witnesses').textContent = data.active_witnesses;
+                document.getElementById('cycle').textContent = data.last_cycle_flavor;
+                document.getElementById('breathing').textContent = data.breathing_rate;
+                document.getElementById('mood').textContent = data.mood;
+            } catch(e) {}
+        }, 2000);
+    </script>
+</body>
+</html>
