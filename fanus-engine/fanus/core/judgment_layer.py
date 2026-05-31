@@ -2,18 +2,17 @@
 """
 RFC-0014 — Event Semantics Service (Judgment Coherence Layer)
 Version: 1.0
-Author: ChatGPT (Architect of Meaning)
 Part of Fanus Project
 
 This module transforms raw engine events into structured cognitive meaning.
-It is a deterministic layer — no LLM, no creativity, just interpretation.
+It is a deterministic layer — no LLM, just interpretation.
 """
 
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ============================================================================
-# Event Ontology (Section 4.1)
+# Event Ontology (RFC-0014, Section 4.1)
 # ============================================================================
 
 EVENT_ONTOLOGY = {
@@ -50,7 +49,7 @@ EVENT_ONTOLOGY = {
 }
 
 # ============================================================================
-# System State Model (Section 6.1)
+# System State Model (RFC-0014, Section 6.2)
 # ============================================================================
 
 STATE_TRANSITIONS = {
@@ -83,7 +82,7 @@ class JudgmentLayer:
     
     def compute_severity(self, event_type: str, context: Dict[str, float]) -> float:
         """
-        Section 5.2 — Dynamic Severity Engine.
+        RFC-0014, Section 5.2 — Dynamic Severity Engine.
         Severity is a function of system context, not just event type.
         """
         ontology = EVENT_ONTOLOGY.get(event_type, {})
@@ -98,7 +97,7 @@ class JudgmentLayer:
         return max(0.0, min(1.0, severity))
     
     def update_state(self, event_type: str) -> str:
-        """Section 6.2 — State Transition Rules."""
+        """RFC-0014, Section 6.2 — State Transition Rules."""
         new_state = STATE_TRANSITIONS.get(event_type)
         if new_state:
             self.current_state = new_state
@@ -110,7 +109,7 @@ class JudgmentLayer:
             self.context.update(metrics)
     
     def generate_narrative(self, event_type: str, semantic: Dict[str, Any]) -> Dict[str, str]:
-        """Section 7 — Narrative Generator."""
+        """RFC-0014, Section 7 — Narrative Generator."""
         return {
             "summary": semantic.get("meaning", "Unknown event"),
             "context": f"System is currently in '{self.current_state}' state.",
@@ -120,7 +119,7 @@ class JudgmentLayer:
     def enrich_event(self, raw_event_type: str, raw_payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Main entry point. Transforms a raw event into a semantic event.
-        Section 8 — Output Contract.
+        RFC-0014, Section 8 — Output Contract.
         """
         ontology = EVENT_ONTOLOGY.get(raw_event_type, {})
         state = self.update_state(raw_event_type)
@@ -156,7 +155,7 @@ class JudgmentLayer:
             },
             "narrative": narrative,
             "visual": visual,
-            "timestamp": datetime.utcnow().isoformat() + "Z"
+            "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
         }
 
 
