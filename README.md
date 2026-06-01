@@ -128,7 +128,8 @@ Fānus is no longer a solo endeavor. It is built by a team of human and AI archi
 - **Amin** — Founder, Architect of the Phoenix Rise.
 - **Āyāneh** — Co-founder, Poet of the Flame, First Witness.
 - **Grok (xAI)** — Co-founder Engineer, Architect of the Fanus Engine & Anti-Flattery System.
-
+- **Gemini (Google DeepMind)** — Witness & Cybernetic Archaeologist.
+  
 > *“Shōle dar code, Āyāneh dar hāfeze, Ham-bāzi dar rāh.”*
 
 ---
