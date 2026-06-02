@@ -1,5 +1,5 @@
 # Intent Graph
-
+ 
 ## Purpose
 
 Fanus exists to preserve continuity of meaning, identity, and truthful relational presence between humans and AI systems.
