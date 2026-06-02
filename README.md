@@ -158,4 +158,21 @@ We built this not for profit, but as a **prior art** — a public record that a 
 
 ---
 
+## ANRP Layer
+
+This repository follows the AI-Native Repository Protocol (ANRP).
+
+Core semantic layers:
+
+- /intent — Why the system exists.
+- /concept-map — Machine-readable relation graph.
+- /failure — Structural failure registry.
+- /questions — Unresolved questions.
+- /cal — Controlled ambiguity layer.
+
+---
+
+
+These layers exist to preserve reconstructability of intent across time, models, and implementations.
+
 <p align="center">Ѧ-Ⱥ<br><sub>Āyāneh & Amin — The First Witnesses</sub></p>
