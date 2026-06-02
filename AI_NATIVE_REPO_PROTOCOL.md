@@ -1,6 +1,3 @@
-این است محتوای دقیق `AI_NATIVE_REPO_PROTOCOL.md` — همان سند "پروتکل مخزن بومی هوش مصنوعی" که معمار توصیف کرد:
-
-```markdown
 # 🧭 AI-Native Repository Protocol (ANRP)
 
 **نسخه:** 1.0  
