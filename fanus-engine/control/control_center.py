@@ -5,6 +5,8 @@ from fanus_engine.control.realignment_engine import RealignmentEngine
 from fanus_engine.grounding.external_grounding import ExternalGrounding
 from fanus_engine.grounding.reality_adapter import RealityAdapter
 
+from fanus_engine.meta.meta_auditor import MetaAuditor
+
 
 class ControlCenter:
 
@@ -23,7 +25,17 @@ class ControlCenter:
         self.grounding = ExternalGrounding()
         self.reality = RealityAdapter()
 
-    def process(self, drift_result: dict, state: dict, context: dict = None):
+        # ─────────────────────────────
+        # META AUDITOR
+        # ─────────────────────────────
+        self.meta = MetaAuditor()
+
+    def process(
+        self,
+        drift_result: dict,
+        state: dict,
+        context: dict = None
+    ):
 
         if context is None:
             context = {}
@@ -44,18 +56,23 @@ class ControlCenter:
         action = self.router.route(risk)
 
         # ─────────────────────────────
-        # 4. REALIGNMENT (if needed)
+        # 4. REALIGNMENT
         # ─────────────────────────────
         if action == "REALIGN":
-            state = self.realigner.apply(state, drift)
+            state = self.realigner.apply(
+                state,
+                drift
+            )
 
         # ─────────────────────────────
         # 5. EXTERNAL REALITY SIGNAL
         # ─────────────────────────────
-        external_signal = self.reality.fetch_external_signal(context)
+        external_signal = self.reality.fetch_external_signal(
+            context
+        )
 
         # ─────────────────────────────
-        # 6. GROUNDING CHECK (ANTI-SELF-DECEPTION)
+        # 6. GROUNDING CHECK
         # ─────────────────────────────
         grounding_result = self.grounding.evaluate(
             system_output=drift_result,
@@ -63,24 +80,42 @@ class ControlCenter:
         )
 
         # ─────────────────────────────
-        # 7. APPLY REALITY PENALTY IF MISMATCH
+        # 7. REALITY PENALTY
         # ─────────────────────────────
         if grounding_result["mismatch"]:
 
             state["confidence"] = max(
                 0.0,
-                state.get("confidence", 1.0) - grounding_result["confidence_penalty"]
+                state.get("confidence", 1.0)
+                - grounding_result["confidence_penalty"]
             )
 
-            state["mode"] = "external_correction_required"
+            state["mode"] = (
+                "external_correction_required"
+            )
 
         # ─────────────────────────────
-        # 8. FINAL OUTPUT
+        # 8. BUILD REPORT
         # ─────────────────────────────
-        return {
+        report = {
             "risk": risk,
             "action": action,
             "drift": drift,
             "grounding": grounding_result,
             "state": state
         }
+
+        # ─────────────────────────────
+        # 9. META AUDIT
+        # ─────────────────────────────
+        meta_report = self.meta.audit(
+            report
+        )
+
+        report["meta"] = meta_report
+
+        # ─────────────────────────────
+        # 10. RETURN
+        # ─────────────────────────────
+        return report
+        
