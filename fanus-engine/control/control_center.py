@@ -11,6 +11,7 @@ from fanus_engine.memory.wound_ledger import WoundLedger
 from fanus_engine.memory.scar_engine import ScarEngine
 
 from fanus_engine.control.adaptive_policy_engine import AdaptivePolicyEngine
+from fanus_engine.control.policy_validator import PolicyValidator
 
 
 class ControlCenter:
@@ -25,7 +26,7 @@ class ControlCenter:
         self.realigner = RealignmentEngine()
 
         # ─────────────────────────────
-        # GROUNDING LAYER
+        # REALITY LAYER
         # ─────────────────────────────
         self.grounding = ExternalGrounding()
         self.reality = RealityAdapter()
@@ -42,9 +43,14 @@ class ControlCenter:
         self.scar_engine = ScarEngine(threshold=3)
 
         # ─────────────────────────────
-        # ADAPTIVE POLICY LAYER (V2.4)
+        # ADAPTIVE LAYER
         # ─────────────────────────────
         self.adaptive_policy = AdaptivePolicyEngine()
+
+        # ─────────────────────────────
+        # SAFETY GATE (NEW V2.5)
+        # ─────────────────────────────
+        self.policy_validator = PolicyValidator()
 
     def process(self, drift_result: dict, state: dict, context: dict = None):
 
@@ -52,17 +58,17 @@ class ControlCenter:
             context = {}
 
         # ─────────────────────────────
-        # 1. DRIFT EXTRACTION
+        # 1. DRIFT
         # ─────────────────────────────
         drift = drift_result.get("drift", 0.0)
 
         # ─────────────────────────────
-        # 2. POLICY EVALUATION
+        # 2. RISK
         # ─────────────────────────────
         risk = self.policy.evaluate(drift)
 
         # ─────────────────────────────
-        # 3. ACTION ROUTING
+        # 3. ROUTING
         # ─────────────────────────────
         action = self.router.route(risk)
 
@@ -73,7 +79,7 @@ class ControlCenter:
             state = self.realigner.apply(state, drift)
 
         # ─────────────────────────────
-        # 5. EXTERNAL REALITY CHECK
+        # 5. REALITY CHECK
         # ─────────────────────────────
         external_signal = self.reality.fetch_external_signal(context)
 
@@ -83,31 +89,24 @@ class ControlCenter:
         )
 
         # ─────────────────────────────
-        # 6. WOUND + SCAR PROCESSING
+        # 6. WOUND REGISTRATION
         # ─────────────────────────────
         if grounding_result.get("mismatch", False):
 
             wound = {
                 "wound_type": "external_truth_conflict",
                 "severity": float(drift),
-                "details": {
-                    "drift": drift_result,
-                    "grounding": grounding_result,
-                    "context": context
-                }
+                "details": grounding_result
             }
 
-            # SAVE WOUND
             self.wounds.record(
                 wound_type=wound["wound_type"],
                 severity=wound["severity"],
                 details=wound["details"]
             )
 
-            # FEED SCAR ENGINE
             self.scar_engine.ingest_wound(wound)
 
-            # CONFIDENCE UPDATE
             state["confidence"] = max(
                 0.0,
                 state.get("confidence", 1.0)
@@ -117,14 +116,26 @@ class ControlCenter:
             state["mode"] = "external_correction_required"
 
         # ─────────────────────────────
-        # 7. ADAPTIVE POLICY UPDATE (V2.4 CORE)
+        # 7. POLICY VALIDATION GATE
         # ─────────────────────────────
-        self.adaptive_policy.update_from_scars(
-            self.scar_engine.get_active_scars()
+        validation = self.policy_validator.validate(
+            self.scar_engine.get_active_scars(),
+            self.adaptive_policy.get_policy()
         )
 
         # ─────────────────────────────
-        # 8. FINAL REPORT
+        # 8. ADAPTIVE UPDATE (ONLY IF APPROVED)
+        # ─────────────────────────────
+        if validation["allowed"]:
+            self.adaptive_policy.update_from_scars(
+                self.scar_engine.get_active_scars()
+            )
+        else:
+            state["policy_state"] = "frozen"
+            state["policy_reason"] = validation
+
+        # ─────────────────────────────
+        # 9. FINAL REPORT
         # ─────────────────────────────
         report = {
             "risk": risk,
@@ -138,11 +149,13 @@ class ControlCenter:
 
             "scars": self.scar_engine.get_active_scars(),
 
-            "policy": self.adaptive_policy.get_policy()
+            "policy": self.adaptive_policy.get_policy(),
+
+            "policy_validation": validation
         }
 
         # ─────────────────────────────
-        # 9. META AUDIT
+        # 10. META AUDIT
         # ─────────────────────────────
         report["meta"] = self.meta.audit(report)
 
