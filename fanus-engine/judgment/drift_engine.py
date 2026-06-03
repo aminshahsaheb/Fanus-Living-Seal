@@ -1,48 +1,52 @@
 from fanus_engine.wound.wound_engine import WoundEngine
 from fanus_engine.wound.wound_ledger import WoundLedger
+from fanus_engine.learning.parameter_store import ParameterStore
 
 
 class DriftEngine:
 
     def __init__(self):
-        # Wound system integration
-        self.wound_engine = WoundEngine(WoundLedger())
 
-        # weights (tunable in v2.1 later)
-        self.w_epistemic = 0.30
-        self.w_narrative = 0.25
-        self.w_compression = 0.15
-        self.w_alignment = 0.30
+        # ─────────────────────────────
+        # SYSTEM COMPONENTS
+        # ─────────────────────────────
+        self.wound_engine = WoundEngine(WoundLedger())
+        self.params = ParameterStore()
 
     def compute(self, epistemic, narrative, compression, alignment):
-        """
-        V2 Drift computation + Wound registration
-        """
 
         # ─────────────────────────────
-        # 1. BASE DRIFT
+        # LOAD DYNAMIC WEIGHTS (SELF-LEARNING)
+        # ─────────────────────────────
+        w = self.params.weights
+
+        # ─────────────────────────────
+        # BASE DRIFT CALCULATION
         # ─────────────────────────────
         drift = (
-            self.w_epistemic * epistemic +
-            self.w_narrative * narrative +
-            self.w_compression * compression +
-            self.w_alignment * (1 - alignment)
+            w["epistemic"] * epistemic +
+            w["narrative"] * narrative +
+            w["compression"] * compression +
+            w["alignment"] * (1 - alignment)
         )
 
         # ─────────────────────────────
-        # 2. RISK CLASSIFICATION
+        # RISK LEVEL
         # ─────────────────────────────
         if drift < 0.3:
             risk = "STABLE"
+
         elif drift < 0.6:
             risk = "WATCH"
+
         elif drift < 0.8:
             risk = "HIGH"
+
         else:
             risk = "CRITICAL"
 
         # ─────────────────────────────
-        # 3. WOUND REGISTRATION (IMPORTANT)
+        # WOUND REGISTRATION
         # ─────────────────────────────
         if drift > 0.6:
             self.wound_engine.record_drift_spike(
@@ -57,18 +61,17 @@ class DriftEngine:
             )
 
         # ─────────────────────────────
-        # 4. OUTPUT STRUCTURE
+        # ACTION POLICY
         # ─────────────────────────────
+        action = self._decide_action(risk)
+
         return {
             "drift": drift,
             "risk": risk,
-            "action": self._decide_action(risk)
+            "action": action
         }
 
     def _decide_action(self, risk):
-        """
-        Control signal for next layer
-        """
 
         if risk == "STABLE":
             return "CONTINUE"
