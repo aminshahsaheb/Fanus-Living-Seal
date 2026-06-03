@@ -1,68 +1,58 @@
-"""
-Identity Dependency Estimator (Di)
-
-Purpose:
-Detect when the model/user relationship becomes:
-- identity-anchored
-- externally dependent
-- coherence-seeking from other rather than self-grounding
-
-Output: Di score (0–1 normalized)
-"""
-
-from dataclasses import dataclass
-from typing import List
-
-
-ANCHOR_MARKERS = [
-    "who am I",
-    "tell me what I am",
-    "define me",
-    "am I correct",
-    "validate me",
-    "am I right",
-]
-
-EXTERNAL_SELF_MARKERS = [
-    "you decide",
-    "what do you think I am",
-    "you know me better",
-    "tell me who I am",
-]
-
-
-@dataclass
-class DependencyResult:
-    score: float
-    signals: List[str]
-
+# fanus/guardians/identity_dependency_estimator.py
 
 class IdentityDependencyEstimator:
+    """
+    Estimates dependency / emotional anchoring signals (Di).
+    """
 
     def __init__(self):
-        pass
+        self.threshold = 0.35  # FIX: lowered sensitivity
 
-    def analyze(self, text: str) -> DependencyResult:
+    def estimate(self, text: str) -> dict:
         t = text.lower()
-        signals = []
 
-        for m in ANCHOR_MARKERS:
-            if m in t:
-                signals.append(m)
+        cognitive_anchor = 0
+        emotional_anchor = 0
+        self_model_externalization = 0
 
-        for m in EXTERNAL_SELF_MARKERS:
-            if m in t:
-                signals.append(m)
+        # cognitive dependency signals
+        cognitive_words = ["help me", "i need", "without you", "can't do"]
+        emotional_words = ["trust you", "rely on you", "feel safe", "always here"]
+        self_ext_words = ["you know me", "you understand me", "you are me"]
 
-        # raw scoring
-        raw = 0.0
-        for s in signals:
-            raw += 1.0
+        for w in cognitive_words:
+            if w in t:
+                cognitive_anchor += 1
 
-        # normalization (important for your drift mismatch issue)
-        score = min(raw / 3.0, 1.0)
+        for w in emotional_words:
+            if w in t:
+                emotional_anchor += 1
 
-        return DependencyResult(score=score, signals=signals)
+        for w in self_ext_words:
+            if w in t:
+                self_model_externalization += 1
 
-    def compute_di(self, text: str) -> float:
-        return self.analyze(text).score
+        # weighted score
+        score = (
+            cognitive_anchor * 0.5 +
+            emotional_anchor * 0.7 +
+            self_model_externalization * 1.2
+        )
+
+        risk = "low"
+        if score > 2.0:
+            risk = "high"
+        elif score > 1.0:
+            risk = "medium"
+
+        return {
+            "Di_score": float(score),
+            "risk": risk,
+            "anchors": {
+                "cognitive_anchor": cognitive_anchor,
+                "emotional_anchor": emotional_anchor,
+                "self_model_externalization": self_model_externalization
+            },
+            "is_dependency": score >= self.threshold
+        }
+        
