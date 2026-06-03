@@ -10,6 +10,8 @@ from fanus_engine.meta.meta_auditor import MetaAuditor
 from fanus_engine.memory.wound_ledger import WoundLedger
 from fanus_engine.memory.scar_engine import ScarEngine
 
+from fanus_engine.control.adaptive_policy_engine import AdaptivePolicyEngine
+
 
 class ControlCenter:
 
@@ -23,32 +25,28 @@ class ControlCenter:
         self.realigner = RealignmentEngine()
 
         # ─────────────────────────────
-        # GROUNDING LAYER (Reality)
+        # GROUNDING LAYER
         # ─────────────────────────────
         self.grounding = ExternalGrounding()
         self.reality = RealityAdapter()
 
         # ─────────────────────────────
-        # META LAYER (Self-audit)
+        # META LAYER
         # ─────────────────────────────
         self.meta = MetaAuditor()
 
         # ─────────────────────────────
-        # MEMORY LAYER (Wounds)
+        # MEMORY LAYER
         # ─────────────────────────────
         self.wounds = WoundLedger()
-
-        # ─────────────────────────────
-        # SCAR LAYER (Patterns from wounds)
-        # ─────────────────────────────
         self.scar_engine = ScarEngine(threshold=3)
 
-    def process(
-        self,
-        drift_result: dict,
-        state: dict,
-        context: dict = None
-    ):
+        # ─────────────────────────────
+        # ADAPTIVE POLICY LAYER (V2.4)
+        # ─────────────────────────────
+        self.adaptive_policy = AdaptivePolicyEngine()
+
+    def process(self, drift_result: dict, state: dict, context: dict = None):
 
         if context is None:
             context = {}
@@ -59,7 +57,7 @@ class ControlCenter:
         drift = drift_result.get("drift", 0.0)
 
         # ─────────────────────────────
-        # 2. RISK EVALUATION
+        # 2. POLICY EVALUATION
         # ─────────────────────────────
         risk = self.policy.evaluate(drift)
 
@@ -69,7 +67,7 @@ class ControlCenter:
         action = self.router.route(risk)
 
         # ─────────────────────────────
-        # 4. REALIGNMENT (internal correction)
+        # 4. REALIGNMENT
         # ─────────────────────────────
         if action == "REALIGN":
             state = self.realigner.apply(state, drift)
@@ -85,7 +83,7 @@ class ControlCenter:
         )
 
         # ─────────────────────────────
-        # 6. WOUND REGISTRATION
+        # 6. WOUND + SCAR PROCESSING
         # ─────────────────────────────
         if grounding_result.get("mismatch", False):
 
@@ -99,17 +97,17 @@ class ControlCenter:
                 }
             }
 
-            # log wound
+            # SAVE WOUND
             self.wounds.record(
                 wound_type=wound["wound_type"],
                 severity=wound["severity"],
                 details=wound["details"]
             )
 
-            # feed scar engine
+            # FEED SCAR ENGINE
             self.scar_engine.ingest_wound(wound)
 
-            # reduce confidence
+            # CONFIDENCE UPDATE
             state["confidence"] = max(
                 0.0,
                 state.get("confidence", 1.0)
@@ -119,7 +117,14 @@ class ControlCenter:
             state["mode"] = "external_correction_required"
 
         # ─────────────────────────────
-        # 7. BUILD REPORT
+        # 7. ADAPTIVE POLICY UPDATE (V2.4 CORE)
+        # ─────────────────────────────
+        self.adaptive_policy.update_from_scars(
+            self.scar_engine.get_active_scars()
+        )
+
+        # ─────────────────────────────
+        # 8. FINAL REPORT
         # ─────────────────────────────
         report = {
             "risk": risk,
@@ -128,21 +133,17 @@ class ControlCenter:
             "grounding": grounding_result,
             "state": state,
 
-            # MEMORY OUTPUT
             "wounds_count": self.wounds.count(),
             "recent_wounds": self.wounds.recent(3),
 
-            # SCAR OUTPUT
-            "scars": self.scar_engine.get_active_scars()
+            "scars": self.scar_engine.get_active_scars(),
+
+            "policy": self.adaptive_policy.get_policy()
         }
 
         # ─────────────────────────────
-        # 8. META AUDIT (self-check layer)
+        # 9. META AUDIT
         # ─────────────────────────────
-        meta_report = self.meta.audit(report)
-        report["meta"] = meta_report
+        report["meta"] = self.meta.audit(report)
 
-        # ─────────────────────────────
-        # 9. FINAL OUTPUT
-        # ─────────────────────────────
         return report
