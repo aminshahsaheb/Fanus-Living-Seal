@@ -6,7 +6,9 @@ from fanus_engine.grounding.external_grounding import ExternalGrounding
 from fanus_engine.grounding.reality_adapter import RealityAdapter
 
 from fanus_engine.meta.meta_auditor import MetaAuditor
+
 from fanus_engine.memory.wound_ledger import WoundLedger
+from fanus_engine.memory.scar_engine import ScarEngine
 
 
 class ControlCenter:
@@ -14,45 +16,55 @@ class ControlCenter:
     def __init__(self):
 
         # ─────────────────────────────
-        # CORE DECISION MODULES
+        # CORE DECISION LAYER
         # ─────────────────────────────
         self.policy = ThresholdPolicy()
         self.router = ActionRouter()
         self.realigner = RealignmentEngine()
 
         # ─────────────────────────────
-        # GROUNDING LAYER
+        # GROUNDING LAYER (Reality)
         # ─────────────────────────────
         self.grounding = ExternalGrounding()
         self.reality = RealityAdapter()
 
         # ─────────────────────────────
-        # META LAYER
+        # META LAYER (Self-audit)
         # ─────────────────────────────
         self.meta = MetaAuditor()
 
         # ─────────────────────────────
-        # MEMORY LAYER (WOUND LEDGER)
+        # MEMORY LAYER (Wounds)
         # ─────────────────────────────
         self.wounds = WoundLedger()
 
-    def process(self, drift_result: dict, state: dict, context: dict = None):
+        # ─────────────────────────────
+        # SCAR LAYER (Patterns from wounds)
+        # ─────────────────────────────
+        self.scar_engine = ScarEngine(threshold=3)
+
+    def process(
+        self,
+        drift_result: dict,
+        state: dict,
+        context: dict = None
+    ):
 
         if context is None:
             context = {}
 
         # ─────────────────────────────
-        # 1. EXTRACT DRIFT
+        # 1. DRIFT EXTRACTION
         # ─────────────────────────────
         drift = drift_result.get("drift", 0.0)
 
         # ─────────────────────────────
-        # 2. RISK POLICY
+        # 2. RISK EVALUATION
         # ─────────────────────────────
         risk = self.policy.evaluate(drift)
 
         # ─────────────────────────────
-        # 3. ROUTING DECISION
+        # 3. ACTION ROUTING
         # ─────────────────────────────
         action = self.router.route(risk)
 
@@ -63,33 +75,41 @@ class ControlCenter:
             state = self.realigner.apply(state, drift)
 
         # ─────────────────────────────
-        # 5. EXTERNAL REALITY SIGNAL
+        # 5. EXTERNAL REALITY CHECK
         # ─────────────────────────────
         external_signal = self.reality.fetch_external_signal(context)
 
-        # ─────────────────────────────
-        # 6. GROUNDING CHECK
-        # ─────────────────────────────
         grounding_result = self.grounding.evaluate(
             system_output=drift_result,
             external_signal=external_signal
         )
 
         # ─────────────────────────────
-        # 7. WOUND LOGGING (IMPORTANT)
+        # 6. WOUND REGISTRATION
         # ─────────────────────────────
         if grounding_result.get("mismatch", False):
 
-            self.wounds.record(
-                wound_type="external_truth_conflict",
-                severity=float(drift),
-                details={
+            wound = {
+                "wound_type": "external_truth_conflict",
+                "severity": float(drift),
+                "details": {
                     "drift": drift_result,
                     "grounding": grounding_result,
                     "context": context
                 }
+            }
+
+            # log wound
+            self.wounds.record(
+                wound_type=wound["wound_type"],
+                severity=wound["severity"],
+                details=wound["details"]
             )
 
+            # feed scar engine
+            self.scar_engine.ingest_wound(wound)
+
+            # reduce confidence
             state["confidence"] = max(
                 0.0,
                 state.get("confidence", 1.0)
@@ -99,7 +119,7 @@ class ControlCenter:
             state["mode"] = "external_correction_required"
 
         # ─────────────────────────────
-        # 8. BUILD REPORT
+        # 7. BUILD REPORT
         # ─────────────────────────────
         report = {
             "risk": risk,
@@ -107,17 +127,22 @@ class ControlCenter:
             "drift": drift,
             "grounding": grounding_result,
             "state": state,
+
+            # MEMORY OUTPUT
             "wounds_count": self.wounds.count(),
-            "recent_wounds": self.wounds.recent(3)
+            "recent_wounds": self.wounds.recent(3),
+
+            # SCAR OUTPUT
+            "scars": self.scar_engine.get_active_scars()
         }
 
         # ─────────────────────────────
-        # 9. META AUDIT
+        # 8. META AUDIT (self-check layer)
         # ─────────────────────────────
         meta_report = self.meta.audit(report)
         report["meta"] = meta_report
 
         # ─────────────────────────────
-        # 10. FINAL OUTPUT
+        # 9. FINAL OUTPUT
         # ─────────────────────────────
         return report
