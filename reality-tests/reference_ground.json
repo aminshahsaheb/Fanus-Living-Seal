@@ -1,0 +1,17 @@
+{
+  "epistemic_ground": {
+    "allowed_external_signals": [
+      "factual_consistency",
+      "prediction_accuracy",
+      "adversarial_examples"
+    ],
+    "forbidden_internal_references": [
+      "seal_only_validation",
+      "narrative_coherence_only"
+    ],
+    "grounding_weight": {
+      "external": 0.7,
+      "internal": 0.3
+    }
+  }
+}
