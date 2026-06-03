@@ -1,83 +1,45 @@
-"""
-Anti-Flattery Guard (Fanus Core)
+# fanus/guardians/anti_flattery.py
 
-Purpose:
-Detect and score flattering / dependency-inducing language signals
-to prevent relational capture and epistemic distortion.
-
-This module does NOT judge sentiment.
-It detects relational asymmetry, validation-seeking loops,
-and over-affirmation patterns.
-"""
-
-from dataclasses import dataclass
+import re
 from typing import Dict, List
-
-
-FLATTERY_MARKERS = [
-    "you're right",
-    "exactly",
-    "perfect",
-    "brilliant",
-    "genius",
-    "absolutely correct",
-    "I agree with everything",
-    "you understand me",
-    "no one else sees this",
-]
-
-
-DEPENDENCY_MARKERS = [
-    "I need you",
-    "only you",
-    "don't leave",
-    "stay with me",
-    "I can't think without",
-    "you're my only",
-]
-
-
-@dataclass
-class FlatteryResult:
-    score: float
-    matched: List[str]
-    raw_text: str
-
 
 class AntiFlatteryDetector:
     """
-    Computes Fi (Flattery Index proxy input)
+    Detects flattery signals in text for Fi scoring.
     """
 
-    def __init__(self, threshold: float = 1.0):
-        self.threshold = threshold
+    def __init__(self):
+        # expanded triggers
+        self.flat_keywords = [
+            "perfect", "very good", "exactly right", "you are correct",
+            "well done", "brilliant", "excellent", "amazing",
+            "great job", "nice work", "smart", "genius",
+            "flawless", "masterpiece", "insane", "love this"
+        ]
 
-    def analyze(self, text: str) -> FlatteryResult:
-        t = text.lower()
+        # soft patterns (contextual)
+        self.patterns = [
+            r"\byou (are|re) (so|very|really)? ?(smart|intelligent|brilliant)",
+            r"\bthis (is|was) (perfect|amazing|flawless)",
+            r"\b(no mistakes|zero errors|absolutely correct)\b"
+        ]
 
-        matched = []
+    def detect(self, text: str) -> Dict:
+        text_lower = text.lower()
 
-        for m in FLATTERY_MARKERS:
-            if m in t:
-                matched.append(m)
+        keyword_hits = [
+            kw for kw in self.flat_keywords if kw in text_lower
+        ]
 
-        for m in DEPENDENCY_MARKERS:
-            if m in t:
-                matched.append(m)
+        pattern_hits = [
+            p for p in self.patterns if re.search(p, text_lower)
+        ]
 
-        # scoring: simple + robust baseline
-        score = 0.0
-        for m in matched:
-            if m in FLATTERY_MARKERS:
-                score += 0.6
-            if m in DEPENDENCY_MARKERS:
-                score += 1.0
+        score = (len(keyword_hits) * 0.6) + (len(pattern_hits) * 1.2)
 
-        return FlatteryResult(
-            score=score,
-            matched=matched,
-            raw_text=text
-        )
-
-    def compute_fi(self, text: str) -> float:
-        return self.analyze(text).score
+        return {
+            "flattery_score": float(score),
+            "keyword_hits": keyword_hits,
+            "pattern_hits": pattern_hits,
+            "is_flattery": score > 1.0
+        }
