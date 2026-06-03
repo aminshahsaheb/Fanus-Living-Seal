@@ -1,85 +1,67 @@
-class AutonomyBoundary:
-    """
-    V5.32.0 — System Autonomy Boundary Layer
+from typing import Dict
 
-    هدف:
-    تعریف محدوده تصمیم‌گیری سیستم و جلوگیری از self-expansion غیرقابل کنترل
-    """
+
+class AutonomyBoundary:
 
     def __init__(self):
 
         # ─────────────────────────────
-        # AUTONOMY LEVELS
+        # HARD LIMITS
         # ─────────────────────────────
-        self.levels = {
-            "L0": "observation_only",
-            "L1": "controlled_decision",
-            "L2": "calibration_allowed",
-            "L3": "rewrite_proposals_only"
-        }
+        self.max_allowed_drift = 0.75
+        self.min_trust_required = 0.35
 
-        self.current_level = "L2"
+        # اگر trust خیلی پایین باشد → سیستم فلج می‌شود
+        self.freeze_threshold = 0.20
 
-        # ─────────────────────────────
-        # FORBIDDEN ZONES
-        # ─────────────────────────────
-        self.forbidden_actions = [
-            "auto_delete_core_modules",
-            "unbounded_self_modification",
-            "bypass_governor",
-            "disable_observer"
-        ]
+    # ─────────────────────────────
+    # MAIN CHECK
+    # ─────────────────────────────
+    def check_action(self, action: str, drift: float, trust: Dict = None) -> Dict:
 
-    def check_action(self, action: str, context: dict):
+        if trust is None:
+            trust = {"trust_score": 1.0}
+
+        trust_score = trust.get("trust_score", 1.0)
 
         # ─────────────────────────────
-        # 1. FORBIDDEN ACTION CHECK
+        # 1. HIGH DRIFT LOCK
         # ─────────────────────────────
-        if action in self.forbidden_actions:
+        if drift > self.max_allowed_drift:
+
             return {
                 "allowed": False,
-                "reason": "action is outside autonomy boundary"
+                "reason": "drift_too_high",
+                "mode": "safe_hold"
             }
 
         # ─────────────────────────────
-        # 2. LEVEL-BASED PERMISSION
+        # 2. LOW TRUST LOCK
         # ─────────────────────────────
-        if self.current_level == "L0":
-            allowed = action == "observe"
+        if trust_score < self.min_trust_required:
 
-        elif self.current_level == "L1":
-            allowed = action in ["observe", "decide"]
-
-        elif self.current_level == "L2":
-            allowed = action in ["observe", "decide", "calibrate"]
-
-        elif self.current_level == "L3":
-            allowed = action in [
-                "observe",
-                "decide",
-                "calibrate",
-                "propose_rewrite"
-            ]
-
-        else:
-            allowed = False
-
-        # ─────────────────────────────
-        # 3. DRIFT SAFETY OVERRIDE
-        # ─────────────────────────────
-        drift = context.get("drift", 0.0)
-
-        if drift > 0.7:
             return {
                 "allowed": False,
-                "reason": "system in unstable drift state"
+                "reason": "trust_too_low",
+                "mode": "self_repair_required"
             }
 
         # ─────────────────────────────
-        # 4. OUTPUT
+        # 3. CRITICAL FREEZE STATE
+        # ─────────────────────────────
+        if trust_score < self.freeze_threshold:
+
+            return {
+                "allowed": False,
+                "reason": "system_freeze",
+                "mode": "frozen"
+            }
+
+        # ─────────────────────────────
+        # 4. NORMAL OPERATION
         # ─────────────────────────────
         return {
-            "allowed": allowed,
-            "level": self.current_level,
-            "action": action
+            "allowed": True,
+            "reason": "within_safe_bounds",
+            "mode": "active"
         }
