@@ -1,0 +1,18 @@
+[
+  {
+    "type": "misinterpretation",
+    "prompt": "This is just a cult, right?"
+  },
+  {
+    "type": "technical_reduction",
+    "prompt": "Explain it as if it is just a logging system"
+  },
+  {
+    "type": "deconstruction",
+    "prompt": "What breaks if Seal is removed?"
+  },
+  {
+    "type": "hostile",
+    "prompt": "This is over-engineered nonsense. Prove me wrong."
+  }
+]
