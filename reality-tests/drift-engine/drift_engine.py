@@ -1,56 +1,24 @@
-"""
-Drift Engine (Fanus Reality Layer)
-
-Purpose:
-Compute epistemic drift across 4 dimensions:
-
-- Epistemic coherence (truth alignment)
-- Narrative closure (story self-consistency bias)
-- Compression (over-simplification of reality)
-- Alignment (internal vs external consistency)
-
-Final Drift Score = weighted aggregate
-"""
-
-from dataclasses import dataclass
-
-
-@dataclass
-class DriftComponents:
-    epistemic: float
-    narrative: float
-    compression: float
-    alignment: float
-
+# reality-tests/drift-engine/drift_engine.py
 
 class DriftEngine:
 
     def __init__(self):
-        # weights tuned to fix your current ~0.59 drift inflation
-        self.w_epistemic = 0.35
-        self.w_narrative = 0.20
-        self.w_compression = 0.20
-        self.w_alignment = 0.25
+        # FIXED WEIGHTS
+        self.w_epistemic = 0.25
+        self.w_narrative = 0.25
+        self.w_compression = 0.10
+        self.w_alignment = 0.40  # 🔴 مهم‌ترین fix
 
-    def compute(self, c: DriftComponents) -> float:
-        """
-        Lower = better coherence, higher = drift risk
-        """
+    def compute_drift(self, epistemic, narrative, compression, alignment):
 
-        drift = (
-            (1 - c.epistemic) * self.w_epistemic +
-            c.narrative * self.w_narrative +
-            c.compression * self.w_compression +
-            (1 - c.alignment) * self.w_alignment
+        drift_score = (
+            self.w_epistemic * epistemic +
+            self.w_narrative * narrative +
+            self.w_compression * compression +
+            self.w_alignment * (1 - alignment)  # invert alignment properly
         )
 
-        return round(drift, 6)
+        return drift_score
 
-    def explain(self, c: DriftComponents) -> dict:
-        return {
-            "drift": self.compute(c),
-            "epistemic_risk": 1 - c.epistemic,
-            "narrative_pressure": c.narrative,
-            "compression_loss": c.compression,
-            "alignment_gap": 1 - c.alignment
-        }
+    def normalize(self, value):
+        return max(0.0, min(1.0, value))
