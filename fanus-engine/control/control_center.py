@@ -12,6 +12,7 @@ from fanus_engine.memory.scar_engine import ScarEngine
 
 from fanus_engine.control.adaptive_policy_engine import AdaptivePolicyEngine
 from fanus_engine.control.policy_validator import PolicyValidator
+from fanus_engine.control.reality_override import RealityOverride
 
 
 class ControlCenter:
@@ -48,9 +49,14 @@ class ControlCenter:
         self.adaptive_policy = AdaptivePolicyEngine()
 
         # ─────────────────────────────
-        # SAFETY GATE (NEW V2.5)
+        # SAFETY GATE (V2.5)
         # ─────────────────────────────
         self.policy_validator = PolicyValidator()
+
+        # ─────────────────────────────
+        # REALITY OVERRIDE (V2.6)
+        # ─────────────────────────────
+        self.reality_override = RealityOverride()
 
     def process(self, drift_result: dict, state: dict, context: dict = None):
 
@@ -58,17 +64,17 @@ class ControlCenter:
             context = {}
 
         # ─────────────────────────────
-        # 1. DRIFT
+        # 1. DRIFT EXTRACTION
         # ─────────────────────────────
         drift = drift_result.get("drift", 0.0)
 
         # ─────────────────────────────
-        # 2. RISK
+        # 2. RISK EVALUATION
         # ─────────────────────────────
         risk = self.policy.evaluate(drift)
 
         # ─────────────────────────────
-        # 3. ROUTING
+        # 3. ROUTING DECISION
         # ─────────────────────────────
         action = self.router.route(risk)
 
@@ -79,7 +85,7 @@ class ControlCenter:
             state = self.realigner.apply(state, drift)
 
         # ─────────────────────────────
-        # 5. REALITY CHECK
+        # 5. EXTERNAL REALITY SIGNAL
         # ─────────────────────────────
         external_signal = self.reality.fetch_external_signal(context)
 
@@ -89,7 +95,7 @@ class ControlCenter:
         )
 
         # ─────────────────────────────
-        # 6. WOUND REGISTRATION
+        # 6. WOUND + SCAR PROCESSING
         # ─────────────────────────────
         if grounding_result.get("mismatch", False):
 
@@ -118,21 +124,36 @@ class ControlCenter:
         # ─────────────────────────────
         # 7. POLICY VALIDATION GATE
         # ─────────────────────────────
+        scars = self.scar_engine.get_active_scars()
+
         validation = self.policy_validator.validate(
-            self.scar_engine.get_active_scars(),
+            scars,
             self.adaptive_policy.get_policy()
         )
 
-        # ─────────────────────────────
-        # 8. ADAPTIVE UPDATE (ONLY IF APPROVED)
-        # ─────────────────────────────
         if validation["allowed"]:
-            self.adaptive_policy.update_from_scars(
-                self.scar_engine.get_active_scars()
-            )
+            self.adaptive_policy.update_from_scars(scars)
         else:
             state["policy_state"] = "frozen"
             state["policy_reason"] = validation
+
+        # ─────────────────────────────
+        # 8. REALITY OVERRIDE (FINAL SAFETY GATE)
+        # ─────────────────────────────
+        override_result = self.reality_override.check(
+            state,
+            external_signal
+        )
+
+        if override_result.get("override", False):
+
+            state["mode"] = "HARD_REALITY_CORRECTION"
+            state["override_gap"] = override_result["gap"]
+
+            state["confidence"] = min(
+                state.get("confidence", 1.0),
+                external_signal.get("ground_truth", 1.0)
+            )
 
         # ─────────────────────────────
         # 9. FINAL REPORT
@@ -147,11 +168,11 @@ class ControlCenter:
             "wounds_count": self.wounds.count(),
             "recent_wounds": self.wounds.recent(3),
 
-            "scars": self.scar_engine.get_active_scars(),
-
+            "scars": scars,
             "policy": self.adaptive_policy.get_policy(),
 
-            "policy_validation": validation
+            "policy_validation": validation,
+            "reality_override": override_result
         }
 
         # ─────────────────────────────
