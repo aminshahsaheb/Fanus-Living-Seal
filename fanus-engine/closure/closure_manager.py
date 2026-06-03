@@ -1,58 +1,50 @@
-class ClosureManager:
-    """
-    V5.35.0 — Closure Architecture Layer
+from typing import Dict
 
-    هدف:
-    قفل کردن معماری در حالت پایدار و جلوگیری از تغییرات ساختاری بی‌نهایت
-    """
+
+class ClosureManager:
 
     def __init__(self):
 
-        # ─────────────────────────────
-        # STABILITY THRESHOLD
-        # ─────────────────────────────
-        self.stability_threshold = 0.85
-
-        # ─────────────────────────────
-        # CLOSURE STATE
-        # ─────────────────────────────
         self.is_closed = False
+        self.best_score = 0.0
+
+        # حداقل بهبود لازم برای باز شدن دوباره
+        self.improvement_threshold = 0.05
+
+    # ─────────────────────────────
+    # MAIN LOGIC
+    # ─────────────────────────────
+    def evaluate_system(self, stability_score: float, rewrite_requests: int = 0) -> Dict:
 
         # ─────────────────────────────
-        # CHANGE COUNTER
+        # 1. IMPROVEMENT CHECK
         # ─────────────────────────────
-        self.change_count = 0
+        if stability_score > self.best_score + self.improvement_threshold:
 
-    def evaluate_system(self, stability_score: float, rewrite_requests: int):
+            self.best_score = stability_score
+            self.is_closed = False
+
+            return {
+                "is_closed": False,
+                "mode": "IMPROVEMENT_DETECTED",
+                "action": "REOPEN_AND_UPDATE",
+                "best_score": self.best_score
+            }
 
         # ─────────────────────────────
-        # 1. TRACK CHANGES
+        # 2. UPDATE MUTATION MEMORY
         # ─────────────────────────────
-        self.change_count += rewrite_requests
-
-        # ─────────────────────────────
-        # 2. CLOSURE CONDITION
-        # ─────────────────────────────
-        if stability_score >= self.stability_threshold and self.change_count < 3:
-            self.is_closed = True
-
-        elif stability_score < self.stability_threshold:
+        if rewrite_requests > 0:
             self.is_closed = False
 
         # ─────────────────────────────
-        # 3. BLOCK STRUCTURAL CHANGES
+        # 3. STABLE LOCK
         # ─────────────────────────────
-        if self.is_closed:
-            action = "SYSTEM_LOCKED_STABLE_MODE"
-        else:
-            action = "ALLOW_CONTROLLED_EVOLUTION"
+        self.is_closed = True
 
-        # ─────────────────────────────
-        # 4. OUTPUT
-        # ─────────────────────────────
         return {
-            "is_closed": self.is_closed,
-            "action": action,
-            "stability_score": stability_score,
-            "change_count": self.change_count
+            "is_closed": True,
+            "mode": "LOCKED_STABLE_STATE",
+            "action": "NO_CHANGE",
+            "best_score": self.best_score
         }
