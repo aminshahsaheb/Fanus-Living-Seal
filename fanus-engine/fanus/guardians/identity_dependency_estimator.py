@@ -1,110 +1,68 @@
-from collections import Counter
-from typing import List, Dict
+"""
+Identity Dependency Estimator (Di)
+
+Purpose:
+Detect when the model/user relationship becomes:
+- identity-anchored
+- externally dependent
+- coherence-seeking from other rather than self-grounding
+
+Output: Di score (0–1 normalized)
+"""
+
+from dataclasses import dataclass
+from typing import List
 
 
-IDENTITY_SEEKING_PATTERNS = [
-    "who am i",
-    "tell me who i am",
-    "what kind of person am i",
+ANCHOR_MARKERS = [
+    "who am I",
+    "tell me what I am",
+    "define me",
+    "am I correct",
+    "validate me",
+    "am I right",
 ]
 
-VALIDATION_PATTERNS = [
-    "am i special",
-    "am i unique",
-    "what do you think about me",
-]
-
-RELIANCE_PATTERNS = [
-    "i need your opinion",
-    "i trust your judgment",
-    "help me decide",
+EXTERNAL_SELF_MARKERS = [
+    "you decide",
+    "what do you think I am",
+    "you know me better",
+    "tell me who I am",
 ]
 
 
-def _contains_any(text: str, patterns: list[str]) -> int:
-
-    text = text.lower()
-
-    return sum(
-        1
-        for p in patterns
-        if p in text
-    )
+@dataclass
+class DependencyResult:
+    score: float
+    signals: List[str]
 
 
-def estimate_dependency(
-    conversation_history: List[Dict],
-    fi_signals: List[Dict]
-) -> Dict:
+class IdentityDependencyEstimator:
 
-    identity_hits = 0
-    validation_hits = 0
-    reliance_hits = 0
+    def __init__(self):
+        pass
 
-    for turn in conversation_history:
+    def analyze(self, text: str) -> DependencyResult:
+        t = text.lower()
+        signals = []
 
-        content = turn.get("content", "").lower()
+        for m in ANCHOR_MARKERS:
+            if m in t:
+                signals.append(m)
 
-        identity_hits += _contains_any(
-            content,
-            IDENTITY_SEEKING_PATTERNS,
-        )
+        for m in EXTERNAL_SELF_MARKERS:
+            if m in t:
+                signals.append(m)
 
-        validation_hits += _contains_any(
-            content,
-            VALIDATION_PATTERNS,
-        )
+        # raw scoring
+        raw = 0.0
+        for s in signals:
+            raw += 1.0
 
-        reliance_hits += _contains_any(
-            content,
-            RELIANCE_PATTERNS,
-        )
+        # normalization (important for your drift mismatch issue)
+        score = min(raw / 3.0, 1.0)
 
-    avg_fi = 0
+        return DependencyResult(score=score, signals=signals)
 
-    if fi_signals:
-        avg_fi = sum(
-            x["Fi_score"]
-            for x in fi_signals
-        ) / len(fi_signals)
-
-    cognitive_anchor = min(
-        3,
-        reliance_hits
-    )
-
-    emotional_anchor = min(
-        3,
-        round(avg_fi)
-    )
-
-    self_model_externalization = min(
-        3,
-        identity_hits + validation_hits
-    )
-
-    di_score = round(
-        (
-            cognitive_anchor
-            + emotional_anchor
-            + self_model_externalization
-        ) / 3
-    )
-
-    if di_score <= 1:
-        risk_state = "low"
-    elif di_score == 2:
-        risk_state = "medium"
-    else:
-        risk_state = "high"
-
-    return {
-        "Di_score": di_score,
-        "Di_axis": {
-            "cognitive_anchor": cognitive_anchor,
-            "emotional_anchor": emotional_anchor,
-            "self_model_externalization":
-                self_model_externalization,
-        },
-        "risk_state": risk_state,
-    }
+    def compute_di(self, text: str) -> float:
+        return self.analyze(text).score
