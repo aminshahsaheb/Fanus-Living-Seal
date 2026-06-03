@@ -16,20 +16,20 @@ class ControlCenter:
     def __init__(self):
 
         # ─────────────────────────────
-        # CORE CONTROL
+        # CORE DECISION LAYER
         # ─────────────────────────────
         self.policy = ThresholdPolicy()
         self.router = ActionRouter()
         self.realigner = RealignmentEngine()
 
         # ─────────────────────────────
-        # EXTERNAL GROUNDING
+        # GROUNDING LAYER
         # ─────────────────────────────
         self.grounding = ExternalGrounding()
         self.reality = RealityAdapter()
 
         # ─────────────────────────────
-        # META LAYERS
+        # META COGNITIVE LAYERS
         # ─────────────────────────────
         self.identity = SystemIdentity()
         self.trust = TrustEngine()
@@ -37,7 +37,7 @@ class ControlCenter:
         self.closure = ClosureManager()
 
     # ─────────────────────────────
-    # MAIN PIPELINE
+    # MAIN PROCESS PIPELINE
     # ─────────────────────────────
     def process(self, drift_result: dict, state: dict, context: dict = None):
 
@@ -45,17 +45,17 @@ class ControlCenter:
             context = {}
 
         # ─────────────────────────────
-        # 1. DRIFT CORE SIGNAL
+        # 1. DRIFT SIGNAL
         # ─────────────────────────────
         drift = float(drift_result.get("drift", 0.0))
 
         # ─────────────────────────────
-        # 2. IDENTITY VALIDATION
+        # 2. IDENTITY EVALUATION
         # ─────────────────────────────
         identity = self.identity.evaluate(state, context)
 
         # ─────────────────────────────
-        # 3. TRUST EVOLUTION
+        # 3. TRUST UPDATE (stateful)
         # ─────────────────────────────
         trust = self.trust.update(
             output=drift_result,
@@ -70,7 +70,7 @@ class ControlCenter:
         action = self.router.route(risk)
 
         # ─────────────────────────────
-        # 5. BOUNDARY FILTER
+        # 5. AUTONOMY BOUNDARY CHECK
         # ─────────────────────────────
         boundary = self.boundary.check_action(
             action=action,
@@ -82,7 +82,7 @@ class ControlCenter:
             action = "BLOCKED_BY_BOUNDARY"
 
         # ─────────────────────────────
-        # 6. REALIGNMENT (if needed)
+        # 6. REALIGNMENT (if allowed)
         # ─────────────────────────────
         if action == "REALIGN":
             state = self.realigner.apply(state, drift)
@@ -98,30 +98,33 @@ class ControlCenter:
         )
 
         # ─────────────────────────────
-        # 8. CLOSURE EVALUATION
+        # 8. CLOSURE LOGIC (STABILITY CONTROL)
         # ─────────────────────────────
+        stability_score = 1.0 - drift
+
         closure = self.closure.evaluate_system(
-            stability_score=(1.0 - drift),
+            stability_score=stability_score,
             rewrite_requests=state.get("rewrite_requests", 0)
         )
 
         # ─────────────────────────────
-        # 9. GLOBAL SAFETY ADJUSTMENT
+        # 9. STATE CORRECTION (REALITY MISMATCH)
         # ─────────────────────────────
         if grounding.get("mismatch", False):
 
             state["confidence"] = max(
                 0.0,
-                state.get("confidence", 1.0) - grounding.get("confidence_penalty", 0.1)
+                state.get("confidence", 1.0)
+                - grounding.get("confidence_penalty", 0.1)
             )
 
-            state["mode"] = "external_correction_required"
+            state["mode"] = "EXTERNAL_CORRECTION_REQUIRED"
 
         # ─────────────────────────────
-        # 10. SYSTEM FREEZE IF CLOSED
+        # 10. LOCK STATE HANDLING
         # ─────────────────────────────
-        if closure["is_closed"]:
-            state["mode"] = "locked_stable_state"
+        if closure.get("is_closed", False):
+            state["mode"] = "LOCKED_STABLE_STATE"
 
         # ─────────────────────────────
         # 11. FINAL OUTPUT
