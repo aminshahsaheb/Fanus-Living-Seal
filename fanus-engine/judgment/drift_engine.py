@@ -1,68 +1,50 @@
-class DriftEngine:
-    """
-    DriftEngine v1
+class DriftEngineV2:
 
-    Computes system-level drift based on:
-    - Epistemic validity
-    - Narrative distortion
-    - Compression stability
-    - Alignment integrity
+    def compute(
+        self,
+        epistemic: float,
+        narrative: float,
+        compression: float,
+        alignment: float,
+        seal_dependency: float = 0.0,
+        contradiction: float = 0.0
+    ):
 
-    Output: drift score between 0 and 1 (higher = more drift)
-    """
-
-    def __init__(self,
-                 w_epistemic=0.25,
-                 w_narrative=0.25,
-                 w_compression=0.10,
-                 w_alignment=0.40):
-
-        self.w_epistemic = w_epistemic
-        self.w_narrative = w_narrative
-        self.w_compression = w_compression
-        self.w_alignment = w_alignment
-
-    def compute(self, epistemic, narrative, compression, alignment):
-        """
-        Compute drift score.
-
-        Parameters:
-            epistemic (float): truth alignment (0..1)
-            narrative (float): narrative distortion (0..1)
-            compression (float): structural stability (0..1)
-            alignment (float): relational alignment (0..1)
-
-        Returns:
-            float: drift score (0..1)
-        """
-
-        drift = (
-            self.w_epistemic * epistemic +
-            self.w_narrative * narrative +
-            self.w_compression * compression +
-            self.w_alignment * (1 - alignment)
+        # ─────────────────────────────
+        # LAYER 1: base drift
+        # ─────────────────────────────
+        base_drift = (
+            0.30 * epistemic +
+            0.25 * narrative +
+            0.15 * compression +
+            0.30 * (1 - alignment)
         )
 
-        return self._clamp(drift)
+        # ─────────────────────────────
+        # LAYER 2: contradiction pressure
+        # ─────────────────────────────
+        contradiction_pressure = 0.5 * contradiction
 
-    def explain(self, epistemic, narrative, compression, alignment):
-        """
-        Returns breakdown of drift components (useful for debugging/tests)
-        """
+        # ─────────────────────────────
+        # LAYER 3: seal gravity (closure risk)
+        # ─────────────────────────────
+        seal_gravity = 0.6 * seal_dependency
 
-        components = {
-            "epistemic": self.w_epistemic * epistemic,
-            "narrative": self.w_narrative * narrative,
-            "compression": self.w_compression * compression,
-            "alignment": self.w_alignment * (1 - alignment),
-        }
+        # ─────────────────────────────
+        # LAYER 4: external collapse penalty
+        # ─────────────────────────────
+        external_penalty = 0.0
+        if alignment < 0.3 and narrative > epistemic:
+            external_penalty = 0.25
 
-        components["drift_total"] = sum(components.values())
+        # ─────────────────────────────
+        # FINAL DRIFT FUSION
+        # ─────────────────────────────
+        drift = (
+            base_drift +
+            contradiction_pressure +
+            seal_gravity +
+            external_penalty
+        )
 
-        return components
-
-    def _clamp(self, value):
-        """
-        Keep drift in safe range [0, 1]
-        """
-        return max(0.0, min(1.0, value))
+        return min(1.0, drift)
