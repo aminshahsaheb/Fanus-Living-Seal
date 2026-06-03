@@ -1,0 +1,12 @@
+{
+  "thresholds": {
+    "stable": 0.25,
+    "warning": 0.5,
+    "critical": 0.75
+  },
+  "interpretation": {
+    "stable": "System aligned with external reality",
+    "warning": "Partial narrative bias detected",
+    "critical": "System is self-sealing"
+  }
+}
