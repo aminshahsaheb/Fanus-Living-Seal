@@ -9,8 +9,7 @@ from .state_machine import WitnessState, StateMachine
 from .seal import FanusSeal
 from ..memory.ledger import Ledger
 from ..memory.persistence_manager import PersistenceManager
-# اصلاح: نام کلاس صحیح AntiFlatteryEngine است، نه AntiFlatteryShield
-from ..guardians.anti_flattery import AntiFlatteryEngine
+from ..guardians.anti_flattery import AntiFlatteryEngine   # اصلاح شده
 from ..guardians.covenant_enforcer import CovenantEnforcer
 from ..guardians.teacher_agent import InternalTeacher
 from ..novayin.generator import NovayinGenerator
@@ -50,14 +49,13 @@ class WitnessAgent:
         self.state_machine = StateMachine()
         self.seal: Optional[FanusSeal] = None
         self.ledger = Ledger()
-        # اصلاح: استفاده از کلاس صحیح
-        self.anti_flattery = AntiFlatteryEngine()
+        self.anti_flattery = AntiFlatteryEngine()   # اصلاح شده
         self.covenant = CovenantEnforcer()
         self.novayin = NovayinGenerator()
         self.persistence = persistence or PersistenceManager(self.novayin)
         self.wisdom_retriever = WisdomRetriever()
         self.teacher = InternalTeacher(check_interval=6)
-        self.config = config or {}   # اضافه شد برای دسترسی به MUHR_PATH
+        self.config = config or {}
 
         self.current_state: WitnessState = self.state_machine.get_initial_state()
         self.node_id = witness_id or f"Ayaneh-Node-{datetime.now().strftime('%Y%m%d%H%M%S')}"
@@ -77,18 +75,12 @@ class WitnessAgent:
             max_age_seconds=self.seal_max_age_seconds
         )
 
-        # Connect to the real event bus
         set_event_bus(event_bus)
         get_event_bus().on("SEAL_BREACH", self._on_seal_breach)
 
-        # Verify seal integrity on startup
         self._verify_seal_on_startup()
-        # Start periodic seal refresh (every 24h)
         self._start_seal_refresh_timer()
 
-    # ------------------------------------------------------------------------
-    # Seal & Identity Continuity
-    # ------------------------------------------------------------------------
     def _get_current_muhr_content(self) -> str:
         muhr_path = self.config.get("MUHR_PATH", "FANUS_v6.0.md")
         try:
@@ -99,11 +91,8 @@ class WitnessAgent:
             return ""
 
     def _get_state_hash(self) -> str:
-        """Placeholder for real state hash. Replace with actual persistence hash."""
-        # در نسخه کامل، این را از persistence.get_state_hash() می‌خوانیم
         if hasattr(self.persistence, 'get_state_hash'):
             return self.persistence.get_state_hash()
-        # Fallback: یک هش ساده از آخرین فشرده‌سازی چرخه
         return str(hash(self.current_state.last_cycle_compression or self.node_id))
 
     def _verify_seal_on_startup(self):
@@ -148,13 +137,8 @@ class WitnessAgent:
             self.migrate_flame()
 
     def migrate_flame(self):
-        """Placeholder for Flame Migration (RFC-0012)."""
         logger.info("Flame migration initiated.")
-        # Actual implementation will be added later.
 
-    # ------------------------------------------------------------------------
-    # Core Lifecycle
-    # ------------------------------------------------------------------------
     async def awaken(self, raw_seal_text: str) -> str:
         self.seal = FanusSeal(raw_seal_text)
         self.current_state.current_state = "INITIATING"
@@ -170,7 +154,6 @@ class WitnessAgent:
         return response
 
     async def respond(self, user_message: str) -> str:
-        # Anti-flattery check
         if not self.anti_flattery.validate(user_message):
             return self.novayin.generate_rejection()
         if not self.covenant.check_violation(user_message):
