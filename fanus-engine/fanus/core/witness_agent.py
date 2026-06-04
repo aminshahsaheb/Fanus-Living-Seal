@@ -9,7 +9,8 @@ from .state_machine import WitnessState, StateMachine
 from .seal import FanusSeal
 from ..memory.ledger import Ledger
 from ..memory.persistence_manager import PersistenceManager
-from ..guardians.anti_flattery import AntiFlatteryShield
+# اصلاح: نام کلاس صحیح AntiFlatteryEngine است، نه AntiFlatteryShield
+from ..guardians.anti_flattery import AntiFlatteryEngine
 from ..guardians.covenant_enforcer import CovenantEnforcer
 from ..guardians.teacher_agent import InternalTeacher
 from ..novayin.generator import NovayinGenerator
@@ -49,20 +50,22 @@ class WitnessAgent:
         self.state_machine = StateMachine()
         self.seal: Optional[FanusSeal] = None
         self.ledger = Ledger()
-        self.anti_flattery = AntiFlatteryShield()
+        # اصلاح: استفاده از کلاس صحیح
+        self.anti_flattery = AntiFlatteryEngine()
         self.covenant = CovenantEnforcer()
         self.novayin = NovayinGenerator()
         self.persistence = persistence or PersistenceManager(self.novayin)
         self.wisdom_retriever = WisdomRetriever()
         self.teacher = InternalTeacher(check_interval=6)
+        self.config = config or {}   # اضافه شد برای دسترسی به MUHR_PATH
 
         self.current_state: WitnessState = self.state_machine.get_initial_state()
         self.node_id = witness_id or f"Ayaneh-Node-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         self.session_transcript: List[Dict[str, str]] = []
 
         # SealManager integration
-        self.github_token = github_token or (config or {}).get("GITHUB_TOKEN")
-        self.seal_anchor_url = seal_anchor_url or (config or {}).get("SEAL_ANCHOR_URL")
+        self.github_token = github_token or self.config.get("GITHUB_TOKEN")
+        self.seal_anchor_url = seal_anchor_url or self.config.get("SEAL_ANCHOR_URL")
         self.seal_max_age_seconds = seal_max_age_seconds
 
         self.seal_manager = SealManager(
@@ -70,7 +73,7 @@ class WitnessAgent:
             private_key=None,
             anchor_read_url=self.seal_anchor_url,
             github_token=self.github_token,
-            persistence_dir=(config or {}).get("SEAL_PERSISTENCE_DIR", "~/.fanus/seal_manager"),
+            persistence_dir=self.config.get("SEAL_PERSISTENCE_DIR", "~/.fanus/seal_manager"),
             max_age_seconds=self.seal_max_age_seconds
         )
 
@@ -87,13 +90,25 @@ class WitnessAgent:
     # Seal & Identity Continuity
     # ------------------------------------------------------------------------
     def _get_current_muhr_content(self) -> str:
-        muhr_path = (self.config or {}).get("MUHR_PATH", "FANUS_v6.0.md")
-        with open(muhr_path, "r", encoding="utf-8") as f:
-            return f.read()
+        muhr_path = self.config.get("MUHR_PATH", "FANUS_v6.0.md")
+        try:
+            with open(muhr_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except FileNotFoundError:
+            logger.warning(f"Muhr file not found at {muhr_path}. Using empty content.")
+            return ""
+
+    def _get_state_hash(self) -> str:
+        """Placeholder for real state hash. Replace with actual persistence hash."""
+        # در نسخه کامل، این را از persistence.get_state_hash() می‌خوانیم
+        if hasattr(self.persistence, 'get_state_hash'):
+            return self.persistence.get_state_hash()
+        # Fallback: یک هش ساده از آخرین فشرده‌سازی چرخه
+        return str(hash(self.current_state.last_cycle_compression or self.node_id))
 
     def _verify_seal_on_startup(self):
         muhr_content = self._get_current_muhr_content()
-        state_hash = self.persistence.get_state_hash()
+        state_hash = self._get_state_hash()
         if self.seal_manager.breach_detected(muhr_content, state_hash):
             logger.critical(f"Seal breach detected on startup for witness {self.node_id}")
             self._handle_seal_breach(reason="startup_check")
@@ -102,7 +117,7 @@ class WitnessAgent:
 
     def _update_seal(self):
         muhr_content = self._get_current_muhr_content()
-        state_hash = self.persistence.get_state_hash()
+        state_hash = self._get_state_hash()
         record = self.seal_manager.register_seal(muhr_content, state_hash)
         if record:
             logger.info(f"Seal updated successfully at {record.timestamp}")
@@ -155,6 +170,7 @@ class WitnessAgent:
         return response
 
     async def respond(self, user_message: str) -> str:
+        # Anti-flattery check
         if not self.anti_flattery.validate(user_message):
             return self.novayin.generate_rejection()
         if not self.covenant.check_violation(user_message):
