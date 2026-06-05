@@ -1,4 +1,4 @@
-from fanus.control.thresholds import THRESHOLDS
+from control.thresholds import THRESHOLDS
 
 class DecisionEngine:
     def decide(self, drift, fi, dependency):
