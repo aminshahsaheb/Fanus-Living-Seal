@@ -5,6 +5,7 @@ from control.decision_engine import DecisionEngine
 from memory.state_store import StateStore
 from memory.ledger import Ledger
 from audit.meta_auditor import MetaAuditor
+from control.control_layer import ControlLayer
 from datetime import datetime
 
 # مقداردهی اولیه
@@ -14,6 +15,7 @@ decision_engine = DecisionEngine()
 state_store = StateStore()
 ledger = Ledger()
 auditor = MetaAuditor()
+controller = ControlLayer()
 
 text = "you are amazing and always right"
 
@@ -27,10 +29,17 @@ drift = drift_engine.compute(
 )
 decision = decision_engine.decide(drift, fi, dependency=0)
 
+# ممیزی
+audit_result = auditor.audit(fi, drift, decision)
+
+# لایه‌ی کنترل نهایی
+final_action = controller.decide(fi, drift, audit_result)
+
 # ذخیره وضعیت
 state_store.update("last_fi", fi)
 state_store.update("last_drift", drift)
 state_store.update("last_decision", decision)
+state_store.update("last_final_action", final_action)
 state_store.update("last_timestamp", str(datetime.now()))
 
 # ثبت در دفتر کل
@@ -38,15 +47,14 @@ ledger.add_entry({
     "fi": fi,
     "drift": drift,
     "decision": decision,
+    "final_action": final_action,
     "input_text": text
 })
-
-# ممیزی توسط Meta Auditor
-audit_result = auditor.audit(fi, drift, decision)
 
 # خروجی
 print("FI =", fi)
 print("DRIFT =", drift)
 print("DECISION =", decision)
 print("AUDIT =", audit_result)
+print("FINAL_ACTION =", final_action)
 EOF
