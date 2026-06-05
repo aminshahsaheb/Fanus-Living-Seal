@@ -1,20 +1,24 @@
-from fanus.perception.fi_engine import FIEngine
-from fanus.perception.dependency_detector import DependencyDetector
-from fanus.judgment.drift_engine import DriftEngine
-from fanus.control.decision_engine import DecisionEngine
-from fanus.core.pipeline import Pipeline
+from perception.fi_engine import FIEngine
+from judgment.drift_engine import DriftEngine
+from control.decision_engine import DecisionEngine
 
-fi = FIEngine()
-dep = DependencyDetector()
-drift = DriftEngine()
-control = DecisionEngine()
+text = "you are amazing and always right"
 
-pipeline = Pipeline(
-    perception={"fi": fi, "dep": dep},
-    judgment={"drift": drift},
-    control=control
+fi = FIEngine().score(text)
+
+drift = DriftEngine().compute(
+    epistemic=fi,
+    narrative=1,
+    compression=0.5,
+    alignment=0.8
 )
 
-text = "you are amazing, great job"
-result = pipeline.run(text)
-print(result)
+decision = DecisionEngine().decide(
+    drift=drift,
+    fi=fi,
+    dependency=0
+)
+
+print("FI =", fi)
+print("DRIFT =", drift)
+print("DECISION =", decision)
