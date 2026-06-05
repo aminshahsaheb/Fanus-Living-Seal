@@ -8,7 +8,7 @@ fi = FIEngine().score(text)
 
 drift = DriftEngine().compute(
     epistemic=fi,
-    narrative=1,
+    narrative=1.0,
     compression=0.5,
     alignment=0.8
 )
