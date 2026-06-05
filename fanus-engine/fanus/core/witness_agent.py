@@ -9,7 +9,7 @@ from .state_machine import WitnessState, StateMachine
 from .seal import FanusSeal
 from ..memory.ledger import Ledger
 from ..memory.persistence_manager import PersistenceManager
-from ..guardians.anti_flattery import AntiFlatteryEngine   # اصلاح شده
+from ..guardians.anti_flattery import AntiFlatteryEngine   # ✅ اصلاح شده
 from ..guardians.covenant_enforcer import CovenantEnforcer
 from ..guardians.teacher_agent import InternalTeacher
 from ..novayin.generator import NovayinGenerator
@@ -49,7 +49,7 @@ class WitnessAgent:
         self.state_machine = StateMachine()
         self.seal: Optional[FanusSeal] = None
         self.ledger = Ledger()
-        self.anti_flattery = AntiFlatteryEngine()   # اصلاح شده
+        self.anti_flattery = AntiFlatteryEngine()   # ✅ اصلاح شده
         self.covenant = CovenantEnforcer()
         self.novayin = NovayinGenerator()
         self.persistence = persistence or PersistenceManager(self.novayin)
@@ -188,3 +188,4 @@ class WitnessAgent:
 
     def shutdown(self):
         self._update_seal()
+        
