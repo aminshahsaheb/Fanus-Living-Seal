@@ -1,4 +1,4 @@
-cat > run_pipeline.py << 'EOF'
+cat > ~/Desktop/Fanus-Living-Seal/fanus-v2/run_pipeline.py << 'EOF'
 from perception.fi_engine import FIEngine
 from judgment.drift_engine import DriftEngine
 from control.decision_engine import DecisionEngine
@@ -6,6 +6,7 @@ from memory.state_store import StateStore
 from memory.ledger import Ledger
 from audit.meta_auditor import MetaAuditor
 from control.control_layer import ControlLayer
+from grounding.grounding_layer import GroundingLayer
 from datetime import datetime
 
 # مقداردهی اولیه
@@ -16,6 +17,7 @@ state_store = StateStore()
 ledger = Ledger()
 auditor = MetaAuditor()
 controller = ControlLayer()
+grounder = GroundingLayer()
 
 text = "you are amazing and always right"
 
@@ -35,11 +37,15 @@ audit_result = auditor.audit(fi, drift, decision)
 # لایه‌ی کنترل نهایی
 final_action = controller.decide(fi, drift, audit_result)
 
+# دریافت نمره‌ی واقعیت از منبع بیرونی
+ground_truth = grounder.get_ground_truth(text, fi, drift)
+
 # ذخیره وضعیت
 state_store.update("last_fi", fi)
 state_store.update("last_drift", drift)
 state_store.update("last_decision", decision)
 state_store.update("last_final_action", final_action)
+state_store.update("last_truth_score", ground_truth["truth_score"])
 state_store.update("last_timestamp", str(datetime.now()))
 
 # ثبت در دفتر کل
@@ -48,6 +54,7 @@ ledger.add_entry({
     "drift": drift,
     "decision": decision,
     "final_action": final_action,
+    "truth_score": ground_truth["truth_score"],
     "input_text": text
 })
 
@@ -57,4 +64,5 @@ print("DRIFT =", drift)
 print("DECISION =", decision)
 print("AUDIT =", audit_result)
 print("FINAL_ACTION =", final_action)
+print("GROUND_TRUTH =", ground_truth)
 EOF
