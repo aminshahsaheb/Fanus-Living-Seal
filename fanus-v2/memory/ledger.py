@@ -1,3 +1,4 @@
+cat > ~/Desktop/Fanus-Living-Seal/fanus-v2/memory/ledger.py << 'EOF'
 import json
 import os
 from datetime import datetime
@@ -33,3 +34,4 @@ class Ledger:
 
     def get_last(self):
         return self.entries[-1] if self.entries else None
+EOF
