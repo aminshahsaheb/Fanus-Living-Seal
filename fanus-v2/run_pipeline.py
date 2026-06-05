@@ -1,13 +1,16 @@
 from perception.fi_engine import FIEngine
 from judgment.drift_engine import DriftEngine
 from control.decision_engine import DecisionEngine
-from memory.state_store import StateStore   # اضافه شد
+from memory.state_store import StateStore
+from memory.ledger import Ledger
+from datetime import datetime
 
 # مقداردهی اولیه
 fi_engine = FIEngine()
 drift_engine = DriftEngine()
 decision_engine = DecisionEngine()
 state_store = StateStore()
+ledger = Ledger()
 
 text = "you are amazing and always right"
 
@@ -27,8 +30,19 @@ state_store.update("last_drift", drift)
 state_store.update("last_decision", decision)
 state_store.update("last_timestamp", str(datetime.now()))
 
+# ذخیره در دفتر کل (Ledger)
+ledger.add_entry({
+    "fi": fi,
+    "drift": drift,
+    "decision": decision,
+    "input_text": text
+})
+
 # نمایش خروجی
 print("FI =", fi)
 print("DRIFT =", drift)
 print("DECISION =", decision)
-print("\n--- ذخیره شده در state.json ---")
+print("\n--- آخرین ۳ رکورد دفتر کل ---")
+for entry in ledger.get_last_n(3):
+    print(f"  {entry['timestamp']} | FI={entry['fi']} | {entry['decision']}")
+    
