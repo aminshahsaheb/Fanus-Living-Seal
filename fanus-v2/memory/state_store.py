@@ -9,8 +9,11 @@ class StateStore:
 
     def _load(self):
         if os.path.exists(self.filepath):
-            with open(self.filepath, "r") as f:
-                return json.load(f)
+            try:
+                with open(self.filepath, "r") as f:
+                    return json.load(f)
+            except:
+                return {}
         return {}
 
     def _save(self):
@@ -26,4 +29,3 @@ class StateStore:
 
     def get_all(self):
         return self.state.copy()
-        
