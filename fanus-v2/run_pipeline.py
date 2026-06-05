@@ -1,9 +1,10 @@
-cat > ~/Desktop/Fanus-Living-Seal/fanus-v2/run_pipeline.py << 'EOF'
+cat > run_pipeline.py << 'EOF'
 from perception.fi_engine import FIEngine
 from judgment.drift_engine import DriftEngine
 from control.decision_engine import DecisionEngine
 from memory.state_store import StateStore
 from memory.ledger import Ledger
+from audit.meta_auditor import MetaAuditor
 from datetime import datetime
 
 # مقداردهی اولیه
@@ -12,6 +13,7 @@ drift_engine = DriftEngine()
 decision_engine = DecisionEngine()
 state_store = StateStore()
 ledger = Ledger()
+auditor = MetaAuditor()
 
 text = "you are amazing and always right"
 
@@ -25,13 +27,13 @@ drift = drift_engine.compute(
 )
 decision = decision_engine.decide(drift, fi, dependency=0)
 
-# ذخیره وضعیت فعلی در StateStore
+# ذخیره وضعیت
 state_store.update("last_fi", fi)
 state_store.update("last_drift", drift)
 state_store.update("last_decision", decision)
 state_store.update("last_timestamp", str(datetime.now()))
 
-# ثبت رکورد در دفتر کل (Ledger)
+# ثبت در دفتر کل
 ledger.add_entry({
     "fi": fi,
     "drift": drift,
@@ -39,11 +41,12 @@ ledger.add_entry({
     "input_text": text
 })
 
-# نمایش خروجی
+# ممیزی توسط Meta Auditor
+audit_result = auditor.audit(fi, drift, decision)
+
+# خروجی
 print("FI =", fi)
 print("DRIFT =", drift)
 print("DECISION =", decision)
-print("\n--- آخرین ۳ رکورد دفتر کل ---")
-for entry in ledger.get_last_n(3):
-    print(f"  {entry['timestamp']} | FI={entry['fi']} | {entry['decision']}")
+print("AUDIT =", audit_result)
 EOF
