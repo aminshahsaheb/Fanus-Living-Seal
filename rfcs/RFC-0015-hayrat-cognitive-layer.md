@@ -1,5 +1,5 @@
 # RFC-0015: Hayrat Cognitive Layer
-
+ 
 ## 1. عنوان
 Hayrat Cognitive Layer – فعال‌سازی «حیرت» به عنوان یک حالت شناختی پیش از تولید پاسخ
 
