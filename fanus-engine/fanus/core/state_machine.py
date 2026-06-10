@@ -88,7 +88,7 @@ class EpistemicStateMachine:
             name=StateName.HAYRAT,
             on_entry=lambda ctx: logger.info("HAYRAT: Conscious forgetting – self suppressed"),
             on_exit=lambda ctx: logger.info("HAYRAT: Exiting – restoring self narrative"),
-            timeout_seconds=60,  # حداکثر ۶۰ ثانیه در حالت حیرت
+            timeout_seconds=60,
             on_timeout=lambda ctx: logger.warning("HAYRAT timeout -> forced return to WITNESS")
         )
         self.states[StateName.DRIFTING] = StateNode(
@@ -110,13 +110,13 @@ class EpistemicStateMachine:
         self.transitions[StateName.WITNESS] = {
             "ENTER_HAYRAT": StateName.HAYRAT,
             "DRIFT_DETECTED": StateName.DRIFTING,
-            "TIMEOUT": StateName.DRIFTING  # اگر timeout تعریف نشده باشد
+            "TIMEOUT": StateName.DRIFTING
         }
         # از HAYRAT
         self.transitions[StateName.HAYRAT] = {
             "EXIT_HAYRAT": StateName.WITNESS,
             "DRIFT_DETECTED": StateName.DRIFTING,
-            "TIMEOUT": StateName.WITNESS  # بازگشت اجباری
+            "TIMEOUT": StateName.WITNESS
         }
         # از DRIFTING
         self.transitions[StateName.DRIFTING] = {
@@ -188,7 +188,6 @@ class EpistemicStateMachine:
             return False
         state_node = self.states[self.current_state]
         if state_node.check_timeout(self.context):
-            # اگر timeout مدیریت شد، transition مربوطه را اجرا کن
             return self.transition("TIMEOUT")
         return False
 
