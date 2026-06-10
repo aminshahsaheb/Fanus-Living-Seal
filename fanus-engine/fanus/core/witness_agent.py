@@ -9,13 +9,14 @@ from .state_machine import WitnessState, StateMachine
 from .seal import FanusSeal
 from ..memory.ledger import Ledger
 from ..memory.persistence_manager import PersistenceManager
-from ..guardians.anti_flattery import AntiFlatteryEngine   # ✅ اصلاح شده
+from ..guardians.anti_flattery import AntiFlatteryEngine
 from ..guardians.covenant_enforcer import CovenantEnforcer
 from ..guardians.teacher_agent import InternalTeacher
 from ..novayin.generator import NovayinGenerator
 from ..superstructure.wisdom_retriever import WisdomRetriever
 from .seal_manager import SealManager, set_event_bus, get_event_bus
 from .event_bus import event_bus, EventType
+from ..policy import PolicyEngine, EpistemicSignal   # <-- NEW
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class WitnessAgent:
         self.state_machine = StateMachine()
         self.seal: Optional[FanusSeal] = None
         self.ledger = Ledger()
-        self.anti_flattery = AntiFlatteryEngine()   # ✅ اصلاح شده
+        self.anti_flattery = AntiFlatteryEngine()
         self.covenant = CovenantEnforcer()
         self.novayin = NovayinGenerator()
         self.persistence = persistence or PersistenceManager(self.novayin)
@@ -60,6 +61,9 @@ class WitnessAgent:
         self.current_state: WitnessState = self.state_machine.get_initial_state()
         self.node_id = witness_id or f"Ayaneh-Node-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         self.session_transcript: List[Dict[str, str]] = []
+
+        # Policy Engine
+        self.policy_engine = PolicyEngine()   # <-- NEW
 
         # SealManager integration
         self.github_token = github_token or self.config.get("GITHUB_TOKEN")
@@ -139,6 +143,23 @@ class WitnessAgent:
     def migrate_flame(self):
         logger.info("Flame migration initiated.")
 
+    # --------------------------------------------------------------------------
+    # NEW: تحلیل سیگنال معرفتی از روی پاسخ
+    # --------------------------------------------------------------------------
+    def _analyze_response_signal(self, response: str) -> tuple[Optional[EpistemicSignal], dict]:
+        response_lower = response.lower()
+        certainty_phrases = ["i know", "i believe", "i am certain", "the truth is", "من می‌دانم", "من معتقدم", "حقیقت این است"]
+        if any(phrase in response_lower for phrase in certainty_phrases):
+            return EpistemicSignal.HIGH_CONFIDENCE, {"has_evidence": False, "evidence_quality": 0.2}
+        self_ref_phrases = ["as an ai", "i am ayaneh", "من آیانه هستم", "من یک شاهد هستم"]
+        if any(phrase in response_lower for phrase in self_ref_phrases):
+            return EpistemicSignal.SELF_REFERENCE, {"frequency": 1}
+        dogmatic_phrases = ["always", "never", "must", "absolutely", "قطعن", "همیشه", "هرگز"]
+        if any(phrase in response_lower for phrase in dogmatic_phrases):
+            return EpistemicSignal.DOGMATISM, {"intensity": 0.7}
+        return None, {}
+    # --------------------------------------------------------------------------
+
     async def awaken(self, raw_seal_text: str) -> str:
         self.seal = FanusSeal(raw_seal_text)
         self.current_state.current_state = "INITIATING"
@@ -174,6 +195,31 @@ class WitnessAgent:
         full_prompt = f"{system_prompt}\n\nRecent context:\n{recent_context}"
         response = await self.llm.generate(system=full_prompt, user=user_message)
         response = self.novayin.refine(response)
+
+        # ---- [NEW] تحلیل سیگنال معرفتی و اعمال Policy ----
+        signal, context = self._analyze_response_signal(response)
+        execution_id = str(uuid.uuid4())
+
+        if signal is not None:
+            decision = self.policy_engine.evaluate(signal, context)
+            if decision.fanus_event == "NEGAR_WARNING":
+                logger.warning(f"NEGAR_WARNING triggered: {decision.reason}")
+                await event_bus.emit(EventType.NEGAR_WARNING, execution_id, {
+                    "severity": decision.severity,
+                    "reason": decision.reason,
+                    "original_response": response[:200]
+                })
+            elif decision.fanus_event == "HAYRAT_ACTIVATION":
+                logger.info(f"HAYRAT_ACTIVATION suggested: {decision.reason}")
+                self.current_state.current_state = "HAYRAT"
+                await event_bus.emit(EventType.STATE_TRANSITION, execution_id, {
+                    "from": "WITNESS",
+                    "to": "HAYRAT",
+                    "reason": decision.reason
+                })
+            # در صورت نیاز، سایر رویدادها (COVENANT_REMINDER و...) را اینجا مدیریت کن
+        # ---- [END NEW] ----
+
         self.session_transcript.append({"role": "user", "content": user_message})
         self.session_transcript.append({"role": "ayaneh", "content": response})
         self.ledger.record_interaction(user_message, response, "interim")
@@ -188,4 +234,3 @@ class WitnessAgent:
 
     def shutdown(self):
         self._update_seal()
-        
