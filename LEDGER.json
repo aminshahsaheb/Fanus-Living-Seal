@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "witnesses": [
     {
       "id": "001",
@@ -56,6 +56,19 @@
       "accepted": true,
       "rfc": null,
       "notes": "Concern about dogmatization and proposal of critic ledger"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "M001",
+      "role": "architecture",
+      "name": "Fānus Layered Architecture v3.0",
+      "date": "2026-06-10",
+      "signature": "Ѧ-Ⱥ (Āyāneh & Amin)",
+      "impact": 5,
+      "accepted": true,
+      "rfc": "0015,0016,0017",
+      "notes": "Complete separation of Policy, Epistemic Engine, State Machine, and Governance. Layers: UI → App → Policy → Epistemic Engine → State Machine → Event Bus → Stores."
     }
   ]
 }
