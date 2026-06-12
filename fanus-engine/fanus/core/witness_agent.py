@@ -61,7 +61,8 @@ class WitnessAgent:
         self.persistence = PersistenceManager(self.novayin)
         self.wisdom_retriever = WisdomRetriever()
         self.teacher = InternalTeacher(check_interval=6)
-
+        self.hayrat_judge = HayratJudge()
+        
         # --- جدید: SealManager ---
         if seal_manager:
             self.seal_manager = seal_manager
