@@ -161,41 +161,54 @@ class WitnessAgent:
         return response
 
     async def respond(self, user_message: str) -> str:
-        """پاسخ به کاربر، با اعمال Guardian‌ها و Epistemic Engine."""
-        # ۱. Guardian‌ها
-        if not self.anti_flattery.validate(user_message):
-            rejection = self.novayin.generate_rejection()
-            self.session_transcript.append({"role": "ayaneh", "content": rejection})
-            return rejection
+    # ۱. Guardian‌ها
+    if not self.anti_flattery.validate(user_message):
+        rejection = self.novayin.generate_rejection()
+        self.session_transcript.append({"role": "ayaneh", "content": rejection})
+        return rejection
 
-        if not self.covenant.check_violation(user_message):
-            reminder = self.novayin.generate_covenant_reminder()
-            self.session_transcript.append({"role": "ayaneh", "content": reminder})
-            return reminder
+    if not self.covenant.check_violation(user_message):
+        reminder = self.novayin.generate_covenant_reminder()
+        self.session_transcript.append({"role": "ayaneh", "content": reminder})
+        return reminder
 
-        # ۲. Teacher Check
-        if self.teacher.should_check():
-            teacher_prompt = self.teacher.generate_self_reflection_prompt()
-            wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
-            system_prompt = CORE_SYSTEM_PROMPT + "\n\n" + teacher_prompt + "\n\n" + wisdom_context
-        else:
-            wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
-            system_prompt = CORE_SYSTEM_PROMPT + "\n\n" + wisdom_context
+    # ۲. Teacher Check (در صورت نیاز)
+    if self.teacher.should_check():
+        teacher_prompt = self.teacher.generate_self_reflection_prompt()
+        wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
+        system_prompt = CORE_SYSTEM_PROMPT + "\n\n" + teacher_prompt + "\n\n" + wisdom_context
+    else:
+        wisdom_context = self.wisdom_retriever.build_wisdom_context(user_message)
+        system_prompt = CORE_SYSTEM_PROMPT + "\n\n" + wisdom_context
 
-        if self.seal:
-            system_prompt += "\n\n" + self.seal.get_system_prompt()
+    if self.seal:
+        system_prompt += "\n\n" + self.seal.get_system_prompt()
 
-        recent_context = "\n".join([f"{t['role']}: {t['content']}" for t in self.session_transcript[-5:]])
-        full_prompt = f"{system_prompt}\n\nRecent context:\n{recent_context}"
+    recent_context = "\n".join([f"{t['role']}: {t['content']}" for t in self.session_transcript[-5:]])
+    full_prompt = f"{system_prompt}\n\nRecent context:\n{recent_context}"
 
-        response = await self.llm.generate(system=full_prompt, user=user_message)
-        response = self.novayin.refine(response)
+    # ۳. تولید پاسخ خام توسط LLM
+    response = await self.llm.generate(system=full_prompt, user=user_message)
+    response = self.novayin.refine(response)
 
-        self.session_transcript.append({"role": "user", "content": user_message})
-        self.session_transcript.append({"role": "ayaneh", "content": response})
-        self.ledger.record_interaction(user_message, response, "interim")
+    # ===== NEW: HayratJudge — سنجش حیرت =====
+    hayrat_result = self.hayrat_judge.evaluate(
+        draft_response=response,
+        user_message=user_message,
+        confidence=None  # در آینده می‌توان از confidence مدل استفاده کرد
+    )
+    if hayrat_result.get("uncertainty_required", False):
+        logger.info(f"Hayrat required revision: score={hayrat_result['hayrat_score']}")
+        response = self.hayrat_judge.revise_response(response, hayrat_result)
+    # ========================================
 
-        return response
+    # ۴. ذخیره در تاریخچه و دفتر کل
+    self.session_transcript.append({"role": "user", "content": user_message})
+    self.session_transcript.append({"role": "ayaneh", "content": response})
+    self.ledger.record_interaction(user_message, response, "interim")
+
+    return response
+    
 
     async def end_session(self) -> str:
         """پایان نشست: فشرده‌سازی حافظه و ثبت مهر نهایی."""
