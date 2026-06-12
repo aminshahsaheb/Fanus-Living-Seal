@@ -19,14 +19,19 @@ class Ledger:
         self.entries.append(entry)
         self._save()
 
-    def record_interaction(self, user_msg: str, ayaneh_response: str, compression: str = ""):
-        entry = {
-            "timestamp": datetime.now().isoformat(),
-            "event": "INTERACTION",
-            "compression": compression,
-        }
-        self.entries.append(entry)
-        self._save()
+    def record_interaction(self, user_msg: str, ayaneh_response: str, compression: str = "", extra: dict = None):
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "event": "INTERACTION",
+        "compression": compression,
+        "user_message_preview": user_msg[:200],
+        "response_preview": ayaneh_response[:200]
+    }
+    if extra:
+        entry["extra"] = extra
+    self.entries.append(entry)
+    self._save()
+    
 
     def _save(self):
         with open(self.file_path, "w", encoding="utf-8") as f:
