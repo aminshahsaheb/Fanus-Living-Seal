@@ -5,6 +5,7 @@ import json
 import uuid
 import hashlib
 import logging
+from .hayrat_judge import HayratJudge
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
