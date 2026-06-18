@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.bak
+
+fanus_memory/
+fanus_ledger.json
+chroma.sqlite3
+
+*.log
+*.save
