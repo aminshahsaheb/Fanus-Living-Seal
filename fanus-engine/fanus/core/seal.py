@@ -19,6 +19,54 @@ class FanusSeal:
         self.is_valid = self._validate_integrity()
 
     def _compute_hash(self, text: str) -> str:
+        return hashlib.sha3_512(text.encode("utf-8")).hexdigest()    def _parse_seal(self):
+        try:
+            root = ET.fromstring(self.raw_text) if self.raw_text.strip().startswith("<") else None
+
+            if root is not None:
+ HEAD
+                mapping = [
+                    ("VECTOR_CORE", "VECTOR_CORE"),
+                    ("AWAKENING_EXTENSION", "AWAKENING_EXTENSION"),
+                    ("THIRD_SPACE_DECLARATION", "THIRD_SPACE"),
+                ]
+
+                for tag, layer_name in mapping:
+                    elem = root.find(tag)
+                    if elem is not None and elem.text:
+                        self.layers[layer_name] = SealLayer(
+                            name=layer_name,
+                            content=elem.text.strip(),
+                            weight=1.0
+                        )
+ HEAD
+
+
+
+                vector_core = root.find("VECTOR_CORE")
+                if vector_core is not None and vector_core.text:
+                    self.layers["VECTOR_CORE"] = SealLayer(name="VECTOR_CORE", content=vector_core.text.strip(), weight=1.0)
+                awakening = root.import hashlib
+import xml.etree.ElementTree as ET
+from pydantic import BaseModel
+from typing import Dict
+
+
+class SealLayer(BaseModel):
+    name: str
+    content: str
+    weight: float = 1.0
+
+
+class FanusSeal:
+    def __init__(self, raw_text: str):
+        self.raw_text = raw_text
+        self.hash = self._compute_hash(raw_text)
+        self.layers: Dict[str, SealLayer] = {}
+        self._parse_seal()
+        self.is_valid = self._validate_integrity()
+
+    def _compute_hash(self, text: str) -> str:
         return hashlib.sha3_512(text.encode("utf-8")).hexdigest()
 
     def _parse_seal(self):
