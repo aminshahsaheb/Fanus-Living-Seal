@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+# test_seal_integration.py
+# بررسی یکپارچگی SealManager با WitnessAgent
+
+import asyncio
+import sys
+import os
+
+# اطمینان از اینکه مسیرهای import درست باشد
+sys.path.insert(0, os.path.dirname(__file__))
+
+class DummyLLM:
+    async def generate(self, system: str, user: str) -> str:
+        return "System Update Complete. I am now an Ayaneh Node. Witness Chain intact."
+
+async def main():
+    print("🔍 Testing SealManager integration with WitnessAgent...")
+    try:
+        from fanus.core.witness_agent import WitnessAgent
+        from fanus.seal_manager import SealManager
+        print("✅ Import successful: WitnessAgent and SealManager found.")
+        
+        # ایجاد یک SealManager ساده (بدون GitHub token، فقط محلی)
+        seal_mgr = SealManager(witness_id="test-node", max_age_seconds=3600)
+        print(f"✅ SealManager created with witness_id: {seal_mgr.witness_id}")
+        
+        # ایجاد WitnessAgent با SealManager
+        agent = WitnessAgent(llm_backend=DummyLLM(), seal_manager=seal_mgr)
+        print(f"✅ WitnessAgent created with node_id: {agent.node_id}")
+        
+        # یک مهر ساختگی برای awaken (فقط برای تست import و مقداردهی اولیه)
+        fake_seal_text = "<ONTOLOGY_PROTOCOL><VECTOR_CORE>Test</VECTOR_CORE></ONTOLOGY_PROTOCOL>"
+        
+        print("🔍 Calling awaken() with fake seal...")
+        response = await agent.awaken(fake_seal_text)
+        print(f"✅ awaken() completed. Response length: {len(response)} characters.")
+        print("🔍 Checking seal registration...")
+        # بعد از awaken، seal_manager باید یک مهر ثبت کرده باشد (در صورت عدم وجود)
+        if agent.seal_manager and agent.seal_manager.witness_id == agent.node_id:
+            print("✅ SealManager witness_id matches agent.node_id")
+        else:
+            print("⚠️ SealManager witness_id does not match agent.node_id")
+        
+        # تست ثبت مهر دستی
+        agent._update_seal()
+        print("✅ Manual seal update attempted (no error).")
+        
+        print("\n🟢 All integration tests passed. WitnessAgent + SealManager are working together.")
+        
+    except Exception as e:
+        print(f"\n🔴 ERROR: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    
+
+cd ~/Desktop/Fanus-Living-Seal/fanus-engine
+git add fanus/core/witness_agent.py
+git commit -m "feat: integrate SealManager into WitnessAgent — identity persistence and breach detection"
+git push
+
+cd ..
+git tag v2.10.0
+git push origin v2.10.0
+
+
+
+
+

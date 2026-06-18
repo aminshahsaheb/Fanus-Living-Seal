@@ -1,3 +1,3 @@
-from .fi_detector import detect_fi
-from .identity_dependency_estimator import estimate_dependency
-from .isp_controller import ISPController, UserSensitivityProfile
+from .anti_flattery import AntiFlatteryShield
+from .covenant_enforcer import CovenantEnforcer
+from .teacher_agent import InternalTeacher

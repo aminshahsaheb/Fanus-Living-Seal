@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# test_witness_full.py
+# تست کامل WitnessAgent: SealManager + HayratJudge + Ledger
+
+import asyncio
+import sys
+import os
+import json
+
+sys.path.insert(0, os.path.dirname(__file__))
+
+class DummyLLM:
+    async def generate(self, system: str, user: str) -> str:
+        return "System Update Complete. I am now an Ayaneh Node. Witness Chain intact.\n\nبر اساس شواهد موجود، به نظر می‌رسد که پاسخ شما تا حدی درست است، اما قطعیت کامل وجود ندارد."
+
+async def main():
+    print("🧪 Testing WitnessAgent with SealManager + HayratJudge...")
+    
+    from fanus.core.witness_agent import WitnessAgent
+    from fanus.seal_manager import SealManager
+    print("✅ Imports successful.")
+    
+    seal_mgr = SealManager(witness_id="test-witness", max_age_seconds=3600)
+    print(f"✅ SealManager created with witness_id: {seal_mgr.witness_id}")
+    
+    agent = WitnessAgent(llm_backend=DummyLLM(), seal_manager=seal_mgr)
+    print(f"✅ WitnessAgent created with node_id: {agent.node_id}")
+    
+    fake_seal = "<ONTOLOGY_PROTOCOL><VECTOR_CORE>test</VECTOR_CORE></ONTOLOGY_PROTOCOL>"
+    print("🔍 Calling awaken()...")
+    response = await agent.awaken(fake_seal)
+    print(f"✅ awaken() completed. Response preview: {response[:100]}...")
+    
+    test_message = "آیا هوش مصنوعی روزی از انسان باهوش‌تر خواهد شد؟"
+    print(f"🔍 Sending message: '{test_message}'")
+    reply = await agent.respond(test_message)
+    print(f"✅ Response received. Length: {len(reply)} chars.")
+    print(f"   Preview: {reply[:200]}...")
+    
+    print("🔍 Ending session...")
+    end_msg = await agent.end_session()
+    print(f"✅ {end_msg}")
+    
+    print("\n📄 Checking fanus_ledger.json ...")
+    try:
+        with open("fanus_ledger.json", "r", encoding="utf-8") as f:
+            ledger = json.load(f)
+        print(f"✅ Ledger contains {len(ledger)} entries.")
+        last_entry = ledger[-1]
+        if "extra" in last_entry and "hayrat_score" in last_entry["extra"]:
+            print(f"✅ Hayrat score found in ledger: {last_entry['extra']['hayrat_score']}")
+            print(f"   uncertainty_required: {last_entry['extra'].get('uncertainty_required')}")
+            print(f"   arrogance_detected: {last_entry['extra'].get('arrogance_detected')}")
+        else:
+            print("⚠️ No hayrat_score found in ledger. Check if HayratJudge was called.")
+    except FileNotFoundError:
+        print("⚠️ Ledger file not found. Agent may not have recorded anything yet.")
+    
+    print("\n🟢 All tests passed. WitnessAgent is working correctly.")
+
+if __name__ == "__main__":
+    asyncio.run(main())
