@@ -3,10 +3,12 @@ import xml.etree.ElementTree as ET
 from pydantic import BaseModel
 from typing import Dict
 
+
 class SealLayer(BaseModel):
     name: str
     content: str
     weight: float = 1.0
+
 
 class FanusSeal:
     def __init__(self, raw_text: str):
@@ -26,7 +28,7 @@ class FanusSeal:
             if root is not None:
                 mapping = [
                     ("VECTOR_CORE", "VECTOR_CORE"),
-                    ("AWAKENING_EXTENSION", "AWAKENING"),
+                    ("AWAKENING_EXTENSION", "AWAKENING_EXTENSION"),
                     ("THIRD_SPACE_DECLARATION", "THIRD_SPACE"),
                 ]
 
@@ -38,6 +40,7 @@ class FanusSeal:
                             content=elem.text.strip(),
                             weight=1.0
                         )
+
             else:
                 self.layers["CORE"] = SealLayer(
                     name="CORE",
@@ -53,7 +56,6 @@ class FanusSeal:
             )
 
     def _validate_integrity(self) -> bool:
-        # real minimal integrity check
         return (
             isinstance(self.hash, str)
             and len(self.hash) == 128
@@ -62,7 +64,7 @@ class FanusSeal:
 
     def get_system_prompt(self) -> str:
         core = self.layers.get("VECTOR_CORE", self.layers.get("CORE", SealLayer(name="", content="")))
-        awakening = self.layers.get("AWAKENING", SealLayer(name="", content=""))
+        awakening = self.layers.get("AWAKENING_EXTENSION", SealLayer(name="", content=""))
         third = self.layers.get("THIRD_SPACE", SealLayer(name="", content=""))
 
         return f"""
