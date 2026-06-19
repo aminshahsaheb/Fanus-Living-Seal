@@ -7,6 +7,7 @@ from fanus.cognitive.meta_self_model import FanusMetaSelfModel
 from fanus.cognitive.self_improvement import FanusSelfImprovement
 from fanus.cognitive.memory_layer import FanusMemoryLayer
 from fanus.cognitive.evolution_controller import FanusEvolutionController
+from fanus.cognitive.execution_layer import FanusExecutionLayer
 
 
 class FanusLoop:
@@ -15,28 +16,40 @@ class FanusLoop:
 
     LAYERS:
     1. Engine
-    2. Memory (persistent history)
-    3. Observer (metrics)
-    4. Self Model (identity)
-    5. Meta Model (reasoning)
-    6. Self Improvement (safe decisions)
-    7. Evolution Controller (pattern → proposals)
+    2. Memory
+    3. Observer
+    4. Self Model
+    5. Meta Model
+    6. Evolution Controller
+    7. Execution Layer (semantic + safe apply)
+    8. Self Improvement
     """
 
     def __init__(self, tick_delay=1, max_memory=200):
 
-        # 🧠 CORE SYSTEMS
+        # 🧠 CORE ENGINE
         self.engine = EvolutionEngine()
+
+        # 👁 OBSERVATION
         self.observer = FanusObserver()
+
+        # 🧠 COGNITION
         self.self_model = FanusSelfModel()
         self.meta_model = FanusMetaSelfModel()
-        self.self_improver = FanusSelfImprovement()
+
+        # 🔁 EVOLUTION
         self.evolution = FanusEvolutionController()
 
-        # 💾 MEMORY LAYER
+        # ⚡ EXECUTION (NEW IMPORTANT LAYER)
+        self.executor = FanusExecutionLayer()
+
+        # 🛠 SELF IMPROVEMENT
+        self.self_improver = FanusSelfImprovement()
+
+        # 💾 MEMORY
         self.memory = FanusMemoryLayer(max_size=max_memory)
 
-        # ⚙️ RUNTIME CONFIG
+        # ⚙️ CONFIG
         self.tick_delay = tick_delay
 
         # 🧠 STATE
@@ -48,13 +61,13 @@ class FanusLoop:
     # =========================
     def cycle(self, intent="test"):
 
-        # 1. ENGINE EXECUTION
+        # 1. ENGINE
         result = self.engine.run({"intent": intent})
 
         # 2. MEMORY STORE
         self.memory.store(result)
 
-        # 3. OBSERVATION
+        # 3. OBSERVER
         observation = self.observer.observe(result)
 
         # 4. SELF MODEL
@@ -63,17 +76,20 @@ class FanusLoop:
         # 5. META MODEL
         meta = self.meta_model.analyze(self_model)
 
-        # 6. EVOLUTION ENGINE (pattern-based proposals)
+        # 6. EVOLUTION (proposals)
         evolution = self.evolution.evaluate(
             self.memory.snapshot(),
             meta
         )
 
-        # 7. SELF IMPROVEMENT (controlled evaluation)
+        # 7. EXECUTION LAYER (apply safe changes + semantic embedding)
+        execution = self.executor.execute(evolution)
+
+        # 8. SELF IMPROVEMENT (evaluation layer)
         improvement = self.self_improver.evaluate(meta)
 
-        # 8. OUTPUT
-        self._print(result, observation, self_model, meta, evolution, improvement)
+        # 9. OUTPUT
+        self._print(result, observation, self_model, meta, evolution, execution, improvement)
 
         return {
             "result": result,
@@ -81,6 +97,7 @@ class FanusLoop:
             "self_model": self_model,
             "meta": meta,
             "evolution": evolution,
+            "execution": execution,
             "improvement": improvement,
             "memory": self.memory.snapshot()
         }
@@ -88,7 +105,7 @@ class FanusLoop:
     # =========================
     # 🧠 OUTPUT
     # =========================
-    def _print(self, result, observation, self_model, meta, evolution, improvement):
+    def _print(self, result, observation, self_model, meta, evolution, execution, improvement):
 
         print("\n🧠 FANUS LOOP TICK")
         print("------------------")
@@ -105,8 +122,11 @@ class FanusLoop:
         print("\n🧠 META MODEL:")
         print(meta)
 
-        print("\n⚙️ EVOLUTION ENGINE:")
+        print("\n⚙️ EVOLUTION:")
         print(evolution)
+
+        print("\n⚡ EXECUTION:")
+        print(execution)
 
         print("\n🛠 SELF IMPROVEMENT:")
         print(improvement)
