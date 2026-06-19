@@ -1,0 +1,106 @@
+from fanus.evolution.experience_store import ExperienceStore
+from fanus.evolution.core_bridge import CoreBridge
+from fanus.agent.action_executor import ActionExecutor
+from fanus.agent.autonomous_writer import AutonomousWriter
+from fanus.evolution.self_improver import SelfImprover
+
+
+class EvolutionEngine:
+
+    def __init__(self):
+
+        # =========================
+        # 🧠 CORE SYSTEMS
+        # =========================
+        self.memory = ExperienceStore()
+        self.bridge = CoreBridge()
+
+        # =========================
+        # 🤖 AGENTS
+        # =========================
+        self.agent = ActionExecutor()
+        self.writer = AutonomousWriter(safety_mode=True)
+        self.improver = SelfImprover(safety_mode=True)
+
+    # =========================
+    # 🧠 MAIN LOOP
+    # =========================
+    def run(self, event):
+
+        # 1. ENRICH EVENT (MEANING LAYER)
+        enriched = self.bridge.enrich_event(event)
+        intent = enriched["raw_intent"]
+
+        # 2. LOAD MEMORY
+        history = self.memory.find_by_intent(intent)
+
+        failures = sum(1 for h in history if h.get("decision") == "BLOCK")
+        success = sum(1 for h in history if h.get("decision") in ["ALLOW", "ALLOW_CONFIDENT"])
+
+        # 3. DECISION ENGINE
+        if failures >= 3:
+            decision = "BLOCK"
+        elif success >= 5:
+            decision = "ALLOW_CONFIDENT"
+        elif len(history) > 2:
+            decision = "ALLOW_WITH_CAUTION"
+        else:
+            decision = "ALLOW"
+
+        # 4. STORE MEMORY (LEARNING)
+        self.memory.store({
+            "intent": intent,
+            "decision": decision,
+            "meaning": enriched.get("meaning"),
+            "seal_context": enriched.get("seal_context"),
+        })
+
+        # 5. REAL SYSTEM ACTION
+        action_result = self.agent.execute(decision, event)
+
+        # 6. SAFE AUTONOMOUS WRITE (mirror / controlled write)
+        try:
+            file_path = "fanus/evolution/evolution_engine.py"
+
+            with open(file_path, "r") as f:
+                current_code = f.read()
+
+            write_result = self.writer.apply_change(
+                file_path=file_path,
+                new_content=current_code
+            )
+
+        except Exception as e:
+            write_result = {"status": "error", "error": str(e)}
+
+        # 7. SELF IMPROVEMENT LOOP
+        score = self.improver.evaluate(history)
+
+        improve_result = None
+
+        try:
+            patch = self.improver.propose_patch(file_path)
+
+            if score > 0.7:
+                improve_result = self.improver.apply(
+                    file_path=file_path,
+                    improved_code=patch["improved_code"]
+                )
+
+        except Exception as e:
+            improve_result = {"status": "error", "error": str(e)}
+
+        # 8. OUTPUT
+        return {
+            "intent": intent,
+            "decision": decision,
+            "memory_written": True,
+
+            "action": action_result,
+            "write_result": write_result,
+
+            "self_improvement": {
+                "score": score,
+                "result": improve_result
+            }
+        }
