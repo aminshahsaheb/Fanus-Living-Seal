@@ -1,1 +1,3 @@
 fanus-sync.sh
+__pycache__/
+*.pyc
