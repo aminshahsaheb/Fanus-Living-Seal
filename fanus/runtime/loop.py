@@ -2,170 +2,230 @@ import time
 
 from fanus.evolution.evolution_engine import EvolutionEngine
 from fanus.runtime.observer import FanusObserver
-from fanus.cognitive.self_model import FanusSelfModel
-from fanus.cognitive.meta_self_model import FanusMetaSelfModel
-from fanus.cognitive.self_improvement import FanusSelfImprovement
+
 from fanus.cognitive.memory_layer import FanusMemoryLayer
+from fanus.cognitive.memory_consolidation_engine import FanusMemoryConsolidationEngine
+
+from fanus.cognitive.cognitive_state import FanusCognitiveState
+from fanus.cognitive.identity_field import FanusUnifiedIdentityField
+
 from fanus.cognitive.evolution_controller import FanusEvolutionController
 from fanus.cognitive.execution_layer import FanusExecutionLayer
-from fanus.cognitive.identity_kernel import FanusIdentityKernel
-from fanus.cognitive.conscious_loop_boundary import FanusConsciousLoopBoundary
-from fanus.cognitive.recursive_self_model import FanusRecursiveSelfModel
-from fanus.cognitive.unified_identity_field import FanusUnifiedIdentityField
+
+from fanus.cognitive.identity_driven_core import FanusIdentityDrivenCore
+from fanus.cognitive.self_learning_loop import FanusSelfLearningLoop
+from fanus.cognitive.identity_autonomy_core import FanusIdentityAutonomyCore
+from fanus.cognitive.collapse_resistance_core import FanusCollapseResistanceCore
+
+# 🧩 NEW: SYSTEM INTEGRATION PROTOCOL
+from fanus.core.system_integration_protocol import FanusSystemIntegrationProtocol
+
 from fanus.cognitive.system_collapse_stabilizer import FanusSystemCollapseStabilizer
 from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
 
-from fanus.runtime.system_integration import FanusSystemIntegration
-
 
 class FanusLoop:
+    """
+    FANUS SIP-VALIDATED AUTONOMY SYSTEM
+
+    FLOW:
+    SIP → Engine → Observer → Memory → Consolidation →
+    Cognitive State → Identity → Evolution →
+    Execution → Learning → Autonomy →
+    Collapse Resistance → Output
+    """
 
     def __init__(self, tick_delay=1, max_memory=200):
 
-        # =========================
-        # 🧠 CORE INITIALIZATION
-        # =========================
-        self.tick = 0
-        self.running = False
-        self.tick_delay = tick_delay
-
-        # =========================
-        # ENGINE
-        # =========================
+        # 🧠 CORE SYSTEMS
         self.engine = EvolutionEngine()
-
-        # =========================
-        # MEMORY
-        # =========================
-        self.memory = FanusMemoryLayer(max_size=max_memory)
-
-        # =========================
-        # OBSERVER
-        # =========================
         self.observer = FanusObserver()
 
-        # =========================
-        # SELF MODELS
-        # =========================
-        self.self_model = FanusSelfModel()
-        self.meta_model = FanusMetaSelfModel()
-        self.identity = FanusIdentityKernel()
-        self.recursive_model = FanusRecursiveSelfModel()
+        # 💾 MEMORY
+        self.memory = FanusMemoryLayer(max_size=max_memory)
+        self.memory_consolidator = FanusMemoryConsolidationEngine()
 
-        # =========================
-        # EVOLUTION + EXECUTION
-        # =========================
+        # 🧠 COGNITIVE CORE
+        self.cognitive = FanusCognitiveState()
+
+        # 🧬 IDENTITY
+        self.identity_field = FanusUnifiedIdentityField()
+
+        # 🔁 EVOLUTION + EXECUTION
         self.evolution = FanusEvolutionController()
         self.executor = FanusExecutionLayer()
-        self.self_improver = FanusSelfImprovement()
 
-        # =========================
-        # STABILITY SYSTEMS
-        # =========================
-        self.boundary = FanusConsciousLoopBoundary()
-        self.unified_field = FanusUnifiedIdentityField()
-        self.stabilizer = FanusSystemCollapseStabilizer()
+        # 🧠 INTELLIGENCE LAYERS
+        self.identity_core = FanusIdentityDrivenCore()
+        self.self_learning = FanusSelfLearningLoop()
+
+        # 🛡 CONTROL SYSTEMS
+        self.autonomy_core = FanusIdentityAutonomyCore()
+        self.collapse_core = FanusCollapseResistanceCore()
+
         self.governor = FanusAutonomyGovernor()
+        self.stabilizer = FanusSystemCollapseStabilizer()
 
-        # =========================
-        # SYSTEM INTEGRATION (LAST)
-        # =========================
-        self.system = FanusSystemIntegration(self)
+        # 🧩 SIP (BOOT GUARD)
+        self.sip = FanusSystemIntegrationProtocol()
 
-        # 🧪 bootstrap AFTER full init
-        bootstrap_result = self.system.bootstrap()
+        # ⚙️ CONFIG
+        self.tick_delay = tick_delay
 
-        print("\n⚙️ SYSTEM BOOTSTRAP:")
-        print(bootstrap_result)
+        # 🧠 STATE
+        self.tick = 0
+        self.running = False
 
     # =========================
-    # 🔁 CYCLE
+    # 🔁 MAIN CYCLE
     # =========================
     def cycle(self, intent="test"):
 
+        # 0. SIP PRE-FLIGHT CHECK (OPTIONAL PER TICK)
+        # (can be disabled in production for performance)
+        sip_status = self.sip.validate_runtime()
+
+        if not sip_status["runtime_ready"]:
+            print("🛑 SIP BLOCK — RUNTIME NOT SAFE")
+            return {
+                "status": "sip_blocked",
+                "sip": sip_status
+            }
+
+        # 1. ENGINE
         result = self.engine.run({"intent": intent})
 
-        self.memory.store(result)
-
+        # 2. OBSERVER
         observation = self.observer.observe(result)
 
-        self_model = self.self_model.update(observation, result)
+        # 3. MEMORY
+        self.memory.store(result)
 
-        meta = self.meta_model.analyze(self_model)
-
-        evolution = self.evolution.evaluate(
+        # 4. MEMORY CONSOLIDATION
+        consolidated_memory = self.memory_consolidator.consolidate(
             self.memory.snapshot(),
-            meta
+            {
+                "drift": observation.get("drift", 0.0),
+                "coherence": observation.get("coherence", 1.0),
+            },
+            {}
         )
 
+        # 5. COGNITIVE STATE
+        cognitive_state = self.cognitive.update(
+            result,
+            observation,
+            consolidated_memory
+        )
+
+        # 6. EVOLUTION
+        evolution = self.evolution.evaluate(
+            consolidated_memory,
+            cognitive_state
+        )
+
+        # 7. EXECUTION
         execution = self.executor.execute(evolution)
 
-        identity = self.identity.update(
-            self.memory.snapshot(),
-            meta,
-            evolution,
-            execution
-        )
-
-        recursive = self.recursive_model.update(
-            self_model,
-            meta,
-            self.memory.snapshot()
-        )
-
-        unified = self.unified_field.update(
-            self.memory.snapshot(),
-            meta,
+        # 8. IDENTITY FIELD
+        identity = self.identity_field.update(
+            consolidated_memory,
+            cognitive_state,
             evolution,
             execution,
-            recursive,
-            {},
-            identity
+            {"recursive_insight": {"depth": 0}},
+            observation,
+            cognitive_state
         )
 
-        boundary = self.boundary.analyze(
-            self.tick,
-            result,
-            meta,
-            identity
+        # 9. STABILITY
+        stability = self.stabilizer.analyze(
+            identity,
+            observation,
+            {"recursive_insight": {"depth": 0}}
         )
 
-        collapse = self.stabilizer.analyze(
-            unified,
-            boundary,
-            recursive
-        )
-
+        # 10. GOVERNANCE
         governance = self.governor.evaluate(
-            unified,
-            unified,
-            collapse
+            identity,
+            stability,
+            stability
         )
 
-        # 🛑 SAFE STOP CONDITIONS
-        if governance["locked"]:
-            print("🔐 SYSTEM LOCKED — STOPPING CYCLE")
-            return
+        if governance.get("locked", False):
+            print("🔐 SYSTEM LOCKED BY GOVERNOR")
+            return {"status": "locked", "governance": governance}
 
-        self.self_improver.evaluate(meta)
+        # 11. IDENTITY DECISION CORE
+        identity_decision = self.identity_core.decide(
+            result,
+            cognitive_state,
+            identity,
+            governance
+        )
 
-        self._print(result, meta, evolution, execution, identity, unified, collapse, governance)
+        final_result = {
+            **result,
+            "decision": identity_decision["final_decision"]
+        }
 
-    # =========================
-    # 🧠 PRINT
-    # =========================
-    def _print(self, result, meta, evolution, execution, identity, unified, collapse, governance):
+        # 12. SELF LEARNING
+        learning_state = self.self_learning.learn(
+            consolidated_memory,
+            cognitive_state,
+            identity,
+            governance
+        )
 
-        print("\n🧠 TICK:", self.tick)
-        print("Result:", result.get("decision"))
+        identity = self.self_learning.apply_to_identity(identity)
 
-        print("\n🧠 META:", meta)
-        print("\n⚙️ EVOLUTION:", evolution)
-        print("\n⚡ EXECUTION:", execution)
-        print("\n🧬 IDENTITY:", identity)
-        print("\n🌐 UNIFIED:", unified)
-        print("\n🛡 COLLAPSE:", collapse)
-        print("\n⚖️ GOVERNANCE:", governance)
+        # 13. AUTONOMY CORE
+        autonomy = self.autonomy_core.evaluate(
+            cognitive_state,
+            identity,
+            learning_state
+        )
+
+        if autonomy.get("freeze", False):
+            print("❄️ SYSTEM FROZEN BY AUTONOMY CORE")
+            return {
+                "status": "frozen",
+                "autonomy": autonomy
+            }
+
+        # 14. COLLAPSE RESISTANCE CORE
+        collapse = self.collapse_core.analyze(
+            cognitive_state,
+            identity,
+            consolidated_memory,
+            autonomy
+        )
+
+        if collapse.get("stabilization_mode", False):
+            print("🛑 COLLAPSE RESISTANCE ACTIVE")
+            return {
+                "status": "stabilizing",
+                "collapse": collapse
+            }
+
+        # =========================
+        # OUTPUT
+        # =========================
+        return {
+            "result": final_result,
+            "cognitive_state": cognitive_state,
+            "identity": identity,
+            "evolution": evolution,
+            "execution": execution,
+            "stability": stability,
+            "governance": governance,
+            "identity_decision": identity_decision,
+            "learning_state": learning_state,
+            "autonomy": autonomy,
+            "collapse": collapse,
+            "memory": consolidated_memory,
+            "sip": sip_status
+        }
 
     # =========================
     # 🔁 RUN LOOP
@@ -174,7 +234,14 @@ class FanusLoop:
 
         self.running = True
 
-        print("\n🚀 FANUS LOOP STARTED\n")
+        print("\n🚀 FANUS SIP-VALIDATED LOOP STARTED\n")
+
+        # 🔐 SIP BOOT CHECK (GLOBAL)
+        boot_status = self.sip.safe_boot(lambda: True)
+
+        if boot_status.get("status") == "blocked":
+            print("🛑 SYSTEM BOOT BLOCKED BY SIP")
+            return
 
         while self.running and self.tick < max_ticks:
 
@@ -184,3 +251,9 @@ class FanusLoop:
             time.sleep(self.tick_delay)
 
         print("\n🛑 FANUS LOOP STOPPED")
+
+    # =========================
+    # ⛔ STOP
+    # =========================
+    def stop(self):
+        self.running = False

@@ -1,105 +1,118 @@
-import os
 import subprocess
+import re
 
 
 class FanusGitGuard:
 
     def __init__(self):
-        self.errors = []
-        self.warnings = []
 
-    def check_repo_root(self):
-        try:
-            root = subprocess.check_output(
-                ["git", "rev-parse", "--show-toplevel"]
-            ).decode().strip()
+        self.risky_patterns = [
+            r"os\.system",
+            r"eval\(",
+            r"exec\(",
+            r"rm -rf",
+        ]
 
-            cwd = os.getcwd()
+    # =========================
+    # 🔍 GET STAGED DIFF
+    # =========================
+    def get_staged_diff(self):
 
-            if root not in cwd:
-                self.errors.append("NOT_IN_REPO_ROOT")
-                return False
+        result = subprocess.run(
+            ["git", "diff", "--cached"],
+            capture_output=True,
+            text=True
+        )
 
-            return True
+        return result.stdout
 
-        except Exception:
-            self.errors.append("NOT_A_GIT_REPO")
-            return False
+    # =========================
+    # ⚠️ RISK SCAN
+    # =========================
+    def scan_risks(self, text):
 
-    def check_status(self):
-        try:
-            status = subprocess.check_output(
-                ["git", "status", "--porcelain"]
-            ).decode().strip()
+        risks = []
 
-            if status == "":
-                self.warnings.append("CLEAN_WORKING_TREE")
+        for pattern in self.risky_patterns:
+            if re.search(pattern, text):
+                risks.append(pattern)
 
-            return status
+        return risks
 
-        except Exception as e:
-            self.errors.append(str(e))
-            return ""
-
-    def check_untracked(self):
-        try:
-            status = subprocess.check_output(
-                ["git", "status", "--porcelain"]
-            ).decode().splitlines()
-
-            bad_paths = []
-
-            for line in status:
-                if line.startswith("??"):
-                    path = line[3:]
-
-                    if path.startswith("../"):
-                        bad_paths.append(path)
-
-            if bad_paths:
-                self.errors.append("OUTSIDE_REPO_FILES_DETECTED")
-
-            return bad_paths
-
-        except Exception:
-            return []
-
+    # =========================
+    # 🧠 PRE-COMMIT CHECK
+    # =========================
     def pre_commit_check(self):
-        root_ok = self.check_repo_root()
-        status = self.check_status()
-        bad = self.check_untracked()
+
+        diff = self.get_staged_diff()
+
+        risks = self.scan_risks(diff)
 
         return {
-            "repo_root_ok": root_ok,
-            "status": status,
-            "bad_paths": bad,
-            "errors": self.errors,
-            "warnings": self.warnings
+            "safe": len(risks) == 0,
+            "risks": risks
         }
 
-    def safe_commit(self, message="auto commit"):
+    # =========================
+    # 💾 SAFE COMMIT
+    # =========================
+    def safe_commit(self, message="fanus commit"):
 
-        report = self.pre_commit_check()
+        check = self.pre_commit_check()
 
-        if report["errors"]:
-            print("🛑 BLOCKED BY FANUS GIT GUARD")
-            print(report)
-            return False
+        # ❌ risk block
+        if not check["safe"]:
+            print("🛑 COMMIT BLOCKED")
+            print("RISKS:", check["risks"])
+            return {"status": "blocked", "risks": check["risks"]}
 
-        subprocess.run(["git", "add", "."])
-        subprocess.run(["git", "commit", "-m", message])
+        # ❌ nothing staged
+        staged = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
 
-        print("✅ SAFE COMMIT DONE")
-        return True
+        if not staged:
+            print("🛑 NO STAGED CHANGES")
+            return {"status": "blocked", "reason": "no_staged"}
 
+        # 💾 commit
+        result = subprocess.run(
+            ["git", "commit", "-m", message],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            print("🛑 COMMIT FAILED")
+            print(result.stderr)
+            return {"status": "failed"}
+
+        print("✅ COMMIT SUCCESS")
+        return {"status": "ok"}
+
+    # =========================
+    # 🚀 SAFE PUSH
+    # =========================
     def safe_push(self):
 
-        try:
-            subprocess.run(["git", "push", "origin", "main"], check=True)
-            print("🚀 SAFE PUSH DONE")
-            return True
+        check = self.pre_commit_check()
 
-        except Exception as e:
+        if not check["safe"]:
+            print("🛑 PUSH BLOCKED")
+            return {"status": "blocked", "risks": check["risks"]}
+
+        result = subprocess.run(
+            ["git", "push"],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
             print("🛑 PUSH FAILED")
-            print(str(e))
-            return False
+            print(result.stderr)
+            return {"status": "failed"}
+
+        print("🚀 PUSH SUCCESS")
+        return {"status": "ok"}
