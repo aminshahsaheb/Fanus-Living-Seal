@@ -7,7 +7,7 @@ from fanus.cognitive.memory_layer import FanusMemoryLayer
 from fanus.cognitive.memory_consolidation_engine import FanusMemoryConsolidationEngine
 
 from fanus.cognitive.cognitive_state import FanusCognitiveState
-from fanus.cognitive.identity_field import FanusUnifiedIdentityField
+from fanus.cognitive.unified_identity_field import FanusUnifiedIdentityField
 
 from fanus.cognitive.evolution_controller import FanusEvolutionController
 from fanus.cognitive.execution_layer import FanusExecutionLayer
