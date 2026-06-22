@@ -1,18 +1,16 @@
-# Fanus Canonical Architecture v1.0
+# FANUS CANONICAL ARCHITECTURE
 
-## Mission
+Version: 1.0
 
-Fanus is a continuously evolving cognitive system.
+Status: OFFICIAL
 
-Its purpose is not to maximize intelligence.
-
-Its purpose is to preserve and expand learning, reasoning, understanding, and scientific discovery without closing the human growth loop.
+Date: 2026-06-22
 
 ---
 
-# Canonical System
+# 1. Canonical System
 
-This is the ONLY official runtime.
+The official executable Fanus system is:
 
 fanus/
 
@@ -20,64 +18,7 @@ Everything else is secondary.
 
 ---
 
-# Runtime Entry Point
-
-fanus/main.py
-
-↓
-
-fanus/runtime/loop.py
-
----
-
-# Cognitive Stack
-
-fanus/cognitive/
-
-Contains:
-
-* Cognitive State
-* Memory Layer
-* Memory Consolidation
-* Identity Kernel
-* Unified Identity Field
-* Self Learning Loop
-* Identity Driven Core
-* Identity Autonomy Core
-* Collapse Resistance Core
-* Autonomy Governor
-* System Collapse Stabilizer
-
----
-
-# Evolution Stack
-
-fanus/evolution/
-
-Contains:
-
-* Evolution Engine
-* Loop Engine
-* Core Bridge
-* Self Improver
-* Experience Store
-
----
-
-# Core Stack
-
-fanus/core/
-
-Contains:
-
-* Seed
-* System Integration Protocol
-* Auto Heal
-* Version Core
-
----
-
-# Legacy System
+# 2. Deprecated System
 
 fanus-engine/
 
@@ -85,47 +26,121 @@ Status:
 
 LEGACY
 
-Do not build new modules here.
+Purpose:
 
-Only migrate useful components.
+Reference implementation only.
 
----
+It is NOT the runtime system.
 
-# Rule 1
+No new features are allowed inside fanus-engine.
 
-No new modules unless architecture requires it.
-
----
-
-# Rule 2
-
-Never duplicate functionality.
+Only migration and bug fixes are allowed.
 
 ---
 
-# Rule 3
+# 3. Runtime Authority
 
-One source of truth only.
+Only these directories are allowed to execute the system:
 
 fanus/
 
+Subsystems:
+
+fanus/runtime
+
+fanus/cognitive
+
+fanus/evolution
+
+fanus/core
+
+fanus/tools
+
+fanus/agent
+
 ---
 
-# Rule 4
+# 4. Documentation Authority
 
-Fanus must remain scientifically auditable.
+Official documentation:
 
-Every theory must eventually become:
+docs/
 
-Theory
+rfcs/
+
+Only these directories define Fanus behavior.
+
+---
+
+# 5. System Rule
+
+New modules must never be created before answering:
+
+Why is this module necessary?
+
+If an existing module can solve the problem:
+
+DO NOT create a new module.
+
+---
+
+# 6. Migration Rule
+
+Everything from fanus-engine must follow:
+
+COPY
+
+TEST
+
+VALIDATE
+
+DEPRECATE
+
+REMOVE
+
+No direct deletion is allowed.
+
+---
+
+# 7. Architectural Law
+
+Fanus must have ONE body.
+
+Never two bodies.
+
+Never parallel runtimes.
+
+Never duplicated identities.
+
+---
+
+# 8. Execution Pipeline
+
+Human Input
 
 ↓
 
-Experiment
+Runtime
 
 ↓
 
-Evidence
+Memory
+
+↓
+
+Cognitive State
+
+↓
+
+Identity
+
+↓
+
+Learning
+
+↓
+
+Governance
 
 ↓
 
@@ -133,11 +148,31 @@ Validation
 
 ↓
 
-Integration
+Output
 
 ---
 
-# Principle
+# 9. Long-Term Goal
 
-Never close the growth loop.
+Fanus is not an AGI.
+
+Fanus is an Epistemic Cognitive System.
+
+Its purpose is:
+
+Continuous learning
+
+Continuous validation
+
+Continuous evolution
+
+without collapsing its identity.
+
+---
+
+# 10. Guiding Principle
+
+Never close the parenthesis.
+
+Always leave space for further understanding.
 
