@@ -1,101 +1,143 @@
-# Fanus Canonical Architecture (Draft v1)
+# Fanus Canonical Architecture v1.0
 
-## Purpose
+## Mission
 
-Fanus is a layered cognitive system designed to learn, validate, document and evolve knowledge without prematurely turning hypotheses into truths.
+Fanus is a continuously evolving cognitive system.
 
-The system keeps an open parenthesis.
+Its purpose is not to maximize intelligence.
+
+Its purpose is to preserve and expand learning, reasoning, understanding, and scientific discovery without closing the human growth loop.
 
 ---
 
-# Current Runtime
+# Canonical System
 
-Official executable runtime:
+This is the ONLY official runtime.
 
 fanus/
 
-Contains:
-
-* runtime
-* cognitive
-* evolution
-* core
-* tools
-* agent
-
-All new executable development must happen here.
+Everything else is secondary.
 
 ---
 
-# Legacy Runtime
+# Runtime Entry Point
+
+fanus/main.py
+
+↓
+
+fanus/runtime/loop.py
+
+---
+
+# Cognitive Stack
+
+fanus/cognitive/
+
+Contains:
+
+* Cognitive State
+* Memory Layer
+* Memory Consolidation
+* Identity Kernel
+* Unified Identity Field
+* Self Learning Loop
+* Identity Driven Core
+* Identity Autonomy Core
+* Collapse Resistance Core
+* Autonomy Governor
+* System Collapse Stabilizer
+
+---
+
+# Evolution Stack
+
+fanus/evolution/
+
+Contains:
+
+* Evolution Engine
+* Loop Engine
+* Core Bridge
+* Self Improver
+* Experience Store
+
+---
+
+# Core Stack
+
+fanus/core/
+
+Contains:
+
+* Seed
+* System Integration Protocol
+* Auto Heal
+* Version Core
+
+---
+
+# Legacy System
 
 fanus-engine/
 
 Status:
 
-Migration Candidate
+LEGACY
 
-Purpose:
+Do not build new modules here.
 
-* preserve Witness architecture
-* preserve Seal architecture
-* preserve Policy architecture
-* preserve historical experiments
-* preserve research artifacts
-
-Migration is not complete.
-
-This system must not receive new runtime features.
+Only migrate useful components.
 
 ---
 
-# Architectural Principle
+# Rule 1
 
-Before creating new capabilities, Fanus must unify its architecture.
-
-Priority:
-
-1. Runtime Stability
-
-2. Dependency Cleanup
-
-3. CI Validation
-
-4. Runtime Unification
-
-5. Scientific Validation
-
-6. Long-term Learning
+No new modules unless architecture requires it.
 
 ---
 
-# Source Of Truth
+# Rule 2
 
-Runtime:
+Never duplicate functionality.
+
+---
+
+# Rule 3
+
+One source of truth only.
 
 fanus/
 
-Migration Branch:
+---
 
-migration/unify-system-v1
+# Rule 4
 
-Architecture:
+Fanus must remain scientifically auditable.
 
-docs/CANONICAL_ARCHITECTURE.md
+Every theory must eventually become:
+
+Theory
+
+↓
+
+Experiment
+
+↓
+
+Evidence
+
+↓
+
+Validation
+
+↓
+
+Integration
 
 ---
 
 # Principle
 
-Fanus does not close the parenthesis.
-
-It observes.
-
-It learns.
-
-It validates.
-
-It documents.
-
-Then it moves one step higher.
+Never close the growth loop.
 
