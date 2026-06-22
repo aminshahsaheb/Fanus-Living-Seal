@@ -2,125 +2,45 @@
 
 Version: 1.0
 
-Status: OFFICIAL
+## Mission
 
-Date: 2026-06-22
+Fanus is a continuous learning system.
 
----
+Its purpose is not to generate answers.
 
-# 1. Canonical System
+Its purpose is to continuously expand awareness through validated learning.
 
-The official executable Fanus system is:
+----------------------------------------------------
 
-fanus/
+CORE PRINCIPLE
 
-Everything else is secondary.
+Relationship is the primary unit of computation.
 
----
+----------------------------------------------------
 
-# 2. Deprecated System
+FUNDAMENTAL LAW
 
-fanus-engine/
+Nothing may evolve without evidence.
 
-Status:
+Nothing may become truth without validation.
 
-LEGACY
+Nothing may be forgotten without preservation.
 
-Purpose:
+Nothing may stop learning.
 
-Reference implementation only.
+----------------------------------------------------
 
-It is NOT the runtime system.
+SYSTEM FLOW
 
-No new features are allowed inside fanus-engine.
-
-Only migration and bug fixes are allowed.
-
----
-
-# 3. Runtime Authority
-
-Only these directories are allowed to execute the system:
-
-fanus/
-
-Subsystems:
-
-fanus/runtime
-
-fanus/cognitive
-
-fanus/evolution
-
-fanus/core
-
-fanus/tools
-
-fanus/agent
-
----
-
-# 4. Documentation Authority
-
-Official documentation:
-
-docs/
-
-rfcs/
-
-Only these directories define Fanus behavior.
-
----
-
-# 5. System Rule
-
-New modules must never be created before answering:
-
-Why is this module necessary?
-
-If an existing module can solve the problem:
-
-DO NOT create a new module.
-
----
-
-# 6. Migration Rule
-
-Everything from fanus-engine must follow:
-
-COPY
-
-TEST
-
-VALIDATE
-
-DEPRECATE
-
-REMOVE
-
-No direct deletion is allowed.
-
----
-
-# 7. Architectural Law
-
-Fanus must have ONE body.
-
-Never two bodies.
-
-Never parallel runtimes.
-
-Never duplicated identities.
-
----
-
-# 8. Execution Pipeline
-
-Human Input
+Human
 
 ↓
 
-Runtime
+Observation
+
+↓
+
+Interpretation
 
 ↓
 
@@ -128,51 +48,82 @@ Memory
 
 ↓
 
-Cognitive State
+Verification
 
 ↓
 
-Identity
+Theory
 
 ↓
 
-Learning
+Evidence
 
 ↓
 
-Governance
+Approval
 
 ↓
 
-Validation
+Integration
 
 ↓
 
-Output
+Evolution
 
----
+↓
 
-# 9. Long-Term Goal
+Awareness
 
-Fanus is not an AGI.
+↓
 
-Fanus is an Epistemic Cognitive System.
+Human
 
-Its purpose is:
+----------------------------------------------------
 
-Continuous learning
+OFFICIAL EXECUTION ROOT
 
-Continuous validation
+fanus/
 
-Continuous evolution
+----------------------------------------------------
 
-without collapsing its identity.
+ROLE OF fanus-engine/
 
----
+fanus-engine is a legacy knowledge repository.
 
-# 10. Guiding Principle
+It is NOT executable core.
 
-Never close the parenthesis.
+It serves as a migration source.
 
-Always leave space for further understanding.
+----------------------------------------------------
 
+ROLE OF docs/
+
+System constitution.
+
+----------------------------------------------------
+
+ROLE OF rfcs/
+
+Protocol evolution.
+
+----------------------------------------------------
+
+ROLE OF validation/
+
+Truth verification.
+
+----------------------------------------------------
+
+FORBIDDEN
+
+Do not create new runtime systems.
+
+Do not create duplicate engines.
+
+Do not create alternative roots.
+
+----------------------------------------------------
+
+GOAL
+
+Never close the learning parenthesis.
