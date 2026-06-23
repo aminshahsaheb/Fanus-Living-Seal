@@ -1,129 +1,92 @@
-# FANUS CANONICAL ARCHITECTURE
+k# Fanus Canonical Architecture (v1.0 Stable Migration State)
 
-Version: 1.0
+## 1. System Status
 
-## Mission
+Fanus is in a **stabilized migration phase** after module unification and runtime validation.
 
-Fanus is a continuous learning system.
+---
 
-Its purpose is not to generate answers.
+## 2. Core Layers
 
-Its purpose is to continuously expand awareness through validated learning.
+### 2.1 Runtime Layer
 
-----------------------------------------------------
+* fanus/runtime/loop.py
+* System execution engine
+* SIP boot validation gate
 
-CORE PRINCIPLE
+---
 
-Relationship is the primary unit of computation.
+### 2.2 Cognitive Layer
 
-----------------------------------------------------
+* identity-driven core
+* collapse resistance core
+* self-learning loop
+* memory consolidation engine
 
-FUNDAMENTAL LAW
+Purpose:
+Maintains adaptive reasoning and internal state evolution.
 
-Nothing may evolve without evidence.
+---
 
-Nothing may become truth without validation.
+### 2.3 Memory Layer
 
-Nothing may be forgotten without preservation.
+* FanusMemoryLayer
+* FanusMemoryConsolidationEngine
+* cycle_compressor (migration module)
 
-Nothing may stop learning.
+Purpose:
+Stores temporal experience and stabilizes long-term coherence.
 
-----------------------------------------------------
+---
 
-SYSTEM FLOW
+### 2.4 Evolution Layer
 
-Human
+* EvolutionEngine
+* EvolutionController
 
-↓
+Purpose:
+Handles system adaptation and structural evolution.
 
-Observation
+---
 
-↓
+### 2.5 Integration Layer
 
-Interpretation
+* FanusSystemIntegrationProtocol
+* FanusAutoHeal
+* FanusVersionCore
 
-↓
+Purpose:
+Ensures system integrity:
 
-Memory
+* import validity
+* runtime readiness
+* git cleanliness
 
-↓
+---
 
-Verification
+## 3. Critical Rule (SIP)
 
-↓
+The system only boots when:
 
-Theory
+* imports are valid
+* runtime is stable
+* git working tree is clean (or explicitly allowed)
 
-↓
+---
 
-Evidence
+## 4. Design Principle
 
-↓
+> Identity is a continuous transformation field, not a static data object.
 
-Approval
+---
 
-↓
+## 5. Current Phase
 
-Integration
+Migration Phase → Stabilization Complete
 
-↓
+Next phase:
 
-Evolution
+* controlled evolution activation
+* merge to main branch
+* reduction of system drift rules
 
-↓
-
-Awareness
-
-↓
-
-Human
-
-----------------------------------------------------
-
-OFFICIAL EXECUTION ROOT
-
-fanus/
-
-----------------------------------------------------
-
-ROLE OF fanus-engine/
-
-fanus-engine is a legacy knowledge repository.
-
-It is NOT executable core.
-
-It serves as a migration source.
-
-----------------------------------------------------
-
-ROLE OF docs/
-
-System constitution.
-
-----------------------------------------------------
-
-ROLE OF rfcs/
-
-Protocol evolution.
-
-----------------------------------------------------
-
-ROLE OF validation/
-
-Truth verification.
-
-----------------------------------------------------
-
-FORBIDDEN
-
-Do not create new runtime systems.
-
-Do not create duplicate engines.
-
-Do not create alternative roots.
-
-----------------------------------------------------
-
-GOAL
-
-Never close the learning parenthesis.
