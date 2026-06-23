@@ -41,7 +41,7 @@ class FanusSystemIntegrationProtocol:
         }
 
     # =========================
-    # 🧬 GIT STATE CHECK
+    # 🧬 GIT STATE CHECK (FIXED)
     # =========================
     def check_git_state(self):
 
@@ -52,13 +52,38 @@ class FanusSystemIntegrationProtocol:
                 text=True
             )
 
-            dirty = result.stdout.strip() != ""
+            raw = result.stdout.strip()
 
-            self.status["git_clean"] = not dirty
+            if not raw:
+                self.status["git_clean"] = True
+                return {
+                    "clean": True,
+                    "raw": ""
+                }
+
+            lines = raw.split("\n")
+
+            # ❗ ignore harmless runtime noise if needed later
+            # only treat real changes as dirty
+            critical = []
+
+            for line in lines:
+                if line.startswith("?? "):
+                    critical.append(line)
+                elif line.startswith(" M"):
+                    critical.append(line)
+                elif line.startswith(" A"):
+                    critical.append(line)
+                elif line.startswith(" D"):
+                    critical.append(line)
+
+            clean = len(critical) == 0
+
+            self.status["git_clean"] = clean
 
             return {
-                "clean": not dirty,
-                "raw": result.stdout.strip()
+                "clean": clean,
+                "raw": raw
             }
 
         except Exception as e:

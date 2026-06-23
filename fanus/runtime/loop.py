@@ -27,34 +27,27 @@ class FanusLoop:
 
     def __init__(self, tick_delay=1, max_memory=200):
 
-        # core systems
         self.engine = EvolutionEngine()
         self.observer = FanusObserver()
 
-        # memory
         self.memory = FanusMemoryLayer(max_size=max_memory)
         self.memory_consolidator = FanusMemoryConsolidationEngine()
 
-        # cognitive
         self.cognitive = FanusCognitiveState()
         self.identity_field = FanusUnifiedIdentityField()
 
-        # evolution + execution
         self.evolution = FanusEvolutionController()
         self.executor = FanusExecutionLayer()
 
-        # intelligence layers
         self.identity_core = FanusIdentityDrivenCore()
         self.self_learning = FanusSelfLearningLoop()
 
-        # control systems
         self.autonomy_core = FanusIdentityAutonomyCore()
         self.collapse_core = FanusCollapseResistanceCore()
 
         self.governor = FanusAutonomyGovernor()
         self.stabilizer = FanusSystemCollapseStabilizer()
 
-        # SIP
         self.sip = FanusSystemIntegrationProtocol()
 
         self.tick_delay = tick_delay
@@ -62,60 +55,65 @@ class FanusLoop:
         self.running = False
 
     # =========================
-    # 🔁 SINGLE CYCLE
+    # 🔁 CYCLE
     # =========================
     def cycle(self):
 
         self.tick += 1
 
-        # 1. SIP validation
-        boot_status = self.sip.validate_runtime()
+        # 1. SIP check
+        boot = self.sip.validate_runtime()
 
-        if not boot_status["runtime_ready"]:
+        if not boot["runtime_ready"]:
             print("\n🛑 SIP BLOCKED BOOT — SYSTEM NOT READY\n")
-            print("📦 IMPORT STATUS:", boot_status["imports"])
-            print("🧬 GIT STATUS:", boot_status["git"])
+            print("📦 IMPORT:", boot["imports"])
+            print("🧬 GIT:", boot["git"])
             return None
 
-        # 2. base state
+        # 2. STATE
         state = {
             "tick": self.tick,
             "intent": "test"
         }
 
-        # 3. MEMORY WRITE (fix #1)
+        # 3. MEMORY INPUT (history)
+        history = self.memory.recent() if hasattr(self.memory, "recent") else []
+        state["memory_context"] = history
+
         self.memory.store(state)
 
-        # 4. identity processing
+        # 4. IDENTITY
         identity_state = self.identity_field.evolve(state)
+        weight = identity_state.get("confidence", 1.0)
 
-        # 🔥 IDENTITY INFLUENCE LAYER (safe version)
-        identity_weight = identity_state.get("confidence", 1.0)
+        state["identity_weight"] = weight
 
-        state["identity_weight"] = identity_weight
-        state["weighted_intent"] = state["intent"]
+        # 5. EVOLUTION (identity + memory aware)
+        evolved_state = self.evolution.step({
+            "state": state,
+            "identity": identity_state,
+            "memory": history
+        })
 
-        # 5. evolution
-        evolved_state = self.evolution.step(identity_state)
-
-        # 6. execution
+        # 6. EXECUTION
         output = self.executor.execute(evolved_state)
 
-        # 7. observation
+        # 7. OBSERVATION
         observation = self.observer.observe(output)
 
-        # 8. memory consolidation
+        # 8. CONSOLIDATION
         self.memory_consolidator.consolidate(self.memory)
 
-        # 9. stability enforcement
+        # 9. STABILIZATION
         self.stabilizer.stabilize(state)
 
-        # 10. feedback loop (IMPORTANT)
+        # 10. FEEDBACK LOOP
         self.memory.store({
             "tick": self.tick,
             "state": state,
             "identity": identity_state,
-            "output": output
+            "output": output,
+            "observation": observation
         })
 
         return {
@@ -127,24 +125,21 @@ class FanusLoop:
         }
 
     # =========================
-    # 🚀 RUN LOOP
+    # 🚀 RUN
     # =========================
     def run(self, steps=5):
 
-        print("\n🚀 FANUS SIP-VALIDATED LOOP STARTED\n")
+        print("\n🚀 FANUS LOOP STARTED\n")
 
         for _ in range(steps):
             result = self.cycle()
 
             if result:
-                print(f"[TICK {result['tick']}] ", result)
+                print(f"[TICK {result['tick']}]", result)
 
             time.sleep(self.tick_delay)
 
         print("\n✅ FANUS LOOP FINISHED\n")
 
-    # =========================
-    # STOP
-    # =========================
     def stop(self):
         self.running = False
