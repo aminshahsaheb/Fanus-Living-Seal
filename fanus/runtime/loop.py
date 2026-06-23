@@ -27,27 +27,27 @@ class FanusLoop:
 
     def __init__(self, tick_delay=1, max_memory=200):
 
-        # CORE
+        # core systems
         self.engine = EvolutionEngine()
         self.observer = FanusObserver()
 
-        # MEMORY
+        # memory
         self.memory = FanusMemoryLayer(max_size=max_memory)
         self.memory_consolidator = FanusMemoryConsolidationEngine()
 
-        # COGNITIVE
+        # cognitive
         self.cognitive = FanusCognitiveState()
         self.identity_field = FanusUnifiedIdentityField()
 
-        # EVOLUTION + EXECUTION
+        # evolution + execution
         self.evolution = FanusEvolutionController()
         self.executor = FanusExecutionLayer()
 
-        # INTELLIGENCE
+        # intelligence layers
         self.identity_core = FanusIdentityDrivenCore()
         self.self_learning = FanusSelfLearningLoop()
 
-        # CONTROL
+        # control systems
         self.autonomy_core = FanusIdentityAutonomyCore()
         self.collapse_core = FanusCollapseResistanceCore()
 
@@ -62,7 +62,7 @@ class FanusLoop:
         self.running = False
 
     # =========================
-    # 🧠 SINGLE TICK CYCLE
+    # 🔁 SINGLE CYCLE
     # =========================
     def cycle(self):
 
@@ -72,9 +72,9 @@ class FanusLoop:
         boot_status = self.sip.validate_runtime()
 
         if not boot_status["runtime_ready"]:
-            print("🛑 SIP BLOCKED BOOT — SYSTEM NOT READY")
-            print("\n📦 IMPORT STATUS:", boot_status["imports"])
-            print("\n🧬 GIT STATUS:", boot_status["git"])
+            print("\n🛑 SIP BLOCKED BOOT — SYSTEM NOT READY\n")
+            print("📦 IMPORT STATUS:", boot_status["imports"])
+            print("🧬 GIT STATUS:", boot_status["git"])
             return None
 
         # 2. base state
@@ -83,26 +83,40 @@ class FanusLoop:
             "intent": "test"
         }
 
-        # 3. memory write (IMPORTANT FIX)
+        # 3. MEMORY WRITE (fix #1)
         self.memory.store(state)
 
-        # 4. identity influence
+        # 4. identity processing
         identity_state = self.identity_field.evolve(state)
 
-        # 5. evolution step
-        evolved = self.evolution.step(identity_state)
+        # 🔥 IDENTITY INFLUENCE LAYER (safe version)
+        identity_weight = identity_state.get("confidence", 1.0)
+
+        state["identity_weight"] = identity_weight
+        state["weighted_intent"] = state["intent"]
+
+        # 5. evolution
+        evolved_state = self.evolution.step(identity_state)
 
         # 6. execution
-        output = self.executor.execute(evolved)
+        output = self.executor.execute(evolved_state)
 
-        # 7. observe
+        # 7. observation
         observation = self.observer.observe(output)
 
-        # 8. consolidate memory
+        # 8. memory consolidation
         self.memory_consolidator.consolidate(self.memory)
 
-        # 9. stabilize
+        # 9. stability enforcement
         self.stabilizer.stabilize(state)
+
+        # 10. feedback loop (IMPORTANT)
+        self.memory.store({
+            "tick": self.tick,
+            "state": state,
+            "identity": identity_state,
+            "output": output
+        })
 
         return {
             "tick": self.tick,
@@ -113,7 +127,7 @@ class FanusLoop:
         }
 
     # =========================
-    # 🔁 RUN LOOP
+    # 🚀 RUN LOOP
     # =========================
     def run(self, steps=5):
 
