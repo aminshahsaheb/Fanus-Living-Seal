@@ -27,84 +27,110 @@ class FanusLoop:
 
     def __init__(self, tick_delay=1, max_memory=200):
 
+        # CORE
         self.engine = EvolutionEngine()
         self.observer = FanusObserver()
 
+        # MEMORY
         self.memory = FanusMemoryLayer(max_size=max_memory)
         self.memory_consolidator = FanusMemoryConsolidationEngine()
 
+        # COGNITIVE
         self.cognitive = FanusCognitiveState()
-
         self.identity_field = FanusUnifiedIdentityField()
 
+        # EVOLUTION + EXECUTION
         self.evolution = FanusEvolutionController()
         self.executor = FanusExecutionLayer()
 
+        # INTELLIGENCE
         self.identity_core = FanusIdentityDrivenCore()
         self.self_learning = FanusSelfLearningLoop()
 
+        # CONTROL
         self.autonomy_core = FanusIdentityAutonomyCore()
         self.collapse_core = FanusCollapseResistanceCore()
 
         self.governor = FanusAutonomyGovernor()
         self.stabilizer = FanusSystemCollapseStabilizer()
 
+        # SIP
         self.sip = FanusSystemIntegrationProtocol()
 
         self.tick_delay = tick_delay
-
         self.tick = 0
         self.running = False
 
     # =========================
-    # 🔁 MAIN RUN
+    # 🧠 SINGLE TICK CYCLE
     # =========================
-    def run(self, steps=1):
-
-        print("\n🚀 FANUS SIP-VALIDATED LOOP STARTED\n")
-
-        # 1. SIP BOOT CHECK
-        boot_status = self.sip.safe_boot(self._cycle)
-
-        # 🔴 FIX: handle both dict and bool safely
-        if isinstance(boot_status, bool):
-            boot_status = {
-                "status": "ok" if boot_status else "blocked",
-                "raw": boot_status
-            }
-
-        if isinstance(boot_status, dict):
-            if boot_status.get("status") == "blocked":
-                print("🛑 SIP BLOCKED BOOT — SYSTEM NOT READY")
-                return
-
-        print("🚀 SIP OK — BOOTING FANUS SYSTEM")
-
-        # 2. RUN LOOP
-        for _ in range(steps):
-            self._cycle()
-            time.sleep(self.tick_delay)
-
-    # =========================
-    # 🔁 SINGLE CYCLE
-    # =========================
-    def _cycle(self):
+    def cycle(self):
 
         self.tick += 1
 
+        # 1. SIP validation
+        boot_status = self.sip.validate_runtime()
+
+        if not boot_status["runtime_ready"]:
+            print("🛑 SIP BLOCKED BOOT — SYSTEM NOT READY")
+            print("\n📦 IMPORT STATUS:", boot_status["imports"])
+            print("\n🧬 GIT STATUS:", boot_status["git"])
+            return None
+
+        # 2. base state
         state = {
             "tick": self.tick,
-            "intent": "test",
-            "decision": "ALLOW_WITH_CAUTION",
-            "action": {"status": "safe_ok", "output": "test"},
-            "state": {"stability": 0.99 ** self.tick}
+            "intent": "test"
         }
 
-        print(f"[TICK {self.tick}] ", state)
-        return state
+        # 3. memory write (IMPORTANT FIX)
+        self.memory.store(state)
+
+        # 4. identity influence
+        identity_state = self.identity_field.evolve(state)
+
+        # 5. evolution step
+        evolved = self.evolution.step(identity_state)
+
+        # 6. execution
+        output = self.executor.execute(evolved)
+
+        # 7. observe
+        observation = self.observer.observe(output)
+
+        # 8. consolidate memory
+        self.memory_consolidator.consolidate(self.memory)
+
+        # 9. stabilize
+        self.stabilizer.stabilize(state)
+
+        return {
+            "tick": self.tick,
+            "state": state,
+            "identity": identity_state,
+            "output": output,
+            "observation": observation
+        }
 
     # =========================
-    # 🛑 STOP
+    # 🔁 RUN LOOP
+    # =========================
+    def run(self, steps=5):
+
+        print("\n🚀 FANUS SIP-VALIDATED LOOP STARTED\n")
+
+        for _ in range(steps):
+            result = self.cycle()
+
+            if result:
+                print(f"[TICK {result['tick']}] ", result)
+
+            time.sleep(self.tick_delay)
+
+        print("\n✅ FANUS LOOP FINISHED\n")
+
+    # =========================
+    # STOP
     # =========================
     def stop(self):
         self.running = False
