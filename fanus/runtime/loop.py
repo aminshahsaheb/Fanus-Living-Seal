@@ -2,18 +2,24 @@ import time
 
 from fanus.evolution.evolution_engine import EvolutionEngine
 from fanus.runtime.observer import FanusObserver
+
 from fanus.cognitive.self_model import FanusSelfModel
 from fanus.cognitive.meta_self_model import FanusMetaSelfModel
 from fanus.cognitive.self_improvement import FanusSelfImprovement
+
 from fanus.cognitive.memory_layer import FanusMemoryLayer
 from fanus.cognitive.evolution_controller import FanusEvolutionController
 from fanus.cognitive.execution_layer import FanusExecutionLayer
+
 from fanus.cognitive.identity_kernel import FanusIdentityKernel
 from fanus.cognitive.conscious_loop_boundary import FanusConsciousLoopBoundary
 from fanus.cognitive.recursive_self_model import FanusRecursiveSelfModel
 from fanus.cognitive.unified_identity_field import FanusUnifiedIdentityField
 from fanus.cognitive.system_collapse_stabilizer import FanusSystemCollapseStabilizer
 from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
+
+# 🆕 SINGLE SOURCE OF TRUTH
+from fanus.core.stability_registry import StabilityRegistry
 
 from fanus.runtime.system_integration import FanusSystemIntegration
 
@@ -23,7 +29,7 @@ class FanusLoop:
     def __init__(self, tick_delay=1, max_memory=200):
 
         # =========================
-        # 🧠 CORE INITIALIZATION
+        # CORE
         # =========================
         self.tick = 0
         self.running = False
@@ -45,7 +51,7 @@ class FanusLoop:
         self.observer = FanusObserver()
 
         # =========================
-        # SELF MODELS
+        # MODELS
         # =========================
         self.self_model = FanusSelfModel()
         self.meta_model = FanusMetaSelfModel()
@@ -53,7 +59,7 @@ class FanusLoop:
         self.recursive_model = FanusRecursiveSelfModel()
 
         # =========================
-        # EVOLUTION + EXECUTION
+        # CONTROL
         # =========================
         self.evolution = FanusEvolutionController()
         self.executor = FanusExecutionLayer()
@@ -67,28 +73,28 @@ class FanusLoop:
         self.stabilizer = FanusSystemCollapseStabilizer()
         self.governor = FanusAutonomyGovernor()
 
+        # 🆕 GLOBAL STABILITY REGISTRY
+        self.stability_registry = StabilityRegistry()
+
         # =========================
-        # SYSTEM INTEGRATION (LAST)
+        # SYSTEM INTEGRATION
         # =========================
         self.system = FanusSystemIntegration(self)
 
-        # 🧪 bootstrap AFTER full init
         bootstrap_result = self.system.bootstrap()
 
         print("\n⚙️ SYSTEM BOOTSTRAP:")
         print(bootstrap_result)
 
     # =========================
-    # 🔁 CYCLE
+    # CYCLE
     # =========================
     def cycle(self, intent="test"):
 
         result = self.engine.run({"intent": intent})
-
         self.memory.store(result)
 
         observation = self.observer.observe(result)
-
         self_model = self.self_model.update(observation, result)
 
         meta = self.meta_model.analyze(self_model)
@@ -136,23 +142,46 @@ class FanusLoop:
             recursive
         )
 
+        # =========================
+        # 🧠 GLOBAL STABILITY (FIX)
+        # =========================
+        stability = self.stability_registry.compute(
+            identity=identity,
+            meta=meta,
+            evolution=evolution,
+            collapse=collapse
+        )
+
+        # inject stability everywhere needed
+        identity["stability"] = stability
+        meta["stability"] = stability
+
         governance = self.governor.evaluate(
             unified,
-            unified,
+            {"stability": stability},
             collapse
         )
 
-        # 🛑 SAFE STOP CONDITIONS
+        # SAFE STOP
         if governance["locked"]:
             print("🔐 SYSTEM LOCKED — STOPPING CYCLE")
             return
 
         self.self_improver.evaluate(meta)
 
-        self._print(result, meta, evolution, execution, identity, unified, collapse, governance)
+        self._print(
+            result,
+            meta,
+            evolution,
+            execution,
+            identity,
+            unified,
+            collapse,
+            governance
+        )
 
     # =========================
-    # 🧠 PRINT
+    # PRINT
     # =========================
     def _print(self, result, meta, evolution, execution, identity, unified, collapse, governance):
 
@@ -168,7 +197,7 @@ class FanusLoop:
         print("\n⚖️ GOVERNANCE:", governance)
 
     # =========================
-    # 🔁 RUN LOOP
+    # RUN LOOP
     # =========================
     def run(self, max_ticks=10):
 

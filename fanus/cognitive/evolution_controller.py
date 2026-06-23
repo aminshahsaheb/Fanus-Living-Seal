@@ -1,65 +1,89 @@
 class FanusEvolutionController:
 
     def __init__(self):
-
-        self.history_patterns = {}
-        self.evolution_log = []
+        self.history = []
+        self.stability_memory = []
+        self.intent_memory = []
 
     # =========================
-    # 🧠 MAIN ENTRY
+    # 🧠 MAIN DECISION ENGINE
     # =========================
     def evaluate(self, memory_snapshot, meta_result):
 
-        proposals = []
+        stability = meta_result.get("stability", 0.5)
+        intent = meta_result.get("intent", None)
+        risk = meta_result.get("risk_level", 0.0)
 
-        intent_dist = memory_snapshot.get("intent_distribution", {})
+        self.stability_memory.append(stability)
+        self.intent_memory.append(intent)
 
-        stability = meta_result.get("stability", 0)
+        most_common_intent = self._get_most_common_intent()
 
-        # -------------------------
-        # 📊 PATTERN DETECTION
-        # -------------------------
-        most_common_intent = self._get_most_common(intent_dist)
-
-        # -------------------------
-        # 🔥 EVOLUTION RULES
-        # -------------------------
-
-        # Rule 1: instability
-        if stability < 0.5:
-            proposals.append({
+        # =========================
+        # 🧯 CRITICAL INSTABILITY
+        # =========================
+        if stability < 0.3:
+            decision = {
                 "type": "stability_repair",
-                "action": "increase_stability_bias",
-                "reason": "low system stability detected"
-            })
+                "action": "reduce_entropy",
+                "reason": "critical instability detected"
+            }
 
-        # Rule 2: repetitive behavior
-        if intent_dist.get(most_common_intent, 0) > 3:
-            proposals.append({
-                "type": "diversity_boost",
-                "action": "increase_exploration",
-                "reason": "repetitive intent detected"
-            })
+        # =========================
+        # ⚖️ MODERATE STABILITY
+        # =========================
+        elif stability < 0.6:
+            decision = {
+                "type": "exploration_mode",
+                "action": "controlled_learning",
+                "reason": "moderate stability window"
+            }
 
-        # Rule 3: healthy system
-        if stability > 0.7:
-            proposals.append({
-                "type": "optimization",
-                "action": "optimize_decision_speed",
-                "reason": "system stable enough for optimization"
-            })
+        # =========================
+        # 🧠 STABLE SYSTEM
+        # =========================
+        else:
+            decision = {
+                "type": "execution_ready",
+                "action": "process_intent",
+                "reason": "system stable"
+            }
+
+        # =========================
+        # 🧠 INTENT OVERRIDE LAYER
+        # =========================
+        if intent and meta_result.get("intent_confidence", 0) > 0.7:
+            decision = {
+                "type": "direct_execution",
+                "action": "execute_intent",
+                "reason": "high confidence intent override"
+            }
+
+        # =========================
+        # 🧠 FALLBACK SAFE MODE
+        # =========================
+        if not intent:
+            meta_result["intent"] = "neutral_observe"
+
+        # record history
+        self.history.append(decision)
 
         return {
             "most_common_intent": most_common_intent,
-            "proposals": proposals
+            "stability": stability,
+            "proposals": [decision]
         }
 
     # =========================
-    # 📊 ANALYSIS HELPERS
+    # 📊 INTENT ANALYSIS
     # =========================
-    def _get_most_common(self, intent_dist):
+    def _get_most_common_intent(self):
 
-        if not intent_dist:
-            return None
+        if not self.intent_memory:
+            return "unknown"
 
-        return max(intent_dist, key=intent_dist.get)
+        freq = {}
+        for i in self.intent_memory:
+            freq[i] = freq.get(i, 0) + 1
+
+        return max(freq, key=freq.get)
