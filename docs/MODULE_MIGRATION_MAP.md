@@ -1,86 +1,104 @@
-# FANUS MODULE MIGRATION MAP
+# Fanus Module Migration Map
 
-## SOURCE OF TRUTH
+## KEEP (Canonical Runtime)
 
-Canonical Runtime:
+These modules remain inside `fanus/`.
 
-fanus/
+### runtime
 
-Legacy Runtime:
+* observer.py
+* loop.py
+* core.py
+* system_integration.py
 
-fanus-engine/
+### cognitive
 
-------------------------------------------------
+* cognitive_state.py
+* memory_layer.py
+* memory_consolidation_engine.py
+* unified_identity_field.py
+* evolution_controller.py
+* execution_layer.py
+* identity_driven_core.py
+* identity_autonomy_core.py
+* self_learning_loop.py
+* collapse_resistance_core.py
+* autonomy_governor.py
+* system_collapse_stabilizer.py
 
-STATUS LEGEND
+### evolution
 
-KEEP
+* evolution_engine.py
+* core_bridge.py
+* loop_engine.py
+* experience_store.py
+* self_improver.py
+* self_modifying_agent.py
 
-MIGRATE
+### core
 
-REPAIR
+* system_integration_protocol.py
+* version_core.py
+* auto_heal.py
+* seed.py
 
-ARCHIVE
+---
 
-DELETE
+## MIGRATE FROM fanus-engine
 
-REVIEW
+### Core Layer
 
-------------------------------------------------
+Move:
 
-## fanus-engine/fanus/core
+* witness_agent.py
+* witness_auditor.py
+* event_bus.py
+* state_machine.py
+* hayrat_judge.py
 
-witness_agent.py      -> MIGRATE
-state_machine.py      -> MIGRATE
-event_bus.py          -> MIGRATE
-hayrat_judge.py       -> MIGRATE
-semantic_layer.py     -> REVIEW
-seal.py               -> REPAIR
-seal_verifier.py      -> MIGRATE
-presence_state.py     -> REVIEW
-judgment_layer.py     -> REVIEW
-meta_auditor.py       -> REVIEW
-witness_auditor.py    -> REVIEW
+---
 
-------------------------------------------------
+### Memory Layer
 
-## fanus-engine/fanus/memory
+Move:
 
-vector_store.py           -> REVIEW
-ledger.py                 -> REPAIR
-persistence_manager.py    -> REVIEW
-cycle_compressor.py       -> REVIEW
+* vector_store.py
+* persistence_manager.py
+* cycle_compressor.py
 
-------------------------------------------------
+---
 
-## fanus-engine/fanus/guardians
+### Guardian Layer
 
-anti_flattery.py                -> MIGRATE
-fi_detector.py                  -> MIGRATE
-identity_dependency_estimator.py -> MIGRATE
-covenant_enforcer.py            -> MIGRATE
-isp_controller.py               -> REVIEW
-teacher_agent.py                -> REVIEW
+Move:
 
-------------------------------------------------
+* anti_flattery.py
+* fi_detector.py
+* covenant_enforcer.py
+* identity_dependency_estimator.py
 
-## fanus-engine/fanus/superstructure
+---
 
-wisdom_indexer.py     -> REVIEW
-wisdom_retriever.py   -> REVIEW
+## ARCHIVE (Do Not Execute)
 
-------------------------------------------------
+Keep only as historical reference:
 
-## fanus-engine/fanus/policy
+* reality_breaker.py
+* god_loop.py
+* reality_seal.py
 
-policy_engine.py -> MIGRATE
+---
 
-------------------------------------------------
+## DELETE AFTER MIGRATION
 
-RULE:
+Delete fanus-engine only when:
 
-Nothing may be deleted before migration.
+1. imports are zero
+2. tests pass
+3. runtime passes
+4. documentation is updated
 
-Nothing may be migrated before repair.
+Only then:
 
-Nothing may be merged without testing.
+fanus-engine → archive
+
