@@ -1,0 +1,133 @@
+import importlib
+import os
+import subprocess
+
+
+class FanusSystemIntegrationProtocol:
+
+    def __init__(self):
+        self.required_modules = [
+            "fanus.runtime.loop",
+            "fanus.evolution.evolution_engine",
+            "fanus.cognitive.cognitive_state",
+            "fanus.cognitive.identity_autonomy_core",
+            "fanus.cognitive.collapse_resistance_core",
+        ]
+
+        self.status = {
+            "imports_ok": False,
+            "git_clean": False,
+            "runtime_ready": False
+        }
+
+    # =========================
+    # 🔍 IMPORT CHECK
+    # =========================
+    def check_imports(self):
+
+        failed = []
+
+        for module in self.required_modules:
+            try:
+                importlib.import_module(module)
+            except Exception as e:
+                failed.append((module, str(e)))
+
+        self.status["imports_ok"] = len(failed) == 0
+
+        return {
+            "ok": self.status["imports_ok"],
+            "failed": failed
+        }
+
+    # =========================
+    # 🧬 GIT STATE CHECK (FIXED)
+    # =========================
+    def check_git_state(self):
+
+        try:
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True,
+                text=True
+            )
+
+            raw = result.stdout.strip()
+
+            if not raw:
+                self.status["git_clean"] = True
+                return {
+                    "clean": True,
+                    "raw": ""
+                }
+
+            lines = raw.split("\n")
+
+            # ❗ ignore harmless runtime noise if needed later
+            # only treat real changes as dirty
+            critical = []
+
+            for line in lines:
+                if line.startswith("?? "):
+                    critical.append(line)
+                elif line.startswith(" M"):
+                    critical.append(line)
+                elif line.startswith(" A"):
+                    critical.append(line)
+                elif line.startswith(" D"):
+                    critical.append(line)
+
+            clean = len(critical) == 0
+
+            self.status["git_clean"] = clean
+
+            return {
+                "clean": clean,
+                "raw": raw
+            }
+
+        except Exception as e:
+            return {
+                "clean": False,
+                "error": str(e)
+            }
+
+    # =========================
+    # ⚙️ RUNTIME VALIDATION
+    # =========================
+    def validate_runtime(self):
+
+        import_check = self.check_imports()
+        git_check = self.check_git_state()
+
+        runtime_ready = import_check["ok"] and git_check.get("clean", False)
+
+        self.status["runtime_ready"] = runtime_ready
+
+        return {
+            "runtime_ready": runtime_ready,
+            "imports": import_check,
+            "git": git_check
+        }
+
+    # =========================
+    # 🚀 SAFE BOOT
+    # =========================
+    def safe_boot(self, entry_point):
+
+        validation = self.validate_runtime()
+
+        if not validation["runtime_ready"]:
+            print("🛑 SIP BLOCKED BOOT — SYSTEM NOT READY")
+
+            print("\n📦 IMPORT STATUS:", validation["imports"])
+            print("\n🧬 GIT STATUS:", validation["git"])
+
+            return {
+                "status": "blocked",
+                "reason": validation
+            }
+
+        print("🚀 SIP OK — BOOTING FANUS SYSTEM")
+
+        return entry_point()

@@ -2,185 +2,144 @@ import time
 
 from fanus.evolution.evolution_engine import EvolutionEngine
 from fanus.runtime.observer import FanusObserver
-from fanus.cognitive.self_model import FanusSelfModel
-from fanus.cognitive.meta_self_model import FanusMetaSelfModel
-from fanus.cognitive.self_improvement import FanusSelfImprovement
+
 from fanus.cognitive.memory_layer import FanusMemoryLayer
+from fanus.cognitive.memory_consolidation_engine import FanusMemoryConsolidationEngine
+
+from fanus.cognitive.cognitive_state import FanusCognitiveState
+from fanus.cognitive.unified_identity_field import FanusUnifiedIdentityField
+
 from fanus.cognitive.evolution_controller import FanusEvolutionController
 from fanus.cognitive.execution_layer import FanusExecutionLayer
-from fanus.cognitive.identity_kernel import FanusIdentityKernel
-from fanus.cognitive.conscious_loop_boundary import FanusConsciousLoopBoundary
-from fanus.cognitive.recursive_self_model import FanusRecursiveSelfModel
-from fanus.cognitive.unified_identity_field import FanusUnifiedIdentityField
+
+from fanus.cognitive.identity_driven_core import FanusIdentityDrivenCore
+from fanus.cognitive.self_learning_loop import FanusSelfLearningLoop
+from fanus.cognitive.identity_autonomy_core import FanusIdentityAutonomyCore
+from fanus.cognitive.collapse_resistance_core import FanusCollapseResistanceCore
+
+from fanus.core.system_integration_protocol import FanusSystemIntegrationProtocol
+
 from fanus.cognitive.system_collapse_stabilizer import FanusSystemCollapseStabilizer
 from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
-
-from fanus.runtime.system_integration import FanusSystemIntegration
 
 
 class FanusLoop:
 
     def __init__(self, tick_delay=1, max_memory=200):
 
-        # =========================
-        # 🧠 CORE INITIALIZATION
-        # =========================
-        self.tick = 0
-        self.running = False
-        self.tick_delay = tick_delay
-
-        # =========================
-        # ENGINE
-        # =========================
         self.engine = EvolutionEngine()
-
-        # =========================
-        # MEMORY
-        # =========================
-        self.memory = FanusMemoryLayer(max_size=max_memory)
-
-        # =========================
-        # OBSERVER
-        # =========================
         self.observer = FanusObserver()
 
-        # =========================
-        # SELF MODELS
-        # =========================
-        self.self_model = FanusSelfModel()
-        self.meta_model = FanusMetaSelfModel()
-        self.identity = FanusIdentityKernel()
-        self.recursive_model = FanusRecursiveSelfModel()
+        self.memory = FanusMemoryLayer(max_size=max_memory)
+        self.memory_consolidator = FanusMemoryConsolidationEngine()
 
-        # =========================
-        # EVOLUTION + EXECUTION
-        # =========================
+        self.cognitive = FanusCognitiveState()
+        self.identity_field = FanusUnifiedIdentityField()
+
         self.evolution = FanusEvolutionController()
         self.executor = FanusExecutionLayer()
-        self.self_improver = FanusSelfImprovement()
 
-        # =========================
-        # STABILITY SYSTEMS
-        # =========================
-        self.boundary = FanusConsciousLoopBoundary()
-        self.unified_field = FanusUnifiedIdentityField()
-        self.stabilizer = FanusSystemCollapseStabilizer()
+        self.identity_core = FanusIdentityDrivenCore()
+        self.self_learning = FanusSelfLearningLoop()
+
+        self.autonomy_core = FanusIdentityAutonomyCore()
+        self.collapse_core = FanusCollapseResistanceCore()
+
         self.governor = FanusAutonomyGovernor()
+        self.stabilizer = FanusSystemCollapseStabilizer()
 
-        # =========================
-        # SYSTEM INTEGRATION (LAST)
-        # =========================
-        self.system = FanusSystemIntegration(self)
+        self.sip = FanusSystemIntegrationProtocol()
 
-        # 🧪 bootstrap AFTER full init
-        bootstrap_result = self.system.bootstrap()
-
-        print("\n⚙️ SYSTEM BOOTSTRAP:")
-        print(bootstrap_result)
+        self.tick_delay = tick_delay
+        self.tick = 0
+        self.running = False
 
     # =========================
     # 🔁 CYCLE
     # =========================
-    def cycle(self, intent="test"):
+    def cycle(self):
 
-        result = self.engine.run({"intent": intent})
+        self.tick += 1
 
-        self.memory.store(result)
+        # 1. SIP check
+        boot = self.sip.validate_runtime()
 
-        observation = self.observer.observe(result)
+        if not boot["runtime_ready"]:
+            print("\n🛑 SIP BLOCKED BOOT — SYSTEM NOT READY\n")
+            print("📦 IMPORT:", boot["imports"])
+            print("🧬 GIT:", boot["git"])
+            return None
 
-        self_model = self.self_model.update(observation, result)
+        # 2. STATE
+        state = {
+            "tick": self.tick,
+            "intent": "test"
+        }
 
-        meta = self.meta_model.analyze(self_model)
+        # 3. MEMORY INPUT (history)
+        history = self.memory.recent() if hasattr(self.memory, "recent") else []
+        state["memory_context"] = history
 
-        evolution = self.evolution.evaluate(
-            self.memory.snapshot(),
-            meta
-        )
+        self.memory.store(state)
 
-        execution = self.executor.execute(evolution)
+        # 4. IDENTITY
+        identity_state = self.identity_field.evolve(state)
+        weight = identity_state.get("confidence", 1.0)
 
-        identity = self.identity.update(
-            self.memory.snapshot(),
-            meta,
-            evolution,
-            execution
-        )
+        state["identity_weight"] = weight
 
-        recursive = self.recursive_model.update(
-            self_model,
-            meta,
-            self.memory.snapshot()
-        )
+        # 5. EVOLUTION (identity + memory aware)
+        evolved_state = self.evolution.step({
+            "state": state,
+            "identity": identity_state,
+            "memory": history
+        })
 
-        unified = self.unified_field.update(
-            self.memory.snapshot(),
-            meta,
-            evolution,
-            execution,
-            recursive,
-            {},
-            identity
-        )
+        # 6. EXECUTION
+        output = self.executor.execute(evolved_state)
 
-        boundary = self.boundary.analyze(
-            self.tick,
-            result,
-            meta,
-            identity
-        )
+        # 7. OBSERVATION
+        observation = self.observer.observe(output)
 
-        collapse = self.stabilizer.analyze(
-            unified,
-            boundary,
-            recursive
-        )
+        # 8. CONSOLIDATION
+        self.memory_consolidator.consolidate(self.memory)
 
-        governance = self.governor.evaluate(
-            unified,
-            unified,
-            collapse
-        )
+        # 9. STABILIZATION
+        self.stabilizer.stabilize(state)
 
-        # 🛑 SAFE STOP CONDITIONS
-        if governance["locked"]:
-            print("🔐 SYSTEM LOCKED — STOPPING CYCLE")
-            return
+        # 10. FEEDBACK LOOP
+        self.memory.store({
+            "tick": self.tick,
+            "state": state,
+            "identity": identity_state,
+            "output": output,
+            "observation": observation
+        })
 
-        self.self_improver.evaluate(meta)
-
-        self._print(result, meta, evolution, execution, identity, unified, collapse, governance)
+        return {
+            "tick": self.tick,
+            "state": state,
+            "identity": identity_state,
+            "output": output,
+            "observation": observation
+        }
 
     # =========================
-    # 🧠 PRINT
+    # 🚀 RUN
     # =========================
-    def _print(self, result, meta, evolution, execution, identity, unified, collapse, governance):
-
-        print("\n🧠 TICK:", self.tick)
-        print("Result:", result.get("decision"))
-
-        print("\n🧠 META:", meta)
-        print("\n⚙️ EVOLUTION:", evolution)
-        print("\n⚡ EXECUTION:", execution)
-        print("\n🧬 IDENTITY:", identity)
-        print("\n🌐 UNIFIED:", unified)
-        print("\n🛡 COLLAPSE:", collapse)
-        print("\n⚖️ GOVERNANCE:", governance)
-
-    # =========================
-    # 🔁 RUN LOOP
-    # =========================
-    def run(self, max_ticks=10):
-
-        self.running = True
+    def run(self, steps=5):
 
         print("\n🚀 FANUS LOOP STARTED\n")
 
-        while self.running and self.tick < max_ticks:
+        for _ in range(steps):
+            result = self.cycle()
 
-            self.cycle("test")
+            if result:
+                print(f"[TICK {result['tick']}]", result)
 
-            self.tick += 1
             time.sleep(self.tick_delay)
 
-        print("\n🛑 FANUS LOOP STOPPED")
+        print("\n✅ FANUS LOOP FINISHED\n")
+
+    def stop(self):
+        self.running = False
