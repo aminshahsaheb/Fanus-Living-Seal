@@ -1,3 +1,20 @@
-fanus-sync.sh
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+
+# OS junk
+.DS_Store
+
+# Logs / temp
+*.log
+
+# Optional (AI / runtime artifacts if you use them later)
+*.sqlite3
+*.pkl
+*.json.bak
+
+# Scripts
+fanus-sync.sh
+*.pkl
+*.sqlite3
