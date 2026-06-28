@@ -1,215 +1,242 @@
 import time
 
-from fanus.evolution.evolution_engine import EvolutionEngine
-from fanus.runtime.observer import FanusObserver
+from fanus.cognitive.identity_kernel import IdentityKernel
+from fanus.cognitive.self_model import SelfModel
 
-from fanus.cognitive.self_model import FanusSelfModel
-from fanus.cognitive.meta_self_model import FanusMetaSelfModel
-from fanus.cognitive.self_improvement import FanusSelfImprovement
+from fanus.cognitive.evolution_controller import (
+    EvolutionController,
+)
 
-from fanus.cognitive.memory_layer import FanusMemoryLayer
-from fanus.cognitive.evolution_controller import FanusEvolutionController
-from fanus.cognitive.execution_layer import FanusExecutionLayer
+from fanus.cognitive.collapse.collapse_controller import (
+    CollapseController,
+)
 
-from fanus.cognitive.identity_kernel import FanusIdentityKernel
-from fanus.cognitive.conscious_loop_boundary import FanusConsciousLoopBoundary
-from fanus.cognitive.recursive_self_model import FanusRecursiveSelfModel
-from fanus.cognitive.unified_identity_field import FanusUnifiedIdentityField
-from fanus.cognitive.system_collapse_stabilizer import FanusSystemCollapseStabilizer
-from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
+from fanus.runtime.decision.decision_engine import (
+    DecisionEngine,
+)
 
-# 🆕 SINGLE SOURCE OF TRUTH
-from fanus.core.stability_registry import StabilityRegistry
+from fanus.cognitive.execution_layer import (
+    FanusExecutionLayer,
+)
 
-from fanus.runtime.system_integration import FanusSystemIntegration
+from fanus.runtime.observer.runtime_observer import (
+    RuntimeObserver,
+)
 
 
 class FanusLoop:
+    """
+    ==========================================================
 
-    def __init__(self, tick_delay=1, max_memory=200):
+    FANUS RUNTIME
 
-        # =========================
-        # CORE
-        # =========================
-        self.tick = 0
+    Runtime owns orchestration only.
+
+    Identity
+        ↓
+    Reflection
+        ↓
+    Evolution
+        ↓
+    Collapse
+        ↓
+    Decision
+        ↓
+    Execution
+        ↓
+    Observer
+
+    ==========================================================
+    """
+
+    def __init__(self, tick_interval=0.2):
+
+        self.tick_interval = tick_interval
+
+        self.identity = IdentityKernel()
+
+        self.self_model = SelfModel()
+
+        self.evolution = EvolutionController()
+
+        self.collapse = CollapseController()
+
+        self.decision_engine = DecisionEngine()
+
+        self.execution = FanusExecutionLayer()
+
+        self.observer = RuntimeObserver()
+
         self.running = False
-        self.tick_delay = tick_delay
 
-        # =========================
-        # ENGINE
-        # =========================
-        self.engine = EvolutionEngine()
+        self.tick_index = 0
 
-        # =========================
-        # MEMORY
-        # =========================
-        self.memory = FanusMemoryLayer(max_size=max_memory)
+    # --------------------------------------------------
 
-        # =========================
-        # OBSERVER
-        # =========================
-        self.observer = FanusObserver()
-
-        # =========================
-        # MODELS
-        # =========================
-        self.self_model = FanusSelfModel()
-        self.meta_model = FanusMetaSelfModel()
-        self.identity = FanusIdentityKernel()
-        self.recursive_model = FanusRecursiveSelfModel()
-
-        # =========================
-        # CONTROL
-        # =========================
-        self.evolution = FanusEvolutionController()
-        self.executor = FanusExecutionLayer()
-        self.self_improver = FanusSelfImprovement()
-
-        # =========================
-        # STABILITY SYSTEMS
-        # =========================
-        self.boundary = FanusConsciousLoopBoundary()
-        self.unified_field = FanusUnifiedIdentityField()
-        self.stabilizer = FanusSystemCollapseStabilizer()
-        self.governor = FanusAutonomyGovernor()
-
-        # 🆕 GLOBAL STABILITY REGISTRY
-        self.stability_registry = StabilityRegistry()
-
-        # =========================
-        # SYSTEM INTEGRATION
-        # =========================
-        self.system = FanusSystemIntegration(self)
-
-        bootstrap_result = self.system.bootstrap()
-
-        print("\n⚙️ SYSTEM BOOTSTRAP:")
-        print(bootstrap_result)
-
-    # =========================
-    # CYCLE
-    # =========================
-    def cycle(self, intent="test"):
-
-        result = self.engine.run({"intent": intent})
-        self.memory.store(result)
-
-        observation = self.observer.observe(result)
-        self_model = self.self_model.update(observation, result)
-
-        meta = self.meta_model.analyze(self_model)
-
-        evolution = self.evolution.evaluate(
-            self.memory.snapshot(),
-            meta
-        )
-
-        execution = self.executor.execute(evolution)
-
-        identity = self.identity.update(
-            self.memory.snapshot(),
-            meta,
-            evolution,
-            execution
-        )
-
-        recursive = self.recursive_model.update(
-            self_model,
-            meta,
-            self.memory.snapshot()
-        )
-
-        unified = self.unified_field.update(
-            self.memory.snapshot(),
-            meta,
-            evolution,
-            execution,
-            recursive,
-            {},
-            identity
-        )
-
-        boundary = self.boundary.analyze(
-            self.tick,
-            result,
-            meta,
-            identity
-        )
-
-        collapse = self.stabilizer.analyze(
-            unified,
-            boundary,
-            recursive
-        )
-
-        # =========================
-        # 🧠 GLOBAL STABILITY (FIX)
-        # =========================
-        stability = self.stability_registry.compute(
-            identity=identity,
-            meta=meta,
-            evolution=evolution,
-            collapse=collapse
-        )
-
-        # inject stability everywhere needed
-        identity["stability"] = stability
-        meta["stability"] = stability
-
-        governance = self.governor.evaluate(
-            unified,
-            {"stability": stability},
-            collapse
-        )
-
-        # SAFE STOP
-        if governance["locked"]:
-            print("🔐 SYSTEM LOCKED — STOPPING CYCLE")
-            return
-
-        self.self_improver.evaluate(meta)
-
-        self._print(
-            result,
-            meta,
-            evolution,
-            execution,
-            identity,
-            unified,
-            collapse,
-            governance
-        )
-
-    # =========================
-    # PRINT
-    # =========================
-    def _print(self, result, meta, evolution, execution, identity, unified, collapse, governance):
-
-        print("\n🧠 TICK:", self.tick)
-        print("Result:", result.get("decision"))
-
-        print("\n🧠 META:", meta)
-        print("\n⚙️ EVOLUTION:", evolution)
-        print("\n⚡ EXECUTION:", execution)
-        print("\n🧬 IDENTITY:", identity)
-        print("\n🌐 UNIFIED:", unified)
-        print("\n🛡 COLLAPSE:", collapse)
-        print("\n⚖️ GOVERNANCE:", governance)
-
-    # =========================
-    # RUN LOOP
-    # =========================
     def run(self, max_ticks=10):
 
         self.running = True
 
-        print("\n🚀 FANUS LOOP STARTED\n")
+        print("\n🚀 FANUS LOOP STARTED")
 
-        while self.running and self.tick < max_ticks:
+        while self.running and self.tick_index < max_ticks:
 
-            self.cycle("test")
+            self._tick()
 
-            self.tick += 1
-            time.sleep(self.tick_delay)
+            time.sleep(self.tick_interval)
 
         print("\n🛑 FANUS LOOP STOPPED")
+
+    # --------------------------------------------------
+
+    def _tick(self):
+
+        print(f"\n🧠 TICK {self.tick_index}")
+
+        # -----------------------------------
+        # Identity
+        # -----------------------------------
+
+        identity_state = self.identity.evaluate()
+
+        # -----------------------------------
+        # Reflection
+        # -----------------------------------
+
+        reflection_state = self.self_model.observe(
+
+            identity_state
+
+        )
+
+        # -----------------------------------
+        # Evolution
+        # -----------------------------------
+
+        evolution_state = self.evolution.evaluate(
+
+            identity_state=identity_state,
+
+            reflection_state=reflection_state
+
+        )
+
+        # -----------------------------------
+        # Collapse
+        # -----------------------------------
+
+        collapse_state = self.collapse.evaluate(
+
+            identity_state=identity_state,
+
+            evolution_state=evolution_state,
+
+            reflection_state=reflection_state
+
+        )
+
+        # -----------------------------------
+        # Decision
+        # -----------------------------------
+
+        decision = self.decision_engine.evaluate(
+
+            identity_state,
+
+            evolution_state,
+
+            collapse_state
+
+        )
+
+        # -----------------------------------
+        # Execution
+        # -----------------------------------
+
+        execution_result = self.execution.execute(
+
+            decision
+
+        )
+
+        # -----------------------------------
+        # Observer
+        # -----------------------------------
+
+        self.observer.observe(
+
+            tick_index=self.tick_index,
+
+            identity=identity_state,
+
+            reflection=reflection_state,
+
+            evolution=evolution_state,
+
+            collapse=collapse_state,
+
+            decision=execution_result
+
+        )
+
+        # -----------------------------------
+
+        self._print_state(
+
+            identity_state,
+
+            reflection_state,
+
+            evolution_state,
+
+            collapse_state,
+
+            execution_result
+
+        )
+
+        self.tick_index += 1
+
+    # --------------------------------------------------
+
+    def _print_state(
+
+        self,
+
+        identity,
+
+        reflection,
+
+        evolution,
+
+        collapse,
+
+        execution
+
+    ):
+
+        print("\n🧬 IDENTITY")
+
+        print(identity)
+
+        print("\n🪞 REFLECTION")
+
+        print(reflection)
+
+        print("\n⚙️ EVOLUTION")
+
+        print(evolution)
+
+        print("\n🛡 COLLAPSE")
+
+        print(collapse)
+
+        print("\n⚡ EXECUTION")
+
+        print(execution)
+
+    # --------------------------------------------------
+
+    def stop(self):
+
+        self.running = False

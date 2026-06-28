@@ -1,99 +1,115 @@
-from typing import Dict, Any, List
+"""
+==========================================================
+FANUS IDENTITY KERNEL
+==========================================================
+
+Single Source of Truth for System Identity
+
+RULES:
+- No self-modification
+- No external mutation
+- No decision making
+- No execution logic
+
+Only returns deterministic identity state.
+
+==========================================================
+"""
+
+from fanus.cognitive.ontology.ontology_registry import OntologyRegistry
+
+from fanus.cognitive.ontology.invariants import CORE_IDENTITY
 
 
-class FanusIdentityKernel:
+class IdentityKernel:
+    """
+    Identity is immutable at runtime level.
+
+    This kernel only MATERIALIZES identity state
+    from Ontology definitions + runtime stability inputs.
+    """
 
     def __init__(self):
 
-        # =========================
-        # 🧠 CORE IDENTITY STATE
-        # =========================
-        self.identity_state: Dict[str, Any] = {
-            "name": "Fanus",
-            "type": "controlled_cognitive_system",
-            "version": "1.0",
-            "mode": "stable_mode",
-            "stability": 0.6,
-            "history": []
+        self.registry = OntologyRegistry()
+
+        self.core = CORE_IDENTITY
+
+        self.version = "2.0"
+
+    # =========================================
+    # MAIN ENTRYPOINT
+    # =========================================
+    def evaluate(self, external_state=None):
+        """
+        Returns canonical identity snapshot.
+        """
+
+        stability = self._resolve_stability(external_state)
+
+        mode = self._resolve_mode(stability)
+
+        intent = self._resolve_intent(stability)
+
+        identity = {
+
+            "name": self.core.get("name", "Fanus"),
+
+            "type": self.core.get("type"),
+
+            "version": self.version,
+
+            "stability": stability,
+
+            "mode": mode,
+
+            "intent": intent
         }
 
-        self.stability_values: List[float] = []
+        return identity
 
-    # =========================
-    # 🔁 UPDATE IDENTITY
-    # =========================
-    def update(self, memory_snapshot: List[Dict], meta: Dict, evolution: Dict, execution: Dict) -> Dict:
+    # =========================================
+    # STABILITY RESOLUTION (SAFE)
+    # =========================================
+    def _resolve_stability(self, external_state):
 
-        stability = self._compute_stability(meta, evolution, execution)
+        if not external_state:
+            return 1.0
 
-        self.stability_values.append(stability)
+        if isinstance(external_state, dict):
 
-        avg_stability = self._average_stability()
+            return float(
+                external_state.get("stability", 1.0)
+            )
 
-        self.identity_state["stability"] = round(avg_stability, 3)
+        return 1.0
 
-        # =========================
-        # 🧠 MODE DECISION SYSTEM
-        # =========================
-        self.identity_state["mode"] = self._select_mode(avg_stability)
+    # =========================================
+    # MODE RESOLUTION (ONTOLOGY-BASED)
+    # =========================================
+    def _resolve_mode(self, stability):
 
-        # =========================
-        # 📦 STORE HISTORY
-        # =========================
-        self.identity_state["history"].append({
-            "stability": avg_stability,
-            "mode": self.identity_state["mode"],
-            "meta": meta
-        })
+        mode_map = self.registry.get("mode")
 
-        return self.identity_state
+        if stability < 0.3:
+            return mode_map["RECOVERY"]
 
-    # =========================
-    # 📊 STABILITY COMPUTATION
-    # =========================
-    def _compute_stability(self, meta: Dict, evolution: Dict, execution: Dict) -> float:
+        if stability < 0.7:
+            return mode_map["BALANCED"]
 
-        m = meta.get("stability", 0.6)
-        e = evolution.get("stability", 0.6)
-        x = execution.get("stability", 0.6) if isinstance(execution, dict) else 0.6
+        return mode_map["STABLE"]
 
-        # weighted stability
-        return (m * 0.4) + (e * 0.4) + (x * 0.2)
+    # =========================================
+    # INTENT RESOLUTION (FIXED POLICY)
+    # =========================================
+    def _resolve_intent(self, stability):
 
-    # =========================
-    # 📈 AVERAGE STABILITY
-    # =========================
-    def _average_stability(self) -> float:
+        intent_map = self.registry.get("intent")
 
-        if not self.stability_values:
-            return 0.6
+        if stability < 0.3:
+            return intent_map["RECOVER"]
 
-        return sum(self.stability_values) / len(self.stability_values)
+        if stability < 0.7:
+            return intent_map["LEARN"]
 
-    # =========================
-    # 🧭 MODE SELECTOR
-    # =========================
-    def _select_mode(self, avg_stability: float) -> str:
-
-        # 🔵 stable state
-        if avg_stability >= 0.65:
-            return "stable_mode"
-
-        # 🟡 learning state
-        elif 0.35 <= avg_stability < 0.65:
-            return "adaptive_learning_mode"
-
-        # 🔴 unstable state (rare)
-        else:
-            return "adaptive_instability_mode"
-
-    # =========================
-    # 🔒 RESET (SAFE RECOVERY)
-    # =========================
-    def reset(self):
-
-        self.stability_values = []
-        self.identity_state["mode"] = "stable_mode"
-        self.identity_state["stability"] = 0.6
-
-        return self.identity_state
+        return intent_map["OBSERVE"]

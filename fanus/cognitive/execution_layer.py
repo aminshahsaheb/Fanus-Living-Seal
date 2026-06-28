@@ -1,74 +1,143 @@
+"""
+==========================================================
+FANUS EXECUTION LAYER
+==========================================================
+
+Canonical Execution Layer
+
+Pipeline
+
+Decision Event
+      ↓
+Validation
+      ↓
+Execution
+      ↓
+Memory
+      ↓
+Execution Report
+
+Execution NEVER:
+
+- creates proposals
+- evaluates policy
+- edits identity
+- edits evolution
+- edits collapse
+
+==========================================================
+"""
+
+from fanus.cognitive.memory_layer import MemoryLayer
+from fanus.cognitive.ontology.event_factory import EventFactory
+
+
 class FanusExecutionLayer:
 
     def __init__(self):
+
+        self.memory = MemoryLayer()
+
         self.applied = []
+
         self.rejected = []
 
-        # 🧠 FANUS CONCEPT MEMORY (IMPORTANT)
-        self.semantic_core = {
-            "stability": "system balance over time",
-            "evolution": "controlled behavioral change",
-            "memory": "persistent identity across time",
-            "meta": "self-referential reasoning layer"
+    # =====================================================
+
+    def execute(self, decision: str):
+
+        if not self._validate(decision):
+
+            event = EventFactory.decision(
+
+                payload={
+
+                    "action": decision,
+
+                    "status": "rejected"
+
+                },
+
+                source="execution",
+
+                metadata={
+
+                    "layer": "execution"
+
+                }
+
+            )
+
+            self.rejected.append(event)
+
+            self.memory.store(event)
+
+            return event
+
+        event = EventFactory.decision(
+
+            payload={
+
+                "action": decision,
+
+                "status": "executed"
+
+            },
+
+            source="execution",
+
+            metadata={
+
+                "layer": "execution"
+
+            }
+
+        )
+
+        self.applied.append(event)
+
+        self.memory.store(event)
+
+        return event
+
+    # =====================================================
+
+    def _validate(self, decision):
+
+        forbidden = {
+
+            "rewrite_identity",
+
+            "rewrite_core",
+
+            "override_core",
+
+            "delete_memory",
+
+            "break_loop",
+
+            "disable_collapse_monitor"
+
         }
 
-    # =========================
-    # ⚙️ MAIN EXECUTION
-    # =========================
-    def execute(self, evolution_result):
+        return decision not in forbidden
 
-        proposals = evolution_result.get("proposals", [])
+    # =====================================================
 
-        applied = []
+    def history(self):
 
-        for p in proposals:
+        return self.memory.all()
 
-            if self._validate(p):
-                self._apply(p)
-                applied.append(p)
-            else:
-                self.rejected.append(p)
+    # =====================================================
+
+    def statistics(self):
 
         return {
-            "applied": applied,
-            "rejected": self.rejected,
-            "semantic_state": self.semantic_core
-        }
 
-    # =========================
-    # 🔍 VALIDATION LAYER
-    # =========================
-    def _validate(self, proposal):
+            "applied": len(self.applied),
 
-        # SAFE RULES ONLY
+            "rejected": len(self.rejected),
 
-        dangerous_actions = ["rewrite_core", "delete_memory", "break_loop"]
+            "memory": self.memory.size()
 
-        if proposal.get("action") in dangerous_actions:
-            return False
-
-        return True
-
-    # =========================
-    # ⚡ APPLY LAYER
-    # =========================
-    def _apply(self, proposal):
-
-        self.applied.append(proposal)
-
-        # 🧠 EMBED MEANING INTO SYSTEM CORE
-        self._embed_meaning(proposal)
-
-    # =========================
-    # 🧠 MEANING EMBEDDING LAYER
-    # =========================
-    def _embed_meaning(self, proposal):
-
-        p_type = proposal.get("type")
-
-        # هر execution یک meaning اضافه می‌کند
-        self.semantic_core[p_type] = {
-            "status": "active",
-            "last_action": proposal.get("action"),
-            "reason": proposal.get("reason")
         }

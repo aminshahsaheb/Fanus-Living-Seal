@@ -1,53 +1,114 @@
-class FanusMemoryLayer:
+"""
+==========================================================
+FANUS SEMANTIC MEMORY
+==========================================================
 
-    def __init__(self, max_size=200):
+Single semantic memory layer.
 
-        self.max_size = max_size
-        self.timeline = []
+Only validated ontology events may enter memory.
 
-        self.stats = {
-            "total_events": 0,
-            "intent_map": {}
-        }
+==========================================================
+"""
 
-    # =========================
-    # 💾 STORE EVENT
-    # =========================
+from collections import deque
+
+from fanus.cognitive.ontology.event_validator import (
+    EventValidator,
+)
+
+
+class MemoryLayer:
+    """
+    Semantic Event Memory.
+
+    Stores ONLY validated ontology events.
+    """
+
+    def __init__(self, max_events=500):
+
+        self.max_events = max_events
+
+        self.events = deque(maxlen=max_events)
+
+    # -------------------------------------------------
+    # STORE
+    # -------------------------------------------------
+
     def store(self, event):
 
-        self.timeline.append(event)
-        self.stats["total_events"] += 1
+        EventValidator.validate(event)
 
-        intent = event.get("intent")
+        self.events.append(event)
 
-        if intent not in self.stats["intent_map"]:
-            self.stats["intent_map"][intent] = 0
+        return event
 
-        self.stats["intent_map"][intent] += 1
+    # -------------------------------------------------
+    # READ
+    # -------------------------------------------------
 
-        if len(self.timeline) > self.max_size:
-            self.timeline.pop(0)
+    def all(self):
 
-    # =========================
-    # 🔍 GET HISTORY
-    # =========================
-    def get_history(self):
-        return self.timeline
+        return list(self.events)
 
-    # =========================
-    # 📊 GET SNAPSHOT
-    # =========================
-    def snapshot(self):
+    # -------------------------------------------------
 
-        return {
-            "total_events": self.stats["total_events"],
-            "intent_distribution": self.stats["intent_map"],
-            "memory_size": len(self.timeline)
-        }
+    def latest(self):
 
-    # =========================
-    # 🧠 SIMPLE PATTERN CHECK
-    # =========================
-    def pattern(self, intent):
+        if not self.events:
+            return None
 
-        return self.stats["intent_map"].get(intent, 0)
+        return self.events[-1]
+
+    # -------------------------------------------------
+
+    def by_entity(self, entity):
+
+        return [
+
+            e
+
+            for e in self.events
+
+            if e["entity"] == entity
+
+        ]
+
+    # -------------------------------------------------
+
+    def by_semantic_type(self, semantic_type):
+
+        return [
+
+            e
+
+            for e in self.events
+
+            if e["semantic_type"] == semantic_type
+
+        ]
+
+    # -------------------------------------------------
+
+    def clear(self):
+
+        self.events.clear()
+
+    # -------------------------------------------------
+
+    def size(self):
+
+        return len(self.events)
+
+    # -------------------------------------------------
+
+    def statistics(self):
+
+        stats = {}
+
+        for event in self.events:
+
+            entity = event["entity"]
+
+            stats[entity] = stats.get(entity, 0) + 1
+
+        return stats
