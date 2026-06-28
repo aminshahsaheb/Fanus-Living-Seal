@@ -16,5 +16,13 @@ __pycache__/
 
 # Scripts
 fanus-sync.sh
-*.pkl
-*.sqlite3
+
+# Backup / temp files
+*.bak
+*.save
+repository_audit.txt
+
+# Runtime artifacts
+fanus-engine/fanus_memory/
+fanus-engine/fanus_ledger.json
+fanus-engine/fanus_memory.json
