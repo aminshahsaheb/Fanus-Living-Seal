@@ -1,145 +1,92 @@
-"""
-==========================================================
-FANUS EVOLUTION CONTROLLER
-==========================================================
-
-Evolution Orchestrator
-
-Pipeline
-
-Identity
-    ↓
-Reflection
-    ↓
-Signal Aggregator
-    ↓
-Evolution Policy
-    ↓
-Proposal Builder
-
-This controller NEVER makes policy decisions.
-
-==========================================================
-"""
-
-from fanus.cognitive.evolution.signal_aggregator import (
-    SignalAggregator,
-)
-
-from fanus.cognitive.evolution.evolution_policy import (
-    EvolutionPolicy,
-)
-
-from fanus.cognitive.evolution.proposal_builder import (
-    ProposalBuilder,
-)
+from fanus.cognitive.evolution.signal_aggregator import SignalAggregator
+from fanus.cognitive.evolution.evolution_policy import EvolutionPolicy
+from fanus.cognitive.evolution.proposal_builder import ProposalBuilder
+from fanus.cognitive.evolution.proposal_rewriter import ProposalRewriter
 
 
 class EvolutionController:
     """
-    High-level orchestrator.
+    ==========================================================
+    FANUS EVOLUTION CONTROLLER (STEP 22 FINAL)
+    ==========================================================
 
-    No policy.
+    Pipeline:
+    Identity → Reflection → Signals → Memory Pressure
+           → Policy → Proposal → Rewrite Layer
 
-    No execution.
-
-    No authority.
-
-    Only pipeline coordination.
+    No execution. No authority.
+    Only adaptive proposal generation.
+    ==========================================================
     """
 
     def __init__(self):
 
         self.aggregator = SignalAggregator()
-
         self.policy = EvolutionPolicy()
+        self.rewriter = ProposalRewriter()
 
-    # ==================================================
-    # MAIN ENTRY
     # ==================================================
 
     def evaluate(
-
         self,
-
         identity_state,
-
         reflection_state,
-
-        semantic_memory=None
-
+        semantic_memory=None,
+        memory_pressure=0.0,
+        collapse_state=None
     ):
 
-        # -----------------------------------------
-        # Aggregate semantic signals
-        # -----------------------------------------
-
+        # ------------------------------------------
+        # 1. Signal aggregation
+        # ------------------------------------------
         signals = self.aggregator.aggregate(
-
             identity_state=identity_state,
-
             reflection_state=reflection_state,
-
             semantic_memory=semantic_memory
-
         )
 
-        # -----------------------------------------
-        # Policy evaluation
-        # -----------------------------------------
+        # ------------------------------------------
+        # 2. Inject memory pressure
+        # ------------------------------------------
+        signals["memory_pressure"] = memory_pressure
+        signals["combined"] = signals.get("combined", 0) + memory_pressure * 0.4
 
-        proposal = self.policy.evaluate(
+        # ------------------------------------------
+        # 3. Base policy decision
+        # ------------------------------------------
+        proposal = self.policy.evaluate(signals)
 
-            signals
-
-        )
-
-        # -----------------------------------------
-        # Canonical semantic event
-        # -----------------------------------------
-
-        proposal_event = ProposalBuilder.build(
-
+        base_event = ProposalBuilder.build(
             proposal,
-
             source="evolution"
-
         )
 
-        # -----------------------------------------
-        # Result
-        # -----------------------------------------
+        proposals = [base_event]
 
+        # ------------------------------------------
+        # 4. Collapse-aware rewriting layer
+        # ------------------------------------------
+        if collapse_state is not None:
+
+            proposals = self.rewriter.rewrite(
+                proposals,
+                memory_pressure,
+                collapse_state
+            )
+
+        # ------------------------------------------
+        # 5. Output
+        # ------------------------------------------
         return {
-
             "signals": signals,
-
-            "proposals": [
-
-                proposal_event
-
-            ],
-
+            "proposals": proposals,
             "meta": {
-
-                "stability":
-                    signals["stability"],
-
-                "reflection":
-                    signals["reflection"],
-
-                "memory_signal":
-                    signals["memory"],
-
-                "trend":
-                    signals["trend"],
-
-                "combined":
-                    signals["combined"],
-
-                "proposal_count":
-                    1
-
+                "stability": signals.get("stability"),
+                "reflection": signals.get("reflection"),
+                "memory_signal": signals.get("memory"),
+                "trend": signals.get("trend"),
+                "combined": signals.get("combined"),
+                "memory_pressure": memory_pressure,
+                "rewritten": True
             }
-
         }
