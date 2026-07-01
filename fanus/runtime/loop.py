@@ -16,8 +16,10 @@ from fanus.runtime.self_stabilization_engine import SelfStabilizationEngine
 class FanusLoop:
     """
     ==========================================================
-    FANUS RUNTIME LOOP (FINAL STABLE ARCHITECTURE)
+    FANUS RUNTIME LOOP (STABLE FINAL CORE)
     ==========================================================
+
+    PIPELINE:
 
     Identity
         ↓
@@ -27,37 +29,48 @@ class FanusLoop:
         ↓
     Collapse
         ↓
-    Self-Stabilization
+    Self-Stabilization (GATE)
         ↓
     Decision
         ↓
-    Execution
+    Execution (CONTROLLED)
         ↓
-    Observer
+    Observer (FULL TRACE)
+
     ==========================================================
     """
 
     def __init__(self, tick_interval=0.2):
 
-        # runtime config
+        # -------------------------
+        # Runtime config
+        # -------------------------
         self.tick_interval = tick_interval
         self.tick_index = 0
         self.running = False
 
-        # cognitive core
+        # -------------------------
+        # Cognitive core
+        # -------------------------
         self.identity = IdentityKernel()
         self.self_model = SelfModel()
         self.evolution = EvolutionController()
         self.collapse = CollapseController()
 
-        # reasoning
+        # -------------------------
+        # Reasoning layer
+        # -------------------------
         self.decision_engine = DecisionEngine()
         self.execution = FanusExecutionLayer()
 
-        # runtime control
+        # -------------------------
+        # Control layer
+        # -------------------------
         self.self_stabilizer = SelfStabilizationEngine()
         self.observer = RuntimeObserver()
 
+    # ==================================================
+    # MAIN LOOP
     # ==================================================
 
     def run(self, max_ticks=10):
@@ -71,12 +84,14 @@ class FanusLoop:
         print("\n🛑 FANUS LOOP STOPPED")
 
     # ==================================================
+    # SINGLE TICK
+    # ==================================================
 
     def _tick(self):
 
         print(f"\n🧠 TICK {self.tick_index}")
 
-        # 1. Identity
+        # 1. Identity evaluation
         identity_state = self.identity.evaluate()
 
         # 2. Reflection
@@ -88,18 +103,25 @@ class FanusLoop:
             reflection_state=reflection_state
         )
 
-        # 4. Collapse
+        # 4. Collapse analysis
         collapse_state = self.collapse.evaluate(
             identity_state=identity_state,
             evolution_state=evolution_state,
             reflection_state=reflection_state
         )
 
-        # 5. Stabilization Gate
+        # 5. STABILITY GATE (CRITICAL CONTROL POINT)
         stability_state = self.self_stabilizer.evaluate(
             collapse_state=collapse_state,
             evolution_state=evolution_state
         )
+
+        # 🛑 HARD SAFETY CHECK
+        if not stability_state.get("allowed", True):
+            print("\n🛑 STABILITY GATE BLOCKED EXECUTION")
+            time.sleep(stability_state.get("tick_delay", 0.5))
+            self.tick_index += 1
+            return
 
         # 6. Decision
         decision = self.decision_engine.evaluate(
@@ -108,14 +130,14 @@ class FanusLoop:
             collapse_state
         )
 
-        # 7. Execution (FULL SAFE PIPELINE)
+        # 7. Execution (CONTROLLED BY STABILITY GATE)
         execution_result = self.execution.execute({
             "decision": decision,
             "proposals": evolution_state.get("proposals", []),
-            "execution_limit": stability_state["execution_limit"]
+            "execution_limit": stability_state.get("execution_limit", 1.0)
         })
 
-        # 8. Observer (FULL TRACE)
+        # 8. Observer (FULL SYSTEM TRACE)
         self.observer.observe(
             tick_index=self.tick_index,
             identity=identity_state,
@@ -137,10 +159,12 @@ class FanusLoop:
             stability_state
         )
 
-        # 10. adaptive timing
-        time.sleep(stability_state["tick_delay"])
+        # 10. adaptive runtime control
+        time.sleep(stability_state.get("tick_delay", self.tick_interval))
         self.tick_index += 1
 
+    # ==================================================
+    # DEBUG PRINTER
     # ==================================================
 
     def _print_state(
@@ -165,7 +189,7 @@ class FanusLoop:
         print("\n🛡 COLLAPSE")
         print(collapse)
 
-        print("\n🚦 STABILITY ENGINE")
+        print("\n🚦 STABILITY")
         print(stability)
 
         print("\n⚡ EXECUTION")
