@@ -1,10 +1,15 @@
+import os
 import anthropic
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class ClaudeAdapter:
 
-    def __init__(self, api_key):
-        self.client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, api_key=None):
+        key = api_key or os.environ.get("ANTHROPIC_API_KEY", "")
+        self.client = anthropic.Anthropic(api_key=key)
         self.model = "claude-sonnet-4-6"
 
     def generate(self, system_prompt, user_message):
