@@ -11,6 +11,7 @@ from fanus.cognitive.execution_layer import FanusExecutionLayer
 
 from fanus.runtime.observer.runtime_observer import RuntimeObserver
 from fanus.runtime.self_stabilization_engine import SelfStabilizationEngine
+from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
 
 
 class FanusLoop:
@@ -68,6 +69,7 @@ class FanusLoop:
         # -------------------------
         self.self_stabilizer = SelfStabilizationEngine()
         self.observer = RuntimeObserver()
+        self.governor = FanusAutonomyGovernor()
 
     # ==================================================
     # MAIN LOOP
@@ -136,6 +138,15 @@ class FanusLoop:
             "proposals": evolution_state.get("proposals", []),
             "execution_limit": stability_state.get("execution_limit", 1.0)
         })
+
+        # 7.5 Autonomy governance
+        governance = self.governor.evaluate(
+            {"stability": identity_state.get("stability", 1.0), "drift": reflection_state.get("reflection", {}).get("drift", 0.0)},
+            stability_state,
+            collapse_state.get("meta", {})
+        )
+        if governance["locked"]:
+            return
 
         # 8. Observer (FULL SYSTEM TRACE)
         self.observer.observe(
