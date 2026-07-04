@@ -1,10 +1,15 @@
+import os
 from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class GroqAdapter:
 
-    def __init__(self, api_key):
-        self.client = Groq(api_key=api_key)
+    def __init__(self, api_key=None):
+        key = api_key or os.environ.get("GROQ_API_KEY", "")
+        self.client = Groq(api_key=key)
         self.model = "llama-3.3-70b-versatile"
 
     def generate(self, system_prompt, user_message):

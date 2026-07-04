@@ -26,3 +26,4 @@ repository_audit.txt
 fanus-engine/fanus_memory/
 fanus-engine/fanus_ledger.json
 fanus-engine/fanus_memory.json
+.env
