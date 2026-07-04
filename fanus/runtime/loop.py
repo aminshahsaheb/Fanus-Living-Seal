@@ -12,6 +12,7 @@ from fanus.cognitive.execution_layer import FanusExecutionLayer
 from fanus.runtime.observer.runtime_observer import RuntimeObserver
 from fanus.runtime.self_stabilization_engine import SelfStabilizationEngine
 from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
+from fanus.cognitive.safety_signal_bus import SafetySignalBus
 
 
 class FanusLoop:
@@ -70,6 +71,7 @@ class FanusLoop:
         self.self_stabilizer = SelfStabilizationEngine()
         self.observer = RuntimeObserver()
         self.governor = FanusAutonomyGovernor()
+        self.safety_bus = SafetySignalBus()
 
     # ==================================================
     # MAIN LOOP
@@ -146,7 +148,9 @@ class FanusLoop:
             collapse_state.get("meta", {})
         )
         if governance["locked"]:
+            self.safety_bus.emit({"type": "LOCKED", "tick": self.tick_index, "reason": "high_collapse"})
             return
+        self.safety_bus.emit({"type": "OK", "tick": self.tick_index, "autonomy": governance["autonomy_level"]})
 
         # 8. Observer (FULL SYSTEM TRACE)
         self.observer.observe(
