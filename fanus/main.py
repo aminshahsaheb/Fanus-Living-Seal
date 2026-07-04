@@ -39,7 +39,7 @@ class FanusSystem:
         while True:
             user_input = input("شما: ")
             if user_input.strip().lower() == "exit":
-                print("ledger size: " + str(self.ledger.size()))
+                print("ledger size: " + str(self.memory.ledger.size()))
                 break
             response, mode, stab, sys_mode = self.run_once(user_input)
             print("[" + mode + " | " + sys_mode + " | " + str(stab) + "]")
