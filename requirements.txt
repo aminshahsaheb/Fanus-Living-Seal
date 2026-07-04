@@ -1,0 +1,10 @@
+groq
+anthropic
+openai
+python-dotenv
+arxiv
+wikipedia-api
+feedparser
+requests
+httpx
+google-api-python-client
