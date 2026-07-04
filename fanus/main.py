@@ -6,6 +6,7 @@ from fanus.evolution.evolution_engine import EvolutionEngine
 from fanus.runtime.self_stabilization_engine import SelfStabilizationEngine
 from fanus.adapters.groq_adapter import GroqAdapter
 from fanus.memory.pipeline import MemoryPipeline
+from fanus.adapters.knowledge_gateway import KnowledgeGateway
 
 SYSTEM_PROMPT = "تو فانوس هستی. فقط و فقط به زبان فارسی جواب بده. هرگز عربی استفاده نکن. صادق باش و چاپلوسی نکن."
 
@@ -19,30 +20,33 @@ class FanusSystem:
         self.engine = EvolutionEngine()
         self.llm = GroqAdapter(os.environ.get("GROQ_API_KEY", ""))
         self.memory = MemoryPipeline()
+        self.gateway = KnowledgeGateway()
 
     def run_once(self, user_input):
         self.memory.process(user_input, "user", 1.0)
+        knowledge = self.gateway.quick_search(user_input)
         state = self.engine.run({"intent": "user_input"})
         identity = self.identity.evaluate(state["state"])
         reflection = self.self_model.observe(identity)
         collapse = self.collapse.evaluate(identity, state["state"], reflection)
         stabilizer = self.stabilizer.evaluate(collapse, state)
-        response = self.llm.generate(SYSTEM_PROMPT, user_input)
+        enriched = SYSTEM_PROMPT + " [منابع: " + str(knowledge["total_results"]) + " نتیجه از " + str(len(knowledge["sources"])) + " منبع]"
+        response = self.llm.generate(enriched, user_input)
         self.memory.process(response, "fanus", 0.9)
         mode = identity["mode"]
         stab = round(state["state"]["stability"], 4)
         sys_mode = stabilizer["mode"]
-        return response, mode, stab, sys_mode
+        return response, mode, stab, sys_mode, knowledge["total_results"]
 
     def run_interactive(self):
         print("فانوس آماده است.")
         while True:
             user_input = input("شما: ")
             if user_input.strip().lower() == "exit":
-                print("ledger size: " + str(self.memory.ledger.size()))
+                print("ledger: " + str(self.memory.ledger.size()))
                 break
-            response, mode, stab, sys_mode = self.run_once(user_input)
-            print("[" + mode + " | " + sys_mode + " | " + str(stab) + "]")
+            response, mode, stab, sys_mode, sources = self.run_once(user_input)
+            print("[" + mode + " | " + sys_mode + " | " + str(stab) + " | sources=" + str(sources) + "]")
             print("فانوس: " + response)
             print()
 
