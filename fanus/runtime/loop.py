@@ -76,12 +76,12 @@ class FanusLoop:
     def run(self, max_ticks=10):
 
         self.running = True
-        print("\n🚀 FANUS LOOP STARTED")
+        # print("\n🚀 FANUS LOOP STARTED")
 
         while self.running and self.tick_index < max_ticks:
             self._tick()
 
-        print("\n🛑 FANUS LOOP STOPPED")
+        # print("\n🛑 FANUS LOOP STOPPED")
 
     # ==================================================
     # SINGLE TICK
@@ -89,7 +89,7 @@ class FanusLoop:
 
     def _tick(self):
 
-        print(f"\n🧠 TICK {self.tick_index}")
+        # print(f"\n🧠 TICK {self.tick_index}")
 
         # 1. Identity evaluation
         identity_state = self.identity.evaluate()
@@ -150,14 +150,8 @@ class FanusLoop:
         )
 
         # 9. Debug output
-        self._print_state(
-            identity_state,
-            reflection_state,
-            evolution_state,
-            collapse_state,
-            execution_result,
-            stability_state
-        )
+        # self._print_state(
+            
 
         # 10. adaptive runtime control
         time.sleep(stability_state.get("tick_delay", self.tick_interval))
