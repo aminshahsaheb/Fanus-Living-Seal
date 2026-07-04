@@ -5,6 +5,7 @@ from fanus.adapters.groq_adapter import GroqAdapter
 from fanus.memory.pipeline import MemoryPipeline
 from fanus.adapters.knowledge_gateway import KnowledgeGateway
 from fanus.cognitive.orchestrator import CognitiveOrchestrator
+from fanus.cognitive.negar_detector import NegarDetector
 
 SYSTEM_PROMPT = FanusIdentity().system_prompt()
 
@@ -16,6 +17,7 @@ class FanusSystem:
         self.memory = MemoryPipeline()
         self.gateway = KnowledgeGateway()
         self.orchestrator = CognitiveOrchestrator()
+        self.negar = NegarDetector()
 
     def run_once(self, user_input):
         self.memory.process(user_input, "user", 1.0)
@@ -26,6 +28,7 @@ class FanusSystem:
         response = self.llm.generate(enriched, user_input)
         self.memory.process(response, "fanus", 0.9)
         cognitive = self.orchestrator.process(user_input, response)
+        negar = self.negar.analyze(response, "fanus")
         mode = identity["mode"]
         stab = round(identity["stability"], 4)
         return response, mode, stab, cognitive
@@ -37,7 +40,8 @@ class FanusSystem:
             if user_input.strip().lower() == "exit":
                 break
             response, mode, stab, cognitive = self.run_once(user_input)
-            print("[" + mode + " | " + str(stab) + "]")
+            negar_flag = " ⚠️NEGAR" if cognitive.get("negar", False) else ""
+            print("[" + mode + " | " + str(stab) + negar_flag + "]")
             print("Fanus: " + response)
             print()
 
