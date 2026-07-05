@@ -25,7 +25,10 @@ class FanusSystem:
         self.loop._tick()
         identity = self.loop.identity.evaluate()
         enriched = SYSTEM_PROMPT + " [sources: " + str(knowledge["total_results"]) + "]"
-        response = self.llm.generate(enriched, user_input)
+        try:
+            response = self.llm.generate(enriched, user_input)
+        except Exception as e:
+            response = "خطا در ارتباط با مدل: " + str(e)[:100]
         self.memory.process(response, "fanus", 0.9)
         cognitive = self.orchestrator.process(user_input, response)
         negar = self.negar.analyze(response, "fanus")
