@@ -15,6 +15,7 @@ from fanus.api.reasoning import router as reasoning_router
 from fanus.api.research import router as research_router
 from fanus.api.memory import router as memory_router
 from fanus.api.decision import router as decision_router
+from fanus.api.automation import router as auto_router
 app = FastAPI(title="Fanus API", version="1.0.0")
 
 app.include_router(knowledge_router)
@@ -22,6 +23,7 @@ app.include_router(reasoning_router)
 app.include_router(research_router)
 app.include_router(memory_router)
 app.include_router(decision_router)
+app.include_router(auto_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
