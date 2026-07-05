@@ -8,3 +8,5 @@ feedparser
 requests
 httpx
 google-api-python-client
+fastapi
+uvicorn
