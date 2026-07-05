@@ -10,8 +10,10 @@ from fanus.adapters.knowledge_gateway import KnowledgeGateway
 from fanus.cognitive.orchestrator import CognitiveOrchestrator
 from fanus.cognitive.negar_detector import NegarDetector
 
+from fanus.api.knowledge import router as knowledge_router
 app = FastAPI(title="Fanus API", version="1.0.0")
 
+app.include_router(knowledge_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
