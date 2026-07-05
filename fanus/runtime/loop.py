@@ -13,6 +13,7 @@ from fanus.runtime.observer.runtime_observer import RuntimeObserver
 from fanus.runtime.self_stabilization_engine import SelfStabilizationEngine
 from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
 from fanus.cognitive.safety_signal_bus import SafetySignalBus
+from fanus.runtime.safety.runtime_hard_guard import RuntimeHardGuard
 
 
 class FanusLoop:
@@ -72,6 +73,7 @@ class FanusLoop:
         self.observer = RuntimeObserver()
         self.governor = FanusAutonomyGovernor()
         self.safety_bus = SafetySignalBus()
+        self.hard_guard = RuntimeHardGuard()
 
     # ==================================================
     # MAIN LOOP
@@ -121,9 +123,12 @@ class FanusLoop:
         )
 
         # 🛑 HARD SAFETY CHECK
-        if not stability_state.get("allowed", True):
-            print("\n🛑 STABILITY GATE BLOCKED EXECUTION")
-            time.sleep(stability_state.get("tick_delay", 0.5))
+        guard = self.hard_guard.evaluate(
+            collapse_state.get("meta", {}),
+            {}
+        )
+        if not guard["allowed"]:
+            self.safety_bus.emit({"type": "HARD_GUARD_BLOCKED", "reason": guard["reason"], "tick": self.tick_index})
             self.tick_index += 1
             return
 
