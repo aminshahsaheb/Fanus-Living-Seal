@@ -1,10 +1,15 @@
 import os
+from fanus.core.seal_verifier import SealVerifier
 
 
 class FanusIdentity:
 
     def __init__(self):
         self.root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    def verify(self, state):
+        sv = SealVerifier()
+        return sv.verify_seal_integrity(state)
 
     def system_prompt(self):
         return (

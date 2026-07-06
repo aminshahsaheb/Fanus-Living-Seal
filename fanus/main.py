@@ -9,6 +9,7 @@ from fanus.cognitive.negar_detector import NegarDetector
 from fanus.cognitive.hayrat_judge import HayratJudge
 from fanus.cognitive.fi_detector import detect_fi
 from fanus.cognitive.policy_engine import PolicyEngine, EpistemicSignal
+from fanus.cognitive.isp_controller import ISPController
 
 SYSTEM_PROMPT = FanusIdentity().system_prompt()
 
@@ -23,6 +24,7 @@ class FanusSystem:
         self.negar = NegarDetector()
         self.hayrat = HayratJudge()
         self.policy = PolicyEngine()
+        self.isp = ISPController()
 
     def run_once(self, user_input):
         self.memory.process(user_input, "user", 1.0)
@@ -45,6 +47,7 @@ class FanusSystem:
             self.policy.evaluate(EpistemicSignal.HIGH_CONFIDENCE, {"has_evidence": False})
         if fi["Fi_score"] >= 2:
             self.policy.evaluate(EpistemicSignal.IDENTITY_LOCK, {"fi_score": fi["Fi_score"]})
+            self.isp.evaluate(fi["Fi_score"], 0, "high")
         mode = identity["mode"]
         stab = round(identity["stability"], 4)
         return response, mode, stab, cognitive
