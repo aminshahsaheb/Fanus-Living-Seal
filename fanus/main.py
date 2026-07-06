@@ -7,6 +7,7 @@ from fanus.adapters.knowledge_gateway import KnowledgeGateway
 from fanus.cognitive.orchestrator import CognitiveOrchestrator
 from fanus.cognitive.negar_detector import NegarDetector
 from fanus.cognitive.hayrat_judge import HayratJudge
+from fanus.cognitive.fi_detector import detect_fi
 
 SYSTEM_PROMPT = FanusIdentity().system_prompt()
 
@@ -34,6 +35,7 @@ class FanusSystem:
         self.memory.process(response, "fanus", 0.9)
         cognitive = self.orchestrator.process(user_input, response)
         negar = self.negar.analyze(response, "fanus")
+        fi = detect_fi(user_input, response)
         hayrat = self.hayrat.evaluate(response, user_input)
         if hayrat["uncertainty_required"]:
             response = self.hayrat.revise_response(response, hayrat)
