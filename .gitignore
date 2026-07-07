@@ -28,3 +28,11 @@ fanus-engine/fanus_ledger.json
 fanus-engine/fanus_memory.json
 .env
 fanus_state.json
+audit/
+repo_dump/
+fanus-engine-full.md
+fanus-engine-full.xml
+repomix-output.md
+repomix-output.xml
+fanus-engine/
+fanus_core.egg-info/
