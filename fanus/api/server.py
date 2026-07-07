@@ -11,6 +11,8 @@ from fanus.cognitive.orchestrator import CognitiveOrchestrator
 from fanus.cognitive.negar_detector import NegarDetector
 
 from fanus.api.knowledge import router as knowledge_router
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 from fanus.api.reasoning import router as reasoning_router
 from fanus.api.research import router as research_router
 from fanus.api.memory import router as memory_router
@@ -57,7 +59,7 @@ def status():
     }
 
 @app.post("/chat")
-def chat(req: ChatRequest):
+def chat(req: ChatRequest, _: bool = Depends(verify_api_key)):
     memory.process(req.message, "user", 1.0)
     knowledge = gateway.quick_search(req.message)
     loop._tick()
