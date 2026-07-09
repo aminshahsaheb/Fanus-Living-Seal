@@ -1,6 +1,11 @@
 from setuptools import setup, find_packages
 
+with open("README.md", encoding="utf-8") as f:
+    long_description = f.read()
+
 setup(
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     name="fanus-core",
     version="1.0.0",
     description="Epistemic AI Engine — witness truth, detect flattery, build verified knowledge",
