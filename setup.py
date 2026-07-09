@@ -7,7 +7,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     name="fanus-core",
-    version="1.0.0",
+    version="1.0.1",
     description="Epistemic AI Engine — witness truth, detect flattery, build verified knowledge",
     author="Amin Shahsaheb",
     author_email="amin@fanus.ai",
