@@ -1,38 +1,20 @@
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-
-# OS junk
 .DS_Store
-
-# Logs / temp
-*.log
-
-# Optional (AI / runtime artifacts if you use them later)
-*.sqlite3
-*.pkl
-*.json.bak
-
-# Scripts
-fanus-sync.sh
-
-# Backup / temp files
-*.bak
-*.save
+dist/
+*.pyc
+__pycache__/
+snapshot_*.txt
+.env
+*.egg-info/
+fanus_state.json
+repo_dump/
+repomix-output.*
+fanus-engine-full.*
 repository_audit.txt
-
-# Runtime artifacts
-fanus-engine/fanus_memory/
-fanus-engine/fanus_ledger.json
-fanus-engine/fanus_memory.json
+audit/
+fanus_core.egg-info/
 .env
 fanus_state.json
-audit/
 repo_dump/
-fanus-engine-full.md
-fanus-engine-full.xml
-repomix-output.md
-repomix-output.xml
-fanus-engine/
-fanus_core.egg-info/
+repomix-output.*
+fanus-engine-full.*
+repository_audit.txt
