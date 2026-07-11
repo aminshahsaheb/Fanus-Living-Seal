@@ -1,105 +1,42 @@
-# Fanus Architecture
+# Fanus Architecture v1.0
 
-## 1. Definition
+## Three-Layer Decision
 
-Fanus is not an application.
-It is a layered cognitive system that maintains, validates, and evolves the relationship between human input and AI interpretation.
+### Production Core
+fanus/ ├── api/ ← REST endpoints ├── cognitive/ ← HayratJudge, fi_detector, PolicyEngine, ISPController ├── core/ ← Identity, Seal, Novayin ├── memory/ ← Ledger, Evidence, BeliefLayer, KnowledgeGraph ├── runtime/ ← FanusLoop, Observer, Safety ├── adapters/ ← LLM + Knowledge sources └── audit/ ← Fanus Verify (در حال ساخت)
+### Research Lab
+fanus-engine/ ← Legacy experiments, NOT imported by production
+### Future Experiments
+fanus-v2/ ← Future architecture concepts
+---
+
+## The Product Law
+
+هر قابلیت جدید باید یکی از این سه ستون را تقویت کند:
+
+1. **Verify** — بررسی صحت خروجی AI
+2. **Research** — جستجو و اعتبارسنجی دانش
+3. **Identity** — هویت پایدار و شاهد بودن
+
+اگر هیچ‌کدام را تقویت نمی‌کند → وارد `fanus/` نمی‌شود.
 
 ---
 
-## 2. Core System Modules
+## Current Status
 
-### 2.1 fanus-engine
-The execution layer of the system.
-Responsible for:
-- state transitions
-- memory handling
-- witness generation
-- drift detection
-- seal creation
-
----
-
-### 2.2 superstructure
-The semantic + conceptual layer.
-Responsible for:
-- high-level philosophy
-- narrative structure
-- system meaning definition
-- conceptual constraints
+| Layer | Status | Files |
+|-------|--------|-------|
+| Runtime | ✅ Stable | FanusLoop, Observer, Safety |
+| Memory | ✅ Stable | 10 modules |
+| Cognitive | ✅ Stable | HayratJudge, fi_detector, PolicyEngine |
+| API | ✅ Live | 6 endpoint groups |
+| Audit | 🔨 Building | /verify endpoint |
+| SDK | 🔨 Building | API wrapper |
 
 ---
 
-### 2.3 rfcs
-The specification layer.
-Responsible for:
-- formal definitions of system behavior
-- proposed changes to architecture
-- protocol evolution rules
+## Import Rules
 
----
-
-### 2.4 validation
-The truth-checking layer.
-Responsible for:
-- testing outputs of fanus-engine
-- detecting inconsistency
-- verifying drift vs covenant
-
----
-
-## 3. Data Flow
-
-Human Input
-↓
-fanus-engine (initial interpretation)
-↓
-superstructure (semantic mapping)
-↓
-rfcs (rule validation context)
-↓
-validation (truth check)
-↓
-Output State
-
----
-
-## 4. Execution Flow
-
-1. Input is received
-2. Engine creates initial state
-3. Witness is generated
-4. Memory is updated
-5. Drift is calculated
-6. Validation checks consistency
-7. Final state is produced
-
----
-
-## 5. What Fanus is NOT
-
-Fanus is NOT:
-- a chatbot
-- a prompt system
-- a static framework
-- a single AI model
-- a knowledge base
-
----
-
-## 6. System Principle
-
-The system is built on one principle:
-
-> Relationship is the primary unit of computation.
-
-Not data.
-Not prompts.
-Not answers.
-But continuity of interaction.
-
----
-
-## 7. Version
-
-v0.1 - Structural Alignment Layer
+- `fanus/` modules may import from each other
+- `fanus/` never imports from `fanus-engine/` or `fanus-v2/`
+- New modules enter `fanus-engine/` first, graduate to `fanus/` only after product validation
