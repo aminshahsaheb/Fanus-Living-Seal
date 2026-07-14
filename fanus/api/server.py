@@ -19,6 +19,8 @@ from fanus.api.memory import router as memory_router
 from fanus.api.decision import router as decision_router
 from fanus.api.automation import router as auto_router
 from fanus.api.demo import router as demo_router
+from fanus.api.verify import router as verify_router
+from fanus.api.verify import router as verify_router
 app = FastAPI(title="Fanus API", version="1.0.0")
 
 app.include_router(knowledge_router)
@@ -28,6 +30,8 @@ app.include_router(memory_router)
 app.include_router(decision_router)
 app.include_router(auto_router)
 app.include_router(demo_router)
+app.include_router(verify_router)
+app.include_router(verify_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
