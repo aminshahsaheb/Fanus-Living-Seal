@@ -10,7 +10,6 @@ repo_dump/
 repomix-output.*
 fanus-engine-full.*
 repository_audit.txt
-audit/
 fanus_core.egg-info/
 .env
 fanus_state.json
