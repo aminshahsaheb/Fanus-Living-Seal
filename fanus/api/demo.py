@@ -80,6 +80,24 @@ async def demo_chat(req: DemoRequest, request: Request):
         "rate_limited": False
     }
 
+@router.post("/verify")
+async def demo_verify(request: Request):
+    import json
+    body = await request.body()
+    data = json.loads(body)
+    ip = request.client.host
+    if not check_rate_limit(ip):
+        return {"error": "Rate limit reached. Max 10 demo requests per hour.", "rate_limited": True}
+    from fanus.audit.audit_engine import AuditEngine
+    audit = AuditEngine()
+    result = audit.verify(
+        data.get("prompt", ""),
+        data.get("response", ""),
+        data.get("context", "")
+    )
+    result["rate_limited"] = False
+    return result
+
 @router.get("/status")
 async def demo_status():
     from fanus.cognitive.identity_kernel import IdentityKernel
