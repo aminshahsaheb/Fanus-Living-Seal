@@ -98,6 +98,29 @@ async def demo_verify(request: Request):
     result["rate_limited"] = False
     return result
 
+@router.post("/verify/deep")
+async def demo_verify_deep(request: Request):
+    import json
+    body = await request.body()
+    data = json.loads(body)
+    ip = request.client.host
+    if not check_rate_limit(ip):
+        return {"error": "Rate limit reached. Max 10 demo requests per hour.", "rate_limited": True}
+    from fanus.audit.audit_engine import AuditEngine
+    from fanus.adapters.knowledge_gateway import KnowledgeGateway
+    audit = AuditEngine()
+    gateway = KnowledgeGateway()
+    knowledge = gateway.search_all(data.get("prompt", ""), limit=3)
+    sources_text = ""
+    for source, items in knowledge.items():
+        if isinstance(items, list) and items:
+            sources_text += items[0].get("title", "") + " "
+    result = audit.verify(data.get("prompt", ""), data.get("response", ""), sources_text)
+    result["deep"] = True
+    result["knowledge_sources"] = knowledge
+    result["rate_limited"] = False
+    return result
+
 @router.get("/status")
 async def demo_status():
     from fanus.cognitive.identity_kernel import IdentityKernel
