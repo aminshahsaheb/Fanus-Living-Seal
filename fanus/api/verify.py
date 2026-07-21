@@ -2,6 +2,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from fanus.audit.audit_engine import AuditEngine
 from fanus.adapters.knowledge_gateway import KnowledgeGateway
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 
 router = APIRouter(prefix="/verify", tags=["verify"])
 
@@ -21,13 +23,13 @@ class VerifyDeepRequest(BaseModel):
 
 
 @router.post("")
-def verify(req: VerifyRequest):
+def verify(req: VerifyRequest, _: bool = Depends(verify_api_key)):
     result = audit.verify(req.prompt, req.response, req.context)
     return result
 
 
 @router.post("/deep")
-def verify_deep(req: VerifyDeepRequest):
+def verify_deep(req: VerifyDeepRequest, _: bool = Depends(verify_api_key)):
     knowledge = gateway.search_all(req.prompt, limit=3)
     sources_text = ""
     for source, items in knowledge.items():
