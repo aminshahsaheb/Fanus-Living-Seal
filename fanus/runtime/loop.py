@@ -139,14 +139,9 @@ class FanusLoop:
             collapse_state
         )
 
-        # 7. Execution (CONTROLLED BY STABILITY GATE)
-        execution_result = self.execution.execute({
-            "decision": decision,
-            "proposals": evolution_state.get("proposals", []),
-            "execution_limit": stability_state.get("execution_limit", 1.0)
-        })
-
-        # 7.5 Autonomy governance
+        # 6.5 Autonomy governance (MOVED BEFORE EXECUTION — was checked after
+        # execute(), meaning a locked tick could still run its action before
+        # being blocked. Fixed per audit F-10/F-11.)
         governance = self.governor.evaluate(
             {"stability": identity_state.get("stability", 1.0), "drift": reflection_state.get("reflection", {}).get("drift", 0.0)},
             stability_state,
@@ -154,8 +149,16 @@ class FanusLoop:
         )
         if governance["locked"]:
             self.safety_bus.emit({"type": "LOCKED", "tick": self.tick_index, "reason": "high_collapse"})
+            self.tick_index += 1
             return
         self.safety_bus.emit({"type": "OK", "tick": self.tick_index, "autonomy": governance["autonomy_level"]})
+
+        # 7. Execution (CONTROLLED BY STABILITY GATE + GOVERNANCE)
+        execution_result = self.execution.execute({
+            "decision": decision,
+            "proposals": evolution_state.get("proposals", []),
+            "execution_limit": stability_state.get("execution_limit", 1.0)
+        })
 
         # 8. Observer (FULL SYSTEM TRACE)
         self.observer.observe(
