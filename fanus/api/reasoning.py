@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from fanus.cognitive.contradiction_detector import ContradictionDetector
 from fanus.cognitive.question_generator import QuestionGenerator
 from fanus.cognitive.negar_detector import NegarDetector
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 
 router = APIRouter(prefix="/reason", tags=["reasoning"])
 
@@ -25,7 +27,7 @@ class HypothesizeRequest(BaseModel):
     confidence: float = 0.7
 
 @router.post("/analyze")
-def analyze(req: AnalyzeRequest):
+def analyze(req: AnalyzeRequest, _: bool = Depends(verify_api_key)):
     negar_result = negar.analyze(req.text)
     return {
         "negar": negar_result["is_negar"],
@@ -35,12 +37,12 @@ def analyze(req: AnalyzeRequest):
     }
 
 @router.post("/contradict")
-def contradict(req: ContradictRequest):
+def contradict(req: ContradictRequest, _: bool = Depends(verify_api_key)):
     result = detector.check(req.claim_a, req.claim_b, req.source_a, req.source_b)
     return result
 
 @router.post("/hypothesize")
-def hypothesize(req: HypothesizeRequest):
+def hypothesize(req: HypothesizeRequest, _: bool = Depends(verify_api_key)):
     result = generator.generate(req.topic, req.belief_type, req.confidence)
     return result
 

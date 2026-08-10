@@ -4,6 +4,8 @@ from typing import List
 from fanus.cognitive.research_planner import ResearchPlanner
 from fanus.cognitive.curiosity_engine import CuriosityEngine
 from fanus.adapters.knowledge_gateway import KnowledgeGateway
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 
 router = APIRouter(prefix="/research", tags=["research"])
 
@@ -20,14 +22,14 @@ class SearchRequest(BaseModel):
     limit: int = 3
 
 @router.post("/plan")
-def create_plan(req: PlanRequest):
+def create_plan(req: PlanRequest, _: bool = Depends(verify_api_key)):
     questions = req.questions or curiosity.generate(req.topic)
     q_list = [q["question"] for q in questions] if isinstance(questions[0], dict) else questions
     plan = planner.create(req.topic, q_list)
     return plan
 
 @router.post("/search")
-def search(req: SearchRequest):
+def search(req: SearchRequest, _: bool = Depends(verify_api_key)):
     results = gateway.quick_search(req.query)
     return results
 

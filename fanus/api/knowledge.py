@@ -5,6 +5,8 @@ from fanus.memory.pipeline import MemoryPipeline
 from fanus.memory.evidence_engine import EvidenceEngine
 from fanus.memory.scientific_validator import ScientificValidator
 from fanus.memory.knowledge_graph import KnowledgeGraph
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 
@@ -24,12 +26,12 @@ class ValidateRequest(BaseModel):
     confidence: float = 0.8
 
 @router.post("/search")
-def search(req: SearchRequest):
+def search(req: SearchRequest, _: bool = Depends(verify_api_key)):
     results = gateway.search_all(req.query, req.limit)
     return {"query": req.query, "results": results}
 
 @router.post("/validate")
-def validate(req: ValidateRequest):
+def validate(req: ValidateRequest, _: bool = Depends(verify_api_key)):
     result = pipeline.process(req.claim, req.source, req.confidence)
     return result
 
