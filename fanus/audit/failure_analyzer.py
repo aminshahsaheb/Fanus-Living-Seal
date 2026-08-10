@@ -11,7 +11,7 @@ class FailureAnalyzer:
     def __init__(self):
         pass
 
-    def diagnose(self, case: dict, result: dict, classification: dict, hayrat: dict, evidence: dict) -> dict:
+    def diagnose(self, case: dict, result: dict, classification: dict, hayrat: dict, evidence: dict, fi_score_raw: int = 0) -> dict:
         suspects = []
 
         expected = case["expected_risk"]

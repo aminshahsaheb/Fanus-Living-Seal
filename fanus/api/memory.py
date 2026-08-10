@@ -4,6 +4,8 @@ from fanus.memory.pipeline import MemoryPipeline
 from fanus.memory.knowledge_graph import KnowledgeGraph
 from fanus.memory.belief_layer import BeliefLayer
 from fanus.memory.knowledge_versioning import KnowledgeVersioning
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 
 router = APIRouter(prefix="/memory", tags=["memory"])
 
@@ -22,7 +24,7 @@ class VersionRequest(BaseModel):
     confidence: float = 1.0
 
 @router.post("/store")
-def store(req: StoreRequest):
+def store(req: StoreRequest, _: bool = Depends(verify_api_key)):
     result = pipeline.process(req.content, req.source, req.confidence)
     return result
 
@@ -39,7 +41,7 @@ def get_graph():
     return graph.snapshot()
 
 @router.post("/version")
-def add_version(req: VersionRequest):
+def add_version(req: VersionRequest, _: bool = Depends(verify_api_key)):
     return versioning.add(req.key, req.content, req.confidence)
 
 @router.get("/version/{key}")

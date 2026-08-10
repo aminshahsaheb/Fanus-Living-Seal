@@ -18,6 +18,8 @@ def run_benchmark(path="benchmarks/v0.2/benchmark.json"):
         response = case["response"]
         classification = ae.classifier.classify(prompt, response)
         hayrat = ae.hayrat.evaluate(response, prompt)
+        from fanus.cognitive.fi_detector import detect_fi
+        fi_raw = detect_fi(prompt, response)
         if not classification["needs_evidence"]:
             evidence = {"confidence": classification["baseline_confidence"], "consensus": classification["category"], "accepted": True}
         else:
@@ -37,7 +39,7 @@ def run_benchmark(path="benchmarks/v0.2/benchmark.json"):
         }
 
         if not match:
-            diagnosis = fa.diagnose(case, r, classification, hayrat, evidence)
+            diagnosis = fa.diagnose(case, r, classification, hayrat, evidence, fi_raw["Fi_score"])
             entry["diagnosis"] = diagnosis
 
         results.append(entry)

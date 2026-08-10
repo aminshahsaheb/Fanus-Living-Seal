@@ -4,6 +4,8 @@ from fanus.cognitive.goal_engine import GoalEngine
 from fanus.cognitive.longterm_planner import LongTermPlanner
 from fanus.cognitive.self_review import SelfReview
 from fanus.cognitive.autonomy_governor import FanusAutonomyGovernor
+from fanus.api.auth import verify_api_key
+from fastapi import Depends
 
 router = APIRouter(prefix="/decision", tags=["decision"])
 
@@ -22,7 +24,7 @@ class PlanRequest(BaseModel):
     horizon_days: int = 30
 
 @router.post("/goal")
-def add_goal(req: GoalRequest):
+def add_goal(req: GoalRequest, _: bool = Depends(verify_api_key)):
     return goals.add(req.goal, req.priority)
 
 @router.get("/goals")
@@ -30,7 +32,7 @@ def get_goals():
     return {"active": goals.active(), "top": goals.top(), "stats": goals.stats()}
 
 @router.post("/plan")
-def create_plan(req: PlanRequest):
+def create_plan(req: PlanRequest, _: bool = Depends(verify_api_key)):
     return planner.create(req.vision, req.milestones, req.horizon_days)
 
 @router.get("/plans")

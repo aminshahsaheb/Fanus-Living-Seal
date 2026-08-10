@@ -12,7 +12,7 @@ VALID_KEYS = set(filter(None, [
 
 def verify_api_key(api_key: str = Security(API_KEY_HEADER)):
     if not VALID_KEYS:
-        return True
+        raise HTTPException(status_code=503, detail="Server misconfigured: no API key configured")
     if api_key not in VALID_KEYS:
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
     return True
