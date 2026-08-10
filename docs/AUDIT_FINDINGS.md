@@ -7,7 +7,7 @@ Evidence → Boundary → Invariant → Test → Fix → Re-audit
 |---------|----------|----------|-----------|------|-----|----------|
 | F-10 | loop.py | Governor→Execution | locked ⇒ no execution | ✅ test_governance_order.py | ✅ | ⬜ |
 | F-11 | loop.py | Governor→Execution | lock blocks execution | ✅ test_governance_order.py | ✅ | ⬜ |
-| F-29 | api/auth.py | Auth→Mutation | missing config ⇒ deny | ✅ test_auth_failsecure.py | ✅ | ⬜ |
+| F-29 | api/auth.py + 12 mutating endpoints | Auth→Mutation | missing config ⇒ deny; ALL mutating POST require auth | ✅ test_auth_failsecure.py + test_api_auth_coverage.py | ✅ | ✅ (verified via full mutation-surface grep, 7 additional unprotected endpoints found and fixed beyond original 3) |
 | F-08 | memory/persistence | Persistence boundary | restart ⇒ durable state | ⬜ | ⬜ | ⬜ |
 | F-09 | memory/graph | API→Graph boundary | API reads canonical graph | ⬜ | ⬜ | ⬜ |
 | F-12 | execution_layer.py | Stability→Execution | execution_limit enforced | ⬜ | ⬜ | ⬜ |
