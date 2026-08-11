@@ -43,3 +43,34 @@ Evidence: reality-tests/ (created 24 Jun, predates STEP-based work) contains a s
 Classification: separate/legacy test framework with pre-existing broken dependency, not part of production test suite.
 Decision: pytest.ini scoping to tests/ is correct — reality-tests/ needs its own fix cycle, not silent inclusion in main CI.
 Status: CLASSIFIED — reality-tests/ needs a future decision (repair vs archive), tracked separately from F-10/F-11/F-29.
+
+
+## F-31 — Dormant Dangerous Code (self-modification / autonomous git / autonomous execution)
+
+Evidence:
+fanus/tools/git_guard.py (FanusGitGuard) — can run git add/commit/push origin main autonomously
+fanus/evolution/self_modifying_agent.py (SelfModifyingAgent) — reads, backs up, and overwrites .py files, then commits via subprocess
+fanus/evolution/self_improver.py (SelfImprover) — reads, backs up, and overwrites files
+fanus/agent/action_executor.py (ActionExecutor) — generic execute(action)
+fanus/core/plugin_system.py (PluginSystem) — dynamic importlib-based module loader
+
+Verified via grep (correct class names, not guessed): none of these five classes are instantiated
+or imported anywhere else in fanus/. No API route, no FanusLoop path, no plugin registration
+calls PluginSystem() either — so its importlib.import_module() path is also unreachable.
+
+Classification: DORMANT. Present in the repo, consistent with evolution_only_proposes philosophy
+(capability built but deliberately not wired to runtime), but NOT currently reachable from any
+entry point (API, CLI, loop).
+
+Risk: LOW today, but HIGH latent risk — a single line adding instantiation/wiring would activate
+autonomous file rewriting, autonomous git push to main, or dynamic arbitrary module loading,
+without additional review since these files bypass FanusLoop's Governor/HardGuard chain entirely
+(they are not part of the cognitive pipeline).
+
+Decision: Do not delete yet (may represent intentional future capability per evolution philosophy).
+Do not wire up yet (F-12/F-13 execution semantics must be resolved first, and F-29B authorization
+model must be revisited before any real mutation capability is enabled).
+
+Re-open trigger: before any of these five classes are instantiated/imported anywhere in fanus/,
+a dedicated security review and explicit authorization boundary is required — these bypass the
+Governor → HardGuard → Execution chain that F-10/F-11 hardened.
