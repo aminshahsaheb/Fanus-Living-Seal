@@ -74,3 +74,21 @@ model must be revisited before any real mutation capability is enabled).
 Re-open trigger: before any of these five classes are instantiated/imported anywhere in fanus/,
 a dedicated security review and explicit authorization boundary is required — these bypass the
 Governor → HardGuard → Execution chain that F-10/F-11 hardened.
+
+
+## F-31 UPDATE — three more dormant classes found
+
+Verified via grep (correct class names): SelfRewriteEngine, RuntimeCompilerEngine,
+CollapseSafetyGate — none referenced anywhere outside their own definition files.
+
+fanus/runtime/self_rewrite_engine.py — dormant
+fanus/runtime/runtime_compiler_engine.py — dormant
+fanus/runtime/safety/collapse_safety_gate.py — dormant
+
+Note: these three also define their own execution_limit values (0.2-0.6 range),
+separate from self_stabilization_engine.py's _compute_execution_limit(). If any
+of these are ever wired in, execution_limit semantics must be unified first —
+otherwise multiple disconnected "limit" producers could conflict.
+
+F-31 total dormant count: 7 classes (FanusGitGuard, SelfModifyingAgent, SelfImprover,
+ActionExecutor, PluginSystem, SelfRewriteEngine, RuntimeCompilerEngine, CollapseSafetyGate)
