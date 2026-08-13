@@ -113,3 +113,25 @@ not fully confirmed), but worth fixing before relying on it.
 MUTATING_ENDPOINTS list omitted /chat, /verify, /verify/deep — the most-used
 endpoints were not covered by the regression test meant to cover "every
 mutating POST endpoint". Fixed: added all three.
+
+
+## F-33/34/35/36 — logged from 7th independent audit (not yet fixed)
+F-33: three chat paths (main.py CLI, /chat, /demo/chat) wire different guardian subsets.
+F-34: setup.py entry point fanus.main:main does not exist as a function. LOW.
+F-35: pattern repeats 3x — rich decision state computed, only a boolean consumed downstream
+  (governance.rules, hard_guard's execution_limit/tick_delay, F-12's execution_limit itself).
+F-36: seal.py._validate_integrity() checks hash length only — always true, format check not
+  tamper check. LOW, reachability from live path unconfirmed.
+
+## F-37 — CLOSED
+test_api_auth_coverage.py's endpoint list omitted /chat, /verify, /verify/deep — the most-used
+endpoints were not covered by the regression test meant to cover "every auth-required endpoint".
+Renamed MUTATING_ENDPOINTS -> AUTH_REQUIRED_ENDPOINTS (name was inaccurate for /verify paths)
+and added all three. Full suite passing.
+
+## F-29A — confirmed CLOSED for production endpoints; demo endpoints separately accepted
+/demo/chat, /demo/verify, /demo/verify/deep remain intentionally unauthenticated (public demo
+for fanus1.netlify.app, IP rate-limited). Verified: demo.py instantiates MemoryPipeline/FanusLoop
+fresh per-request, not a shared singleton with authenticated /chat — no shared-state pollution
+risk. Residual risk: uncapped-ish paid Groq API cost exposure per IP. Accepted as designed
+for current single-operator threat model; revisit if traffic/cost becomes material.
