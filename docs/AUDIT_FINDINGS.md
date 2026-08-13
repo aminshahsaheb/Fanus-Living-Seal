@@ -92,3 +92,24 @@ otherwise multiple disconnected "limit" producers could conflict.
 
 F-31 total dormant count: 7 classes (FanusGitGuard, SelfModifyingAgent, SelfImprover,
 ActionExecutor, PluginSystem, SelfRewriteEngine, RuntimeCompilerEngine, CollapseSafetyGate)
+
+
+## F-34 — setup.py broken CLI entry point
+setup.py references fanus.main:main but fanus/main.py has no main() function.
+`pip install fanus-core` CLI entry would crash if invoked. LOW severity, packaging bug.
+
+## F-35 — Systemic pattern: rich state computed, only boolean consumed
+Confirmed in 3 places: governance.rules (4 flags) discarded, only .locked read.
+HardGuard's execution_limit/tick_delay discarded, only .allowed/.reason read
+(loop.py uses stability_state's tick_delay instead). Same shape as F-12.
+This is the same architectural pattern repeating, not 3 separate bugs.
+
+## F-36 — seal.py._validate_integrity() is a tautology
+len(hash)==128 is always true for any SHA3-512 output of any non-empty string.
+This integrity check can never fail. LOW severity (reachability from live path
+not fully confirmed), but worth fixing before relying on it.
+
+## F-37 — test_api_auth_coverage.py gap (FIXED same session)
+MUTATING_ENDPOINTS list omitted /chat, /verify, /verify/deep — the most-used
+endpoints were not covered by the regression test meant to cover "every
+mutating POST endpoint". Fixed: added all three.

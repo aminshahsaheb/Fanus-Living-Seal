@@ -4,6 +4,9 @@ from fanus.api.server import app
 client = TestClient(app)
 
 MUTATING_ENDPOINTS = [
+    ("/chat", {"message": "test"}),
+    ("/verify", {"prompt": "test", "response": "test", "context": ""}),
+    ("/verify/deep", {"prompt": "test", "response": "test"}),
     ("/memory/store", {"content": "test", "source": "test"}),
     ("/memory/version", {"key": "test", "content": "test"}),
     ("/decision/goal", {"goal": "test"}),
