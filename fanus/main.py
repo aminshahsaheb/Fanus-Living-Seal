@@ -5,9 +5,7 @@ from fanus.adapters.groq_adapter import GroqAdapter
 from fanus.memory.pipeline import MemoryPipeline
 from fanus.adapters.knowledge_gateway import KnowledgeGateway
 from fanus.cognitive.orchestrator import CognitiveOrchestrator
-from fanus.cognitive.negar_detector import NegarDetector
-from fanus.cognitive.hayrat_judge import HayratJudge
-from fanus.cognitive.fi_detector import detect_fi
+from fanus.cognitive.guardian_pipeline import run_guardians
 from fanus.cognitive.policy_engine import PolicyEngine, EpistemicSignal
 from fanus.cognitive.isp_controller import ISPController
 
@@ -21,8 +19,7 @@ class FanusSystem:
         self.memory = MemoryPipeline()
         self.gateway = KnowledgeGateway()
         self.orchestrator = CognitiveOrchestrator()
-        self.negar = NegarDetector()
-        self.hayrat = HayratJudge()
+        # guardians now unified in fanus.cognitive.guardian_pipeline
         self.policy = PolicyEngine()
         self.isp = ISPController()
 
@@ -38,11 +35,13 @@ class FanusSystem:
             response = "خطا در ارتباط با مدل: " + str(e)[:100]
         self.memory.process(response, "fanus", 0.9)
         cognitive = self.orchestrator.process(user_input, response)
-        negar = self.negar.analyze(response, "fanus")
-        fi = detect_fi(user_input, response)
-        hayrat = self.hayrat.evaluate(response, user_input)
+        guardians = run_guardians(user_input, response, "fanus")
+        negar = {"is_negar": guardians["negar"]}
+        fi = {"Fi_score": guardians["fi_score"], "Fi_type": guardians["fi_type"]}
+        hayrat = {"hayrat_score": guardians["hayrat_score"], "arrogance_detected": guardians["arrogance"], "uncertainty_required": guardians["uncertainty_required"]}
         if hayrat["uncertainty_required"]:
-            response = self.hayrat.revise_response(response, hayrat)
+            from fanus.cognitive.hayrat_judge import HayratJudge
+            response = HayratJudge().revise_response(response, hayrat)
         if hayrat["arrogance_detected"]:
             self.policy.evaluate(EpistemicSignal.HIGH_CONFIDENCE, {"has_evidence": False})
         if fi["Fi_score"] >= 2:

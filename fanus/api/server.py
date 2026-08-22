@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fanus.cognitive.guardian_pipeline import run_guardians
 from fanus.core.identity import FanusIdentity
 from fanus.runtime.loop import FanusLoop
 from fanus.adapters.groq_adapter import GroqAdapter
@@ -76,12 +77,16 @@ def chat(req: ChatRequest, _: bool = Depends(verify_api_key)):
     except Exception as e:
         response = "error: " + str(e)[:100]
     memory.process(response, "fanus", 0.9)
-    negar_result = negar.analyze(response)
+    guardians = run_guardians(req.message, response)
     return {
         "response": response,
         "mode": identity["mode"],
         "stability": identity["stability"],
-        "negar": negar_result["is_negar"],
+        "negar": guardians["negar"],
+        "hayrat_score": guardians["hayrat_score"],
+        "arrogance": guardians["arrogance"],
+        "fi_score": guardians["fi_score"],
+        "fi_type": guardians["fi_type"],
         "sources": knowledge["total_results"]
     }
 

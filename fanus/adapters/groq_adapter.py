@@ -10,7 +10,7 @@ class GroqAdapter:
     def __init__(self, api_key=None):
         key = api_key or os.environ.get("GROQ_API_KEY", "")
         self.client = Groq(api_key=key)
-        self.model = "llama-3.3-70b-versatile"
+        self.model = "groq/compound"
 
     def generate(self, system_prompt, user_message):
         response = self.client.chat.completions.create(

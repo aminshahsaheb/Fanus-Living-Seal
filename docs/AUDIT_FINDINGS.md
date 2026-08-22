@@ -90,7 +90,7 @@ separate from self_stabilization_engine.py's _compute_execution_limit(). If any
 of these are ever wired in, execution_limit semantics must be unified first —
 otherwise multiple disconnected "limit" producers could conflict.
 
-F-31 total dormant count: 7 classes (FanusGitGuard, SelfModifyingAgent, SelfImprover,
+F-31 total dormant count: 8 classes (FanusGitGuard, SelfModifyingAgent, SelfImprover,
 ActionExecutor, PluginSystem, SelfRewriteEngine, RuntimeCompilerEngine, CollapseSafetyGate)
 
 
