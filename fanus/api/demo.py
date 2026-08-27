@@ -29,8 +29,7 @@ async def demo_chat(req: DemoRequest, request: Request):
     from fanus.adapters.groq_adapter import GroqAdapter
     from fanus.memory.pipeline import MemoryPipeline
     from fanus.adapters.knowledge_gateway import KnowledgeGateway
-    from fanus.cognitive.hayrat_judge import HayratJudge
-    from fanus.cognitive.fi_detector import detect_fi
+    from fanus.cognitive.guardian_pipeline import run_guardians
 
     ip = request.client.host
     if not check_rate_limit(ip):
@@ -49,7 +48,7 @@ async def demo_chat(req: DemoRequest, request: Request):
     loop = FanusLoop()
     memory = MemoryPipeline()
     gateway = KnowledgeGateway()
-    hayrat_judge = HayratJudge()
+    # guardians unified via fanus.cognitive.guardian_pipeline
 
     memory.process(req.message, "user", 1.0)
     knowledge = gateway.quick_search(req.message)
@@ -64,14 +63,15 @@ async def demo_chat(req: DemoRequest, request: Request):
         response = "خطا: " + str(e)[:80]
 
     memory.process(response, "fanus", 0.9)
-    hayrat = hayrat_judge.evaluate(response, req.message)
-    fi = detect_fi(req.message, response)
+    guardians = run_guardians(req.message, response)
+    hayrat = {"hayrat_score": guardians["hayrat_score"], "arrogance_detected": guardians["arrogance"], "uncertainty_required": guardians["uncertainty_required"]}
+    fi = {"Fi_score": guardians["fi_score"], "Fi_type": guardians["fi_type"]}
 
     return {
         "response": response,
         "mode": identity["mode"],
         "stability": identity["stability"],
-        "negar": False,
+        "negar": guardians["negar"],
         "hayrat_score": hayrat["hayrat_score"],
         "arrogance": hayrat["arrogance_detected"],
         "fi_score": fi["Fi_score"],
