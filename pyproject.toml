@@ -1,0 +1,19 @@
+[project]
+name = "fanus-core"
+version = "1.0.1"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard]",
+    "uvicorn",
+    "pydantic",
+    "python-dotenv",
+    "groq",
+    "requests",
+]
+
+[tool.fastapi]
+entrypoint = "fanus.api.server:app"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
