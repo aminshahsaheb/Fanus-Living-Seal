@@ -1,15 +1,39 @@
 [project]
 name = "fanus-core"
 version = "1.0.1"
-requires-python = ">=3.11"
+description = "Epistemic AI Engine — witness truth, detect flattery, build verified knowledge"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Amin Shahsaheb", email = "amin@fanus.ai"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
+    "groq",
+    "anthropic",
+    "openai",
+    "python-dotenv",
+    "arxiv",
+    "wikipedia-api",
+    "feedparser",
+    "requests",
+    "httpx",
     "fastapi[standard]",
     "uvicorn",
-    "pydantic",
-    "python-dotenv",
-    "groq",
-    "requests",
+    "google-api-python-client",
 ]
+
+[project.urls]
+Homepage = "https://github.com/aminshahsaheb/Fanus-Living-Seal"
+
+[project.scripts]
+fanus = "fanus.main:main"
 
 [tool.fastapi]
 entrypoint = "fanus.api.server:app"
@@ -17,3 +41,6 @@ entrypoint = "fanus.api.server:app"
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["fanus*"]
