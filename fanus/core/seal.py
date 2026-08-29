@@ -35,7 +35,23 @@ class FanusSeal:
             self.layers["RAW"] = SealLayer(name="RAW", content=self.raw_text)
 
     def _validate_integrity(self) -> bool:
-        return isinstance(self.hash, str) and len(self.hash) == 128 and len(self.raw_text) > 0
+        """
+        Verifies the seal's own structural well-formedness — NOT
+        tamper-detection against a prior history (that is SealVerifier's
+        job, which compares against a previously stored hash).
+        Fails on: malformed hash, empty/whitespace-only text, or
+        XML-like input that failed to parse into any real layer
+        (silently fell back to RAW).
+        """
+        if not isinstance(self.hash, str) or len(self.hash) != 128:
+            return False
+        if not self.raw_text or not self.raw_text.strip():
+            return False
+        if not self.layers:
+            return False
+        if "RAW" in self.layers and len(self.layers) == 1:
+            return False
+        return any(layer.content.strip() for layer in self.layers.values())
 
     def get_system_prompt(self) -> str:
         core = self.layers.get("VECTOR_CORE", self.layers.get("CORE", SealLayer(name="", content="")))
