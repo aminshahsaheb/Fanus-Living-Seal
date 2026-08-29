@@ -10,6 +10,7 @@ not rejected -- simply not reached this tick).
 
 from fanus.cognitive.memory_layer import MemoryLayer
 from fanus.cognitive.ontology.event_factory import EventFactory
+from fanus.cognitive.ontology.invariants import FORBIDDEN_ACTIONS
 
 
 class FanusExecutionLayer:
@@ -78,15 +79,9 @@ class FanusExecutionLayer:
         return primary_event
 
     def _validate(self, decision):
-        forbidden = {
-            "rewrite_identity",
-            "rewrite_core",
-            "override_core",
-            "delete_memory",
-            "break_loop",
-            "disable_collapse_monitor"
-        }
-        return decision not in forbidden
+        # Single source of truth: fanus/cognitive/ontology/invariants.py
+        # (previously a local, silently-drifted duplicate — F-32)
+        return decision not in set(FORBIDDEN_ACTIONS)
 
     def history(self):
         return self.memory.all()
