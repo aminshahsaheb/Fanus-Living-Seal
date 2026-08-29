@@ -69,7 +69,10 @@ def status():
 def chat(req: ChatRequest, _: bool = Depends(verify_api_key)):
     memory.process(req.message, "user", 1.0)
     knowledge = gateway.quick_search(req.message)
-    loop._tick()
+    # F-38: removed loop._tick() here — it added a ~155ms delay per
+    # request while its return value was always discarded anyway (the
+    # cognitive loop's tick is meant for the standalone runtime process,
+    # not per-HTTP-request). identity.evaluate() alone gives the same data.
     identity = loop.identity.evaluate()
     enriched = SYSTEM_PROMPT + " [sources: " + str(knowledge["total_results"]) + "]"
     try:
