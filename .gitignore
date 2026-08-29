@@ -17,3 +17,4 @@ repo_dump/
 repomix-output.*
 fanus-engine-full.*
 repository_audit.txt
+fanus_state.json
