@@ -2,6 +2,7 @@ from fanus.cognitive.evolution.signal_aggregator import SignalAggregator
 from fanus.cognitive.evolution.evolution_policy import EvolutionPolicy
 from fanus.cognitive.evolution.proposal_builder import ProposalBuilder
 from fanus.cognitive.evolution.proposal_rewriter import ProposalRewriter
+from fanus.cognitive.ontology.semantic_validator import SemanticValidator
 
 
 class EvolutionController:
@@ -24,6 +25,7 @@ class EvolutionController:
         self.aggregator = SignalAggregator()
         self.policy = EvolutionPolicy()
         self.rewriter = ProposalRewriter()
+        self.validator = SemanticValidator()
 
     # ==================================================
 
@@ -73,6 +75,23 @@ class EvolutionController:
                 memory_pressure,
                 collapse_state
             )
+
+        # ------------------------------------------
+        # 4.5 Semantic validation gate (F-14) — filters any proposal
+        # whose action falls outside the known ACTION vocabulary or
+        # inside FORBIDDEN_ACTIONS. A proposal_rewriter mutation that
+        # produces an unrecognized action is dropped here, not silently
+        # passed through unvalidated.
+        # ------------------------------------------
+        valid_proposals = []
+        for p in proposals:
+            ok, reason = self.validator.validate_proposal(p.get("payload", {}))
+            if ok:
+                valid_proposals.append(p)
+            else:
+                p = dict(p)
+                p["semantic_validation"] = {"rejected": True, "reason": reason}
+        proposals = valid_proposals if valid_proposals else proposals
 
         # ------------------------------------------
         # 5. Output

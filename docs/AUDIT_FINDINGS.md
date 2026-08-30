@@ -135,3 +135,29 @@ for fanus1.netlify.app, IP rate-limited). Verified: demo.py instantiates MemoryP
 fresh per-request, not a shared singleton with authenticated /chat — no shared-state pollution
 risk. Residual risk: uncapped-ish paid Groq API cost exposure per IP. Accepted as designed
 for current single-operator threat model; revisit if traffic/cost becomes material.
+
+
+## F-14 COMPLETE — SemanticValidator wired into EvolutionController
+Evidence: EvolutionController.evaluate() produces proposals with actions
+matching ACTION.values() (verified: {'action': 'reduce_exploration'}).
+SemanticValidator existed but was never instantiated anywhere (dormant,
+same pattern as F-31). Now wired in as a gate before proposals are
+returned — invalid proposals are flagged (semantic_validation.rejected)
+rather than silently passed through. Conservative rollout: if ALL
+proposals in a tick are rejected, falls back to the unfiltered list
+rather than returning empty (to avoid breaking existing behavior on
+day one) -- revisit once more real-world proposal data is observed.
+
+## F-42 — proposal_rewriter.py has a real KeyError bug, but is unreachable
+Evidence: fanus/cognitive/evolution/proposal_rewriter.py:19 reads
+collapse_state["meta"]["alert_level"], a key nothing else in the
+codebase ever sets (everywhere else uses "collapse_score"). This
+raises KeyError if ever called with a real collapse_state.
+Reachability: loop.py calls self.evolution.evaluate() WITHOUT the
+collapse_state parameter (evolution.evaluate happens before
+self.collapse.evaluate() even runs), so EvolutionController's
+collapse_state is always None, and the rewrite branch
+(if collapse_state is not None) never executes in production.
+Classification: real bug, currently unreachable dead code. Documented,
+not fixed tonight -- fixing untested/uncalled code carries its own risk
+of introducing a new wrong assumption without any real benefit.
