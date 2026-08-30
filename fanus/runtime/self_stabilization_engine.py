@@ -69,6 +69,11 @@ class SelfStabilizationEngine:
         }
 
         self.history.append(result)
+        # F-40: cap history to prevent unbounded memory growth on a
+        # long-running server — nothing else reads this list (verified
+        # via grep), so keeping only the most recent window is safe.
+        if len(self.history) > 500:
+            self.history = self.history[-500:]
 
         return result
 
