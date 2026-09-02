@@ -7,7 +7,7 @@ import requests
 
 class FanusClient:
 
-    def __init__(self, api_key: str, base_url: str = "https://web-production-924a5.up.railway.app"):
+    def __init__(self, api_key: str, base_url: str = "https://fanus-living-seal.fastapicloud.dev"):
         self.api_key = api_key
         self.base_url = base_url
         self.headers = {

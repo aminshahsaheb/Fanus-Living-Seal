@@ -1,6 +1,6 @@
 # Fanus API Documentation
 
-Base URL: https://web-production-924a5.up.railway.app
+Base URL: https://fanus-living-seal.fastapicloud.dev
 
 ## Core Endpoints
 

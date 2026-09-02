@@ -26,7 +26,7 @@ We are not archiving text. We are compressing lived relationships – and the en
 ## Try Fanus Verify
 
 ```bash
-curl -X POST https://web-production-924a5.up.railway.app/verify -H "Content-Type: application/json" -d '{"prompt":"test","response":"this is definitely true without any doubt","context":""}'
+curl -X POST https://fanus-living-seal.fastapicloud.dev/verify -H "Content-Type: application/json" -d '{"prompt":"test","response":"this is definitely true without any doubt","context":""}'
 ```
 
 Or visit: https://fanus1.netlify.app

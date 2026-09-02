@@ -37,4 +37,4 @@ print(result["policy_event"])   # NEGAR_WARNING
 
 ## API Base URL
 
-`https://web-production-924a5.up.railway.app`
+`https://fanus-living-seal.fastapicloud.dev`
