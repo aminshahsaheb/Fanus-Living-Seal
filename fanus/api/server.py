@@ -13,7 +13,7 @@ from fanus.cognitive.negar_detector import NegarDetector
 
 from fanus.api.knowledge import router as knowledge_router
 from fanus.api.auth import verify_api_key
-from fastapi import Depends
+from fastapi import Depends, BackgroundTasks
 from fanus.api.reasoning import router as reasoning_router
 from fanus.api.research import router as research_router
 from fanus.api.memory import router as memory_router
@@ -66,13 +66,17 @@ def status():
     }
 
 @app.post("/chat")
-def chat(req: ChatRequest, _: bool = Depends(verify_api_key)):
+def chat(req: ChatRequest, background_tasks: BackgroundTasks, _: bool = Depends(verify_api_key)):
     memory.process(req.message, "user", 1.0)
     knowledge = gateway.quick_search(req.message)
-    # F-38: removed loop._tick() here — it added a ~155ms delay per
-    # request while its return value was always discarded anyway (the
-    # cognitive loop's tick is meant for the standalone runtime process,
-    # not per-HTTP-request). identity.evaluate() alone gives the same data.
+    # F-38/F-43: loop._tick() moved to a background task (runs AFTER the
+    # response is sent, via BackgroundTasks) instead of either blocking
+    # the request (~155ms, the original F-38 problem) or being removed
+    # entirely (which silently stopped the cognitive loop -- Governor,
+    # HardGuard, Evolution, Collapse, SelfModel, Observer -- from ever
+    # running on real chat traffic). identity.evaluate() alone is enough
+    # for THIS response; the full tick still happens, just not on the
+    # request's critical path.
     identity = loop.identity.evaluate()
     enriched = SYSTEM_PROMPT + " [sources: " + str(knowledge["total_results"]) + "]"
     try:
@@ -81,6 +85,7 @@ def chat(req: ChatRequest, _: bool = Depends(verify_api_key)):
         response = "error: " + str(e)[:100]
     memory.process(response, "fanus", 0.9)
     guardians = run_guardians(req.message, response)
+    background_tasks.add_task(loop._tick)
     return {
         "response": response,
         "mode": identity["mode"],
