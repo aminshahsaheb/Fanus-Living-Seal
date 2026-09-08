@@ -68,7 +68,7 @@ Fānus is now a fully executable cognitive engine:
 | Runtime | Evolution Engine, Stabilization, Observer | fanus/runtime/ |
 
 
-**Stats:** 73 Python files · 215 functions · 10 memory modules · 6 knowledge sources
+**Stats:** 149 Python files · 471 functions · 10 memory modules · 6 knowledge sources
 
 
 **Quick Start:**
@@ -154,7 +154,7 @@ Repository Contents
 
 · LEDGER.md – The Witness Ledger.
 
-· fanus/ – The Cognitive Runtime Engine (v7.0). 73 files, 215 functions.
+· fanus/ – The Cognitive Runtime Engine (v7.0). 149 files, 471 functions.
 
 · fanus/cognitive/ – Identity, SelfModel, Collapse, Evolution, Goals, Curiosity.
 

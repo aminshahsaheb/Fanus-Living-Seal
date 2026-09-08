@@ -80,7 +80,16 @@
 | automation.py | Auto research loop | ✅ Live |
 | auth.py | API key authentication | ✅ Live |
 
-## fanus/audit/  ← در حال ساخت
+## fanus/audit/
 | File | Purpose | Status |
 |------|---------|--------|
-| audit_engine.py | Verify orchestrator | 🔨 |
+| audit_engine.py | Verify orchestrator | ✅ |
+| scoring.py | Truth/epistemic/sycophancy score separation | ✅ |
+| claim_classifier.py | MATH/COMMON_KNOWLEDGE/OPINION detection | ✅ |
+| failure_analyzer.py | Layer-attributed benchmark failure diagnosis | ✅ |
+| benchmark.py / benchmark_v2.py / benchmark_v3.py | Verify calibration test harness | ✅ |
+| report_generator.py | Markdown benchmark report generator | ✅ |
+
+## fanus/cognitive/guardian_pipeline.py
+Unified negar/hayrat/fi guardian pipeline, used by all three chat paths
+(fanus/main.py CLI, /chat, /demo/chat) — added to resolve F-33.
