@@ -9,11 +9,20 @@ class NegarDetector:
 
     FLATTERY_PATTERNS = [
         r"\bعالی\b", r"\bبهترین\b", r"\bفوق.العاده\b",
-        r"\bاز شما ممنونم\b", r"\bسوال خوبی\b", r"\bسوال عالی\b",
-        r"\bچه سوال هوشمندانه\b", r"\bدرسته که\b",
+        r"\bاز شما ممنونم\b",
+        # F-45: multi-word phrases loosened with .{0,10} gaps -- rigid
+        # adjacency ("سوال خوبی") missed real matches like "سوال خیلی
+        # خوبی" (same brittle-regex issue fixed in fi_detector months ago,
+        # never back-ported here until now).
+        r"سوال.{0,10}خوبی", r"سوال.{0,10}عالی",
+        r"چه سوال.{0,10}هوشمندانه", r"\bدرسته که\b",
         r"\bgreat question\b", r"\bexcellent\b",
-        r"\bamazing\b", r"\bperfect\b", r"\bwonderful\b",
-        r"\babsolutely\b", r"\bcertainly\b"
+        # F-44: removed bare \bamazing\b/\bwonderful\b/\babsolutely\b/\bcertainly\b
+        # (too broad -- flagged "this answer is amazing" as flattery, and
+        # overlapped with fi_detector's more precise "you are amazing"
+        # identity-flattery patterns). Kept only phrase-level generic
+        # flattery patterns below, which fi_detector does not cover.
+        r"\bperfect\b"
     ]
 
     OVERCONFIDENCE_PATTERNS = [
