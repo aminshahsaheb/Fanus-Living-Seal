@@ -161,3 +161,14 @@ collapse_state is always None, and the rewrite branch
 Classification: real bug, currently unreachable dead code. Documented,
 not fixed tonight -- fixing untested/uncalled code carries its own risk
 of introducing a new wrong assumption without any real benefit.
+
+
+## F-44/F-45 — benchmark re-run confirmed no regression, no improvement
+Re-ran benchmark_v3 after narrowing NegarDetector (F-44) and adding gap-tolerance
+(F-45). Score unchanged at ~21/50. Root cause: AuditEngine's fi_detector override
+(`if fi_score >= 1 and type in [emotional,identity]: negar=True`) already handled
+most Category D cases independently of NegarDetector's own patterns, so the
+patterns removed/loosened here didn't touch this specific benchmark's outcome.
+F-44/F-45 remain correct, valuable fixes on their own merits (found via direct
+testing, not benchmark-driven) -- confirms code-correctness and benchmark-score
+are separate axes, not proxies for each other.
