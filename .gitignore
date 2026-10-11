@@ -20,3 +20,7 @@ repository_audit.txt
 fanus_state.json
 *.bak
 /audit/
+
+benchmark_results.json
+review_step112_114.tar.gz
+review_step112_114/

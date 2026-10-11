@@ -160,8 +160,8 @@ The experimental arm of the Research Core. Currently in Phase 0: Flattery Calibr
 - `fanus/`: the engine (the only package that runs in production)
 - `tests/`, `benchmarks/`, `docs/`, `sdk/`: tests, Verify benchmark, documentation, Python client
 - `rfcs/`, `superstructure/`, `data-pilot/`, `annotation-ui/`: protocol and research material
-- `archive/`: superseded code generations and old hosting configs, kept for history
-- other research and tooling directories: `cal/`, `concept-map/`, `control/`, `critics/`, `demo/`, `evl/`, `external-ground/`, `failure/`, `failures/`, `intent/`, `legal/`, `observability/`, `questions/`, `reality-tests/`, `scripts/`, `tools/`, `validation/`
+- `archive/`: superseded code generations, old hosting configs and an early presence-UI prototype, kept for history
+- other research and tooling directories: `cal/`, `concept-map/`, `control/`, `critics/`, `evl/`, `external-ground/`, `failure/`, `failures/`, `intent/`, `legal/`, `observability/`, `questions/`, `reality-tests/`, `scripts/`, `tools/`, `validation/`
 
 ## Related Repositories
 
