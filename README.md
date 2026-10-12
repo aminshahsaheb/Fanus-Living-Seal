@@ -56,7 +56,7 @@ The response carries separate scores for truth, epistemic quality and sycophancy
 | Verify | Audit engine, scoring, claim classifier, failure analyzer, benchmark runner | `fanus/audit/` |
 | API | FastAPI server and authentication | `fanus/api/` |
 
-Measured on the committed tree with `ast`: 149 Python files and 468 functions in `fanus/`, 13 memory modules, 6 gateway sources.
+Measured on the committed tree with `ast`: 154 Python files and 468 functions in `fanus/`, 12 memory modules, 6 gateway sources.
 
 ---
 

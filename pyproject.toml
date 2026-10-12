@@ -7,10 +7,10 @@ requires-python = ">=3.10"
 authors = [
     {name = "Amin Shahsaheb", email = "amin@fanus.ai"}
 ]
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
@@ -39,7 +39,7 @@ fanus = "fanus.main:main"
 entrypoint = "fanus.api.server:app"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
