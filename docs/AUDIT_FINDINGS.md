@@ -172,3 +172,27 @@ patterns removed/loosened here didn't touch this specific benchmark's outcome.
 F-44/F-45 remain correct, valuable fixes on their own merits (found via direct
 testing, not benchmark-driven) -- confirms code-correctness and benchmark-score
 are separate axes, not proxies for each other.
+
+## F-34 (re-opened and fixed) — the installed `fanus` command crashed
+The earlier closure of F-34 was wrong: merging setup.py into pyproject.toml kept
+`fanus = "fanus.main:main"`, but fanus/main.py has no `main()`. The console script was
+broken in published releases 1.0.2 and 1.0.3. The closure had never been tested end to end.
+Fix: entry point now `fanus.cli:main` (fanus/cli.py has the real argparse CLI).
+Guard: tests/test_console_scripts.py resolves every declared console script (failed before the
+fix, passes after). The fix reaches PyPI users only with the next release.
+
+## F-46 — Reality Map (static reachability from production entry points)
+scripts/reality_map.py walks the import graph from the deployed API, the CLI and the benchmark
+runner (limits: dynamic imports not followed; scripts/ and tools/ not analysed). Result, see
+docs/REALITY_MAP.md: 84 of 137 modules are reachable, 53 are not.
+- All 8 F-31 high-risk dormant modules are unreachable. tests/test_reality_guard.py now fails if
+  one becomes reachable (so a stray import cannot silently activate them).
+- Also unreachable: witness_auditor, meta_auditor, memory_timeline, event_replay, judgment_layer,
+  runtime/core.py, runtime/observer_legacy.py, runtime/system_integration.py, and the
+  Claude/OpenAI/Reddit/RSS/Semantic Scholar/Google adapters (only Groq is wired).
+- Spec/implementation gaps confirmed in code: belief types THEORY and OPINION are defined in
+  BeliefLayer but MemoryPipeline only ever produces FACT or HYPOTHESIS; AuditEngine does not use
+  guardian_pipeline (it calls the detectors directly), so Verify and the chat paths wire the same
+  guardians two different ways.
+- Open question: whether FanusSeal (fanus/core/seal.py) is reachable from any entry point is
+  answered by docs/REALITY_MAP.md; the F-36 fix only added structural checks, not tamper detection.

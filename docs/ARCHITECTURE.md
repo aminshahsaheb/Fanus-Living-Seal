@@ -3,11 +3,11 @@
 ## Three-Layer Decision
 
 ### Production Core
-fanus/ ├── api/ ← REST endpoints ├── cognitive/ ← HayratJudge, fi_detector, PolicyEngine, ISPController ├── core/ ← Identity, Seal, Novayin ├── memory/ ← Ledger, Evidence, BeliefLayer, KnowledgeGraph ├── runtime/ ← FanusLoop, Observer, Safety ├── adapters/ ← LLM + Knowledge sources └── audit/ ← Fanus Verify (در حال ساخت)
+fanus/ ├── api/ ← REST endpoints ├── cognitive/ ← HayratJudge, fi_detector, PolicyEngine, ISPController ├── core/ ← Identity, Seal, Novayin ├── memory/ ← Ledger, Evidence, BeliefLayer, KnowledgeGraph ├── runtime/ ← FanusLoop, Observer, Safety ├── adapters/ ← LLM + Knowledge sources └── audit/ ← Fanus Verify (live: public `/demo/verify`, keyed `/verify`)
 ### Research Lab
-fanus-engine/ ← Legacy experiments, NOT imported by production
+archive/fanus-engine-legacy/ ← Legacy experiments, NOT imported by production (archived)
 ### Future Experiments
-fanus-v2/ ← Future architecture concepts
+archive/fanus-v2-legacy/ ← Future architecture concepts (archived, separate from production)
 ---
 
 ## The Product Law
@@ -27,10 +27,10 @@ fanus-v2/ ← Future architecture concepts
 | Layer | Status | Files |
 |-------|--------|-------|
 | Runtime | ✅ Stable | FanusLoop, Observer, Safety |
-| Memory | ✅ Stable | 10 modules |
+| Memory | ✅ Stable | 12 modules |
 | Cognitive | ✅ Stable | HayratJudge, fi_detector, PolicyEngine |
 | API | ✅ Live | 6 endpoint groups |
-| Audit | 🔨 Building | /verify endpoint |
+| Audit | ✅ Live | /demo/verify (public), /verify (API key) |
 | SDK | 🔨 Building | API wrapper |
 
 ---
@@ -38,5 +38,5 @@ fanus-v2/ ← Future architecture concepts
 ## Import Rules
 
 - `fanus/` modules may import from each other
-- `fanus/` never imports from `fanus-engine/` or `fanus-v2/`
-- New modules enter `fanus-engine/` first, graduate to `fanus/` only after product validation
+- `fanus/` never imports from `archive/` (superseded generations: `archive/fanus-engine-legacy/`, `archive/fanus-v2-legacy/`)
+- New experimental modules are developed outside `fanus/` and graduate into it only after product validation

@@ -13,12 +13,13 @@ Fānus is built by a single author working with several AI assistants. The vocab
 
 | Area | State |
 |------|-------|
-| Cognitive runtime (`fanus/`) runs end to end; 45 tests pass | ✓ |
+| Cognitive runtime (`fanus/`) runs end to end; 48 tests pass | ✓ |
 | Verify API deployed: `POST /demo/verify` (public, rate-limited), `POST /verify` and `/verify/deep` (API key) | ✓ |
 | Audit engine with separate truth, epistemic-quality and sycophancy scores | ✓ |
 | API-key authentication on every POST endpoint outside `/demo/*`; fail-secure when no key is configured | ✓ |
 | Memory persistence: ledger and beliefs survive a restart | ✓ |
 | Single canonical code generation in `main` (earlier generations are under `archive/`) | ✓ |
+| Which modules actually run in production is mapped (`docs/REALITY_MAP.md`) and the high-risk dormant ones are guarded by a test | ✓ |
 | Benchmark v0.2: 21/50 (42%) against an 80% acceptance threshold | ◌ |
 | Benchmark dataset and one-command reproduction in the repo (labels assigned by the author) | ◐ |
 | Independent annotation of benchmark labels | ◌ |

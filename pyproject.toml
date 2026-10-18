@@ -33,7 +33,7 @@ dependencies = [
 Homepage = "https://github.com/aminshahsaheb/Fanus-Living-Seal"
 
 [project.scripts]
-fanus = "fanus.main:main"
+fanus = "fanus.cli:main"
 
 [tool.fastapi]
 entrypoint = "fanus.api.server:app"
