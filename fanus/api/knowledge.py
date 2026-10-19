@@ -11,7 +11,7 @@ from fastapi import Depends
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 
 gateway = KnowledgeGateway()
-pipeline = MemoryPipeline()
+from fanus.api.memory import pipeline  # shared with /chat and /memory: one ledger, not a private copy
 evidence = EvidenceEngine()
 validator = ScientificValidator()
 graph = KnowledgeGraph()

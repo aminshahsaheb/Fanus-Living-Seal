@@ -196,3 +196,29 @@ docs/REALITY_MAP.md: 84 of 137 modules are reachable, 53 are not.
   guardians two different ways.
 - Open question: whether FanusSeal (fanus/core/seal.py) is reachable from any entry point is
   answered by docs/REALITY_MAP.md; the F-36 fix only added structural checks, not tamper detection.
+
+## F-49 — side effects of the F-08 persistence fix (found by re-testing my own fix)
+After F-08, five places created their own MemoryPipeline over the same fanus_state.json
+(server.py, api/memory.py, api/knowledge.py, AutoResearchLoop, and a fresh one per /demo/chat
+request). Experiments showed:
+- lost updates: last writer wins, an entry written by one pipeline was gone after a "restart";
+- anonymous /demo/chat input appeared in the real instance's ledger after a restart (this also
+  invalidated the earlier conclusion that demo memory is isolated);
+- PersistenceLayer.save() wrote a stale in-memory copy of the whole state, so another component
+  saving its own key (e.g. goals) could wipe the ledger; the write was not atomic and a truncated
+  file crashed startup.
+Fix: MemoryPipeline(persist=False) for /demo/* and AutoResearchLoop; one shared persisted
+pipeline for the API (server.py, /memory, /knowledge); PersistenceLayer.save() now re-reads,
+merges only the given keys and writes atomically under a lock; a corrupt file is moved aside
+instead of crashing; MemoryPipeline.process() is serialized.
+Tests: tests/test_persistence_isolation.py. Before the fix 4 of its 5 tests failed (two only
+because the persist option did not exist yet; the stale-component and corrupt-file tests failed
+on real behaviour).
+Still open: processes that share a directory (CLI and server) can overwrite each other; whether the
+hosted container keeps fanus_state.json across redeploys is unverified.
+
+## F-50 — memory-content GET endpoints were readable without a key
+GET /memory (server.py) returned the last 10 ledger entries without authentication (also noted by
+an earlier audit); with the shared ledger, GET /memory/ledger and /memory/graph expose the same
+content, including messages sent to /chat. All three now require the API key.
+tests/test_memory_read_endpoints_auth.py failed before and passes after.

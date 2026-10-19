@@ -43,7 +43,7 @@ app.add_middleware(
 SYSTEM_PROMPT = FanusIdentity().system_prompt()
 loop = FanusLoop()
 llm = GroqAdapter(os.environ.get("GROQ_API_KEY", ""))
-memory = MemoryPipeline()
+from fanus.api.memory import pipeline as memory  # one shared, persisted memory for the whole API
 gateway = KnowledgeGateway()
 orchestrator = CognitiveOrchestrator()
 negar = NegarDetector()
@@ -99,7 +99,7 @@ def chat(req: ChatRequest, background_tasks: BackgroundTasks, _: bool = Depends(
     }
 
 @app.get("/memory")
-def get_memory():
+def get_memory(_: bool = Depends(verify_api_key)):
     return {"ledger": memory.ledger.get_all()[-10:]}
 
 @app.get("/goals")

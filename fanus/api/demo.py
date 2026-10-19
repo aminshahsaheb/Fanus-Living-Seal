@@ -46,7 +46,7 @@ async def demo_chat(req: DemoRequest, request: Request):
 
     llm = GroqAdapter(os.environ.get("GROQ_API_KEY", ""))
     loop = FanusLoop()
-    memory = MemoryPipeline()
+    memory = MemoryPipeline(persist=False)  # public, anonymous input must never reach persisted memory
     gateway = KnowledgeGateway()
     # guardians unified via fanus.cognitive.guardian_pipeline
 

@@ -29,7 +29,7 @@ def store(req: StoreRequest, _: bool = Depends(verify_api_key)):
     return result
 
 @router.get("/ledger")
-def get_ledger():
+def get_ledger(_: bool = Depends(verify_api_key)):
     return {"entries": pipeline.ledger.get_all()[-20:], "size": pipeline.ledger.size()}
 
 @router.get("/beliefs")
@@ -37,7 +37,7 @@ def get_beliefs():
     return {"stats": pipeline.beliefs.stats()}
 
 @router.get("/graph")
-def get_graph():
+def get_graph(_: bool = Depends(verify_api_key)):
     return graph.snapshot()
 
 @router.post("/version")

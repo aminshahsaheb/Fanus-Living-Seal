@@ -12,7 +12,7 @@ class AutoResearchLoop:
         self.curiosity = CuriosityEngine()
         self.planner = ResearchPlanner()
         self.gateway = KnowledgeGateway()
-        self.memory = MemoryPipeline()
+        self.memory = MemoryPipeline(persist=False)  # scratch memory; must not overwrite the shared state file
         self.running = False
         self.cycles = 0
         self.log = []

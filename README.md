@@ -13,11 +13,11 @@ Fānus is built by a single author working with several AI assistants. The vocab
 
 | Area | State |
 |------|-------|
-| Cognitive runtime (`fanus/`) runs end to end; 48 tests pass | ✓ |
+| Cognitive runtime (`fanus/`) runs end to end; 54 tests pass | ✓ |
 | Verify API deployed: `POST /demo/verify` (public, rate-limited), `POST /verify` and `/verify/deep` (API key) | ✓ |
 | Audit engine with separate truth, epistemic-quality and sycophancy scores | ✓ |
-| API-key authentication on every POST endpoint outside `/demo/*`; fail-secure when no key is configured | ✓ |
-| Memory persistence: ledger and beliefs survive a restart | ✓ |
+| API-key authentication on every POST endpoint outside `/demo/*` and on the endpoints that return stored memory (`GET /memory`, `/memory/ledger`, `/memory/graph`); fail-secure when no key is configured | ✓ |
+| Memory persistence: ledger and beliefs are saved to a local JSON file and restored on start; anonymous `/demo/*` input is never persisted (whether the hosted container keeps the file across redeploys is not verified) | ◐ |
 | Single canonical code generation in `main` (earlier generations are under `archive/`) | ✓ |
 | Which modules actually run in production is mapped (`docs/REALITY_MAP.md`) and the high-risk dormant ones are guarded by a test | ✓ |
 | Benchmark v0.2: 21/50 (42%) against an 80% acceptance threshold | ◌ |
