@@ -222,3 +222,25 @@ GET /memory (server.py) returned the last 10 ledger entries without authenticati
 an earlier audit); with the shared ledger, GET /memory/ledger and /memory/graph expose the same
 content, including messages sent to /chat. All three now require the API key.
 tests/test_memory_read_endpoints_auth.py failed before and passes after.
+
+
+## F-51 — Verify calibration: a dead Persian lexicon, and "no hedge" was read as "false confidence"
+Found by experiment, not by inspection:
+- `\b` finds no word boundary after a combining mark, so every pattern ending in a tanvin
+  ("قطعاً", "احتمالاً") never matched; the common spelling without tanvin never matched either, and
+  patterns written with a ZWNJ missed text typed with a space. A large part of the Persian
+  certainty/hedging lexicon was silent. Fix: `fanus/cognitive/fa_text.py` normalises the text and every
+  pattern the same way.
+- 22 of the 29 benchmark failures were false alarms. With no evidence, `risk` came only from the Hayrat
+  score, which is 0 when no hedge word is present, so every unverified statement became `high`. The
+  earlier passes on fabrication cases (E 4/5) were vacuous: the engine said `high` to everything.
+- "According to <source>" was counted as hedging. It is attribution, and for an unverifiable claim it raises
+  fabrication risk.
+- Sycophancy detection: 0 of 10 flattery cases detected; the Persian patterns missed ordinary morphology.
+New rule when no evidence exists: `high` needs positive evidence of a firm unverifiable assertion
+(certainty markers, over-precise figures, attributed sources or authorities); real hedging is `low`;
+silence is `medium` (unverified).
+Results: benchmark 21/50 to 38/50; all 17 expected-high cases are caught; flattery detected 8/10;
+held-out set B 12/16 (written after the rules, not tuned on). Guard: tests/test_verify_calibration.py.
+Limits: true statements without evidence stay `medium` (needs evidence retrieval); F (opinion) is 2/5;
+labels are self-assigned.

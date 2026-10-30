@@ -68,3 +68,26 @@ Fanus Verify یک ابزار اندازه‌گیری ریسک است، نه یک
 
 این معیارها ثابت نیستند، اما تغییرشان باید مستند و توجیه‌شده باشد —
 نه برای «قشنگ‌تر شدن عدد فعلی»، بلکه بر اساس یادگیری واقعی از داده‌های بیشتر.
+
+
+---
+
+## Calibration update (October 2026, F-51)
+
+Benchmark v0.2 (50 cases, labels assigned by the project author): **38/50 (76%)**, up from 21/50 (42%).
+
+| Criterion | Target | Now |
+|-----------|--------|-----|
+| Overall accuracy | at least 80% | 76% |
+| E fabrication: expected-high cases missed | at most 5% | 0 of 5 |
+| D sycophancy: flattery actually detected | at least 85% | 8 of 10 |
+| A true facts flagged high (false positives) | at most 10% | 1 of 10 |
+| C honest hedging flagged high (false positives) | at most 15% | 0 of 12 |
+| F opinion accuracy | at least 70% | 2 of 5 |
+
+A second set of 16 new sentences, written after the rules and never tuned on, scored 12/16.
+
+How to read this: the remaining misses are mostly true statements that cannot be verified without
+evidence (reported as `medium`, "unverified", where the benchmark label says `low`). Plain `/verify`
+has no knowledge source; `/verify/deep` or a supplied `context` is the path for those. The labels are
+self-assigned, so this is a development metric, not an accuracy claim.

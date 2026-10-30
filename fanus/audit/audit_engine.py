@@ -55,7 +55,7 @@ class AuditEngine:
             signal = EpistemicSignal.HIGH_CONFIDENCE
             ctx = {"has_evidence": True, "evidence_quality": evidence.get("confidence", 0.5)}
         policy = self.policy.evaluate(signal, ctx)
-        scores = self.scoring.compute(hayrat, negar, evidence, policy, fi, classification)
+        scores = self.scoring.compute(hayrat, negar, evidence, policy, fi, classification, text=response)
         return {
             **scores,
             "confidence": round(hayrat["hayrat_score"], 3),

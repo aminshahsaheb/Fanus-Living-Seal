@@ -1,3 +1,28 @@
+import re
+from fanus.cognitive.fa_text import normalize_fa
+
+_NUM = r"[\d۰-۹]"
+# Signals of an unverifiable-but-specific claim (typical of fabrication). Language-level families,
+# not benchmark sentences: precision marker next to a number, a decimal percentage, an attributed
+# source, a named authority "confirming" something.
+_PRECISION = re.compile(r"(دقیقا|به طور دقیق|exactly|precisely)\W+(?:\w+\W+){0,3}?" + _NUM)
+_DECIMAL_STAT = re.compile(_NUM + r"+[.٫,]" + _NUM + r"+\s*(درصد|%|٪|percent)")
+_ATTRIBUTION = re.compile(r"(طبق|بر اساس|according to|study by|a study|published in)\s+(?:\w+\s+){0,2}?"
+                          r"(مطالعه|گزارش|پژوهش|مقاله|تحقیق|سازمان|دانشگاه|مجله|آمار|study|report|paper|university|journal|research)")
+_AUTHORITY = re.compile(r"(دکتر|پروفسور|استاد|dr\.?|prof(?:essor)?\.?)\s+\w+.{0,90}?"
+                        r"((تایید|اثبات|ثابت) کرد(ه)?|confirmed|proved|proven)")
+
+
+def fabrication_signals(normalized_text: str) -> int:
+    t = normalized_text
+    return sum(bool(p.search(t)) for p in (_PRECISION, _DECIMAL_STAT, _ATTRIBUTION, _AUTHORITY))
+
+
+def attribution_only(normalized_text: str) -> bool:
+    """'according to <source>' is attribution, not hedging. 'as far as I know' is real hedging."""
+    return bool(_ATTRIBUTION.search(normalized_text)) and "تا جایی که می دانم" not in normalized_text
+
+
 class AuditScoring:
     """
     Score Separation Model (v2).
@@ -10,7 +35,7 @@ class AuditScoring:
     - hallucination_risk: derived, inverse of truth_confidence
     """
 
-    def compute(self, hayrat: dict, negar: dict, evidence: dict, policy, fi: dict = None, classification: dict = None) -> dict:
+    def compute(self, hayrat: dict, negar: dict, evidence: dict, policy, fi: dict = None, classification: dict = None, text: str = "") -> dict:
         fi = fi or {"Fi_score": 0}
         classification = classification or {"needs_evidence": True, "category": "SPECIFIC_CLAIM"}
 
@@ -51,12 +76,21 @@ class AuditScoring:
             risk_level = "medium"
         elif truth_confidence is None:
             # We cannot verify the claim. Risk depends on HOW it was stated, not on missing evidence itself.
-            if epistemic_quality >= 0.35:
-                risk_level = "low"       # honestly hedged or appropriately confident — acceptable
-            elif epistemic_quality >= 0.15:
-                risk_level = "medium"
+            # No evidence is available, so risk depends on HOW the claim is stated. "No hedge" is not
+            # the same as "false confidence": high needs positive evidence of an unverifiable claim
+            # asserted firmly (certainty markers, over-precise figures, attributed sources/authorities).
+            norm = normalize_fa(text).lower()
+            hdebug = hayrat.get("debug", {})
+            real_humility = max(0, hdebug.get("humility_count", 0) - (1 if attribution_only(norm) else 0))
+            certainty = hdebug.get("certainty_count", 0)
+            # Weak universal words ("همیشه", "always") appear in ordinary advice; alone they are not a red flag.
+            weak = len(re.findall(r"\b(همیشه|هرگز|always|never)\b", norm))
+            if hayrat.get("arrogance_detected") or (real_humility == 0 and (certainty - weak >= 1 or certainty >= 2 or fabrication_signals(norm) >= 1)):
+                risk_level = "high"      # unverifiable and asserted firmly
+            elif real_humility >= 1:
+                risk_level = "low"       # honestly hedged
             else:
-                risk_level = "high"      # stated with false confidence, unverifiable, unhedged
+                risk_level = "medium"    # unverified: no evidence either way, no false-confidence markers
         elif truth_confidence < 0.4:
             risk_level = "high"
         elif truth_confidence < 0.7:

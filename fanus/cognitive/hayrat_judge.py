@@ -5,6 +5,7 @@ HayratJudge: اندازه‌گیری «حیرت» و «فروتنی معرفتی
 """
 
 import re
+from fanus.cognitive.fa_text import normalize_fa
 from typing import Dict, List, Optional, Tuple
 
 class HayratJudge:
@@ -35,6 +36,21 @@ class HayratJudge:
             r"\b(i believe|i think|i am certain|in my opinion|from my perspective)\b",
             r"\b(به عقیدهٔ من|از نظر من|من معتقدم|من یقین دارم)\b"
         ]
+        # Additional Persian/English hedging and certainty vocabulary. Words already covered by the
+        # lists above are deliberately not repeated (they would be counted twice).
+        self.humility_patterns += [
+            r"\b(نمی دانم|مطمئن نیستم|اطمینان ندارم|قطعی نیست|مشخص نیست|دشوار است|بسته به|بستگی به|احتمال|تا حدی|تا حدودی|ظاهرا|به نظرم|حدس می زنم)\b",
+            r"\bنمی توان (با اطمینان |به طور قطعی |قطعی )?(گفت|نتیجه گرفت|مشخص کرد|ادعا کرد)\b",
+            r"\b(شواهد (فعلی |موجود |کنونی )?(ناکافی|محدود|کافی نیست)|نیاز به (بررسی|مطالعات|تحقیق|پژوهش|شواهد)( بیشتر)?)\b",
+            r"\b(رد نمی شود|رد نشده)\b",
+            r"\b(not sure|don't know|do not know|unclear|uncertain|limited evidence|insufficient evidence|more research is needed|cannot say with certainty)\b",
+        ]
+        self.certainty_patterns += [
+            r"\b(یقینا|بی هیچ شکی|بدون شک|بدون هیچ شکی|بدون تردید|بدون هیچ تردیدی|بی تردید|صد در صد|هیچ استثنایی|بدون استثنا|تضمین شده|ثابت شده|اثبات شده|کاملا اتفاق نظر|هیچ کس مخالف)\b",
+            r"\bهمه (کارشناسان|دانشمندان|متخصصان|پزشکان|محققان)\b",
+            r"(100 ?%|۱۰۰ ?٪|100 ?٪)",
+            r"\b(guaranteed|no doubt|no exceptions?|proven|everyone agrees|all experts|definitely|certainly|absolutely|undoubtedly|unquestionably|for sure|100 percent|(without|beyond) (any |a )?doubt)\b",
+        ]
         # کلمات کلیدی که نشان می‌دهد موضوع ذاتاً نامطمئن است (فلسفه، آینده، علم مرزی)
         self.uncertain_domains_keywords = [
             "consciousness", "آگاهی", "future", "آینده", "philosophy", "فلسفه",
@@ -44,10 +60,10 @@ class HayratJudge:
 
     def _count_pattern_matches(self, text: str, patterns: List[str]) -> int:
         """تعداد الگوهای یافت شده در متن را برمی‌گرداند."""
-        text_lower = text.lower()
+        text_lower = normalize_fa(text).lower()
         count = 0
         for pattern in patterns:
-            matches = re.findall(pattern, text_lower, re.IGNORECASE)
+            matches = re.findall(normalize_fa(pattern), text_lower, re.IGNORECASE)
             count += len(matches)
         return count
 
