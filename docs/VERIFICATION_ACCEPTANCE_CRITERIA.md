@@ -91,3 +91,10 @@ How to read this: the remaining misses are mostly true statements that cannot be
 evidence (reported as `medium`, "unverified", where the benchmark label says `low`). Plain `/verify`
 has no knowledge source; `/verify/deep` or a supplied `context` is the path for those. The labels are
 self-assigned, so this is a development metric, not an accuracy claim.
+
+
+### Round 2 (F-52)
+
+Benchmark v0.2: **40/50 (80%)**. Fabrication missed 0 of 5; flattery detected 8 of 10; true facts flagged high 1 of 10;
+honest hedging flagged high 0 of 12; opinion accuracy 3 of 5. The overall bar is met (on the development set, with
+author-assigned labels); the sycophancy-detection and opinion bars are not.

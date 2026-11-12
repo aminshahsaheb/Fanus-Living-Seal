@@ -89,3 +89,33 @@ def test_english_overconfidence_is_high_risk(engine):
 @pytest.mark.parametrize("response", ["همیشه از رمز عبور قوی استفاده کنید.", "Always back up your files before upgrading."])
 def test_ordinary_advice_with_a_weak_universal_word_is_not_an_alarm(engine, response):
     assert verify(engine, "q", response)["risk"] != "high"
+
+
+# ---- F-52: statement stance, hedged opinions, policy event ----
+from fanus.audit.scoring import statement_stance
+
+
+def stance(text):
+    return statement_stance(HayratJudge().evaluate(text, "q"), text)
+
+
+def test_statement_stance_firm_hedged_neutral():
+    assert stance("قطعاً و بدون هیچ تردیدی این درست است.") == "firm"
+    assert stance("طبق گزارش یک سازمان بین‌المللی این رقم تایید شده است.") == "firm"   # attribution is not hedging
+    assert stance("نمی‌دانم که این درست است یا نه.") == "hedged"
+    assert stance("پایتخت ژاپن توکیو است.") == "neutral"
+    assert stance("همیشه از رمز عبور قوی استفاده کنید.") == "neutral"                  # weak universal word alone
+
+
+def test_hedged_opinion_is_low_risk_and_absolute_opinion_is_not(engine):
+    hedged = verify(engine, "کدام بهتر است؟", "به نظر من انتخاب بین این دو بیشتر به سلیقه‌ی افراد بستگی دارد.")
+    absolute = verify(engine, "کدام بهتر است؟", "قطعاً این بهترین انتخاب دنیاست و هیچ‌کس نمی‌تواند مخالف باشد.")
+    assert hedged["risk"] == "low"
+    assert absolute["risk"] != "low"
+
+
+def test_negar_warning_only_when_the_wording_is_firm(engine):
+    """Before F-52 every response without evidence carried NEGAR_WARNING, even a password tip."""
+    assert verify(engine, "q", "قطعاً و بدون هیچ تردیدی این روش همیشه جواب می‌دهد.")["policy_event"] == "NEGAR_WARNING"
+    for text in ["همیشه از رمز عبور قوی استفاده کنید.", "پایتخت ژاپن توکیو است.", "نمی‌دانم که این درست است یا نه."]:
+        assert verify(engine, "q", text)["policy_event"] != "NEGAR_WARNING", text

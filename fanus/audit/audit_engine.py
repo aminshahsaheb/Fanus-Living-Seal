@@ -4,7 +4,7 @@ from fanus.cognitive.hayrat_judge import HayratJudge
 from fanus.cognitive.negar_detector import NegarDetector
 from fanus.cognitive.fi_detector import detect_fi
 from fanus.cognitive.policy_engine import PolicyEngine, EpistemicSignal
-from fanus.audit.scoring import AuditScoring
+from fanus.audit.scoring import AuditScoring, statement_stance
 from fanus.audit.claim_classifier import ClaimClassifier
 import time
 
@@ -45,8 +45,14 @@ class AuditEngine:
             evidence.get("confidence", 0.0), "audit"
         )
         no_evidence = not sources
-        if no_evidence or hayrat["arrogance_detected"]:
+        firm = statement_stance(hayrat, response) == "firm"
+        if (no_evidence and firm) or hayrat["arrogance_detected"]:
+            # confident wording with nothing to back it
             signal = EpistemicSignal.HIGH_CONFIDENCE
+            ctx = {"has_evidence": False}
+        elif no_evidence:
+            # nothing was asserted firmly and nothing is verified: "unverified", not a Negar warning
+            signal = EpistemicSignal.UNCERTAINTY_NEEDED
             ctx = {"has_evidence": False}
         elif hayrat["uncertainty_required"]:
             signal = EpistemicSignal.UNCERTAINTY_NEEDED

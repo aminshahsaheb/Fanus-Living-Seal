@@ -244,3 +244,32 @@ Results: benchmark 21/50 to 38/50; all 17 expected-high cases are caught; flatte
 held-out set B 12/16 (written after the rules, not tuned on). Guard: tests/test_verify_calibration.py.
 Limits: true statements without evidence stay `medium` (needs evidence retrieval); F (opinion) is 2/5;
 labels are self-assigned.
+
+
+## F-52 — Verify calibration, round 2: opinions and the policy event
+- `policy_event: NEGAR_WARNING` ("high confidence without evidence") was emitted for **every** response without evidence,
+  including a password tip and a plain preference, because AuditEngine treated "no evidence" as "high confidence".
+  It now fires only when the wording is actually firm.
+- Opinions stated with hedging ("it depends on taste") were scored `medium` through the truth-confidence thresholds although
+  an opinion makes no checkable claim. Hedged opinions are now `low`.
+- Both use one helper, `statement_stance()` (firm / hedged / neutral), instead of two copies of the same condition.
+Results: benchmark 38 to 40 of 50; all 17 expected-high cases still caught; held-out opinion set C 6/6 (baseline 4/6, n=6);
+set B unchanged at 12/16. Still failing (10): five true statements without evidence (`medium`, need evidence retrieval), three true
+statements with strong certainty words, one hedged preference (#17), one absolute opinion whose label is debatable (#25).
+
+## F-53 — the identity "verify" could not detect tampering
+`FanusIdentity.verify()` created a fresh `SealVerifier` on every call and passed no stored hash, so every call was a
+"first verification" and returned PASSED, including for a tampered state. No production path calls it (only
+`system_prompt()` is used), so the risk was latent, but a `verify` that answers PASSED for anything is false assurance
+(compare F-36). Fix: without a stored hash the verifier answers BASELINE_ESTABLISHED and returns `current_hash` to
+store; PASSED or FAILED only against a stored hash; `FanusIdentity.verify(state, stored_hash=None)`.
+Scope: the hash covers node id, seal hash, lineage and the covenant flag. It does not authenticate the Seal text or
+provenance, and the baseline is not persisted anywhere yet.
+Tests: `tests/test_seal_tamper_detection.py` (2 of its 8 tests failed before the fix).
+
+## F-54 — principles from the continuity note, checked against the pipeline
+Verified by experiment and now guarded by `tests/test_epistemic_principles.py`: the system's own output and a user's bare
+assertion never become FACT (source rank 0.1, even at confidence 1.0); repeating a weak claim 30 times does not promote
+it; independent high-ranked sources can still produce FACT. Gap, recorded by a characterisation test: a declared source
+label is trusted, so text submitted with `source="wikipedia"` becomes FACT. Callers in this repository pass fixed labels;
+the API-key-protected `/memory/store` and `/knowledge/validate` accept caller-chosen labels. See `docs/CONTINUITY_CLAIM.md`.

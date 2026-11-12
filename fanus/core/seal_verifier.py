@@ -31,8 +31,8 @@ class SealVerifier:
             # اولین باره که چک می‌شه — ذخیره کن و بگو همه چیز مرتبه
             self.last_known_hash = current_hash
             return {
-                "integrity_check": "PASSED",
-                "message": "First verification — baseline established.",
+                "integrity_check": "BASELINE_ESTABLISHED",
+                "message": "No stored baseline, so there is nothing to compare against. Store current_hash and pass it as stored_hash next time.",
                 "current_hash": current_hash,
                 "timestamp": datetime.utcnow().isoformat()
             }

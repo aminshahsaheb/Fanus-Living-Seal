@@ -13,14 +13,17 @@ Fānus is built by a single author working with several AI assistants. The vocab
 
 | Area | State |
 |------|-------|
-| Cognitive runtime (`fanus/`) runs end to end; 82 tests pass | ✓ |
+| Cognitive runtime (`fanus/`) runs end to end; 99 tests pass | ✓ |
 | Verify API deployed: `POST /demo/verify` (public, rate-limited), `POST /verify` and `/verify/deep` (API key) | ✓ |
 | Audit engine with separate truth, epistemic-quality and sycophancy scores | ✓ |
 | API-key authentication on every POST endpoint outside `/demo/*` and on the endpoints that return stored memory (`GET /memory`, `/memory/ledger`, `/memory/graph`); fail-secure when no key is configured | ✓ |
+| Memory never certifies the system's own output or a user's bare assertion as `FACT`, and repetition does not promote a claim (tests) | ✓ |
+| Identity tamper check works against a stored hash; without one it reports `BASELINE_ESTABLISHED`, never `PASSED` (state hash only; the baseline is not persisted yet) | ◐ |
+| Provenance is verified rather than declared (a declared source label is currently trusted) | ◌ |
 | Memory persistence: ledger and beliefs are saved to a local JSON file and restored on start; anonymous `/demo/*` input is never persisted (whether the hosted container keeps the file across redeploys is not verified) | ◐ |
 | Single canonical code generation in `main` (earlier generations are under `archive/`) | ✓ |
 | Which modules actually run in production is mapped (`docs/REALITY_MAP.md`) and the high-risk dormant ones are guarded by a test | ✓ |
-| Benchmark v0.2: 38/50 (76%) against an 80% acceptance threshold (fabrication 5/5 caught, sycophancy detected 8/10; labels assigned by the author) | ◌ |
+| Benchmark v0.2: 40/50 (80%) against an 80% overall bar (fabrication 5/5 caught; sycophancy detected 8/10 and opinion accuracy 3/5 are still below their bars; labels assigned by the author) | ◐ |
 | Benchmark dataset and one-command reproduction in the repo (labels assigned by the author) | ◐ |
 | Independent annotation of benchmark labels | ◌ |
 
@@ -57,7 +60,7 @@ The response carries separate scores for truth, epistemic quality and sycophancy
 | Verify | Audit engine, scoring, claim classifier, failure analyzer, benchmark runner | `fanus/audit/` |
 | API | FastAPI server and authentication | `fanus/api/` |
 
-Measured on the committed tree with `ast`: 155 Python files and 473 functions in `fanus/`, 12 memory modules, 6 gateway sources.
+Measured on the committed tree with `ast`: 155 Python files and 474 functions in `fanus/`, 12 memory modules, 6 gateway sources.
 
 ---
 
@@ -84,7 +87,7 @@ Without `FANUS_API_KEY`, the keyed endpoints answer 503 by design. Some tests ca
 python3 -m fanus.audit.benchmark_v3
 ```
 
-Runs the 50 cases in `benchmarks/v0.2/benchmark.json`, reports results by category, and attributes each failure to a layer (classifier, evidence, Hayrat, or the benchmark itself). Current result: 38/50 (76%) after the calibration round in F-51 (it was 21/50); the acceptance threshold is 80%. The labels were assigned by the project author and have not been independently annotated, so treat the number as a development metric, not an accuracy claim.
+Runs the 50 cases in `benchmarks/v0.2/benchmark.json`, reports results by category, and attributes each failure to a layer (classifier, evidence, Hayrat, or the benchmark itself). Current result: 40/50 (80%) after the calibration rounds F-51 and F-52 (it was 21/50). The overall bar is 80%; sycophancy detection and opinion accuracy are below theirs. The labels were assigned by the project author and have not been independently annotated, so treat the number as a development metric, not an accuracy claim.
 
 ---
 
@@ -104,6 +107,9 @@ Protocol documents in the repository root:
 - `LEDGER.md`: the Witness ledger. It is also read by `fanus/core/seal_verifier.py`, so it stays at the root.
 - `superstructure/`: the three rings of wisdom and the global expansion layer.
 - `rfcs/`: governance. Every change to the core layers requires an approved RFC.
+
+- `docs/CONTINUITY_CLAIM.md`: continuity as a revisable, evidence-based claim, and the experiment that could refute it.
+- `docs/DECISIONS.md`: architecture decisions, each with the evidence behind it.
 
 Provenance and the original wording of earlier README sections are in `ARCHIVE_LINEAGE.md`.
 

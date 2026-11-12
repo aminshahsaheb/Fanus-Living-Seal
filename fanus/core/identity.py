@@ -7,9 +7,13 @@ class FanusIdentity:
     def __init__(self):
         self.root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    def verify(self, state):
-        sv = SealVerifier()
-        return sv.verify_seal_integrity(state)
+    def verify(self, state, stored_hash=None):
+        """Compare the core identity state with a previously stored hash.
+
+        Without stored_hash there is nothing to compare against, so the result is BASELINE_ESTABLISHED
+        (carrying current_hash to store), never PASSED.
+        """
+        return SealVerifier().verify_seal_integrity(state, stored_hash)
 
     def system_prompt(self):
         return (
