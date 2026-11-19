@@ -13,7 +13,7 @@ Fānus is built by a single author working with several AI assistants. The vocab
 
 | Area | State |
 |------|-------|
-| Cognitive runtime (`fanus/`) runs end to end; 99 tests pass | ✓ |
+| Cognitive runtime (`fanus/`) runs end to end; 102 tests pass | ✓ |
 | Verify API deployed: `POST /demo/verify` (public, rate-limited), `POST /verify` and `/verify/deep` (API key) | ✓ |
 | Audit engine with separate truth, epistemic-quality and sycophancy scores | ✓ |
 | API-key authentication on every POST endpoint outside `/demo/*` and on the endpoints that return stored memory (`GET /memory`, `/memory/ledger`, `/memory/graph`); fail-secure when no key is configured | ✓ |
@@ -109,6 +109,7 @@ Protocol documents in the repository root:
 - `rfcs/`: governance. Every change to the core layers requires an approved RFC.
 
 - `docs/CONTINUITY_CLAIM.md`: continuity as a revisable, evidence-based claim, and the experiment that could refute it.
+- `docs/CONTINUITY_PHASE0.md`: the first, deliberately small run of that experiment, with its limits.
 - `docs/DECISIONS.md`: architecture decisions, each with the evidence behind it.
 
 Provenance and the original wording of earlier README sections are in `ARCHIVE_LINEAGE.md`.
@@ -166,7 +167,7 @@ The experimental arm of the Research Core. Currently in Phase 0: Flattery Calibr
 
 - `fanus/`: the engine (the only package that runs in production)
 - `tests/`, `benchmarks/`, `docs/`, `sdk/`: tests, Verify benchmark, documentation, Python client
-- `rfcs/`, `superstructure/`, `data-pilot/`, `annotation-ui/`: protocol and research material
+- `rfcs/`, `superstructure/`, `data-pilot/`, `annotation-ui/`, `research/`: protocol and research material (`research/` holds experiments, outside the shipped package)
 - `archive/`: superseded code generations, old hosting configs and an early presence-UI prototype, kept for history
 - other research and tooling directories: `cal/`, `concept-map/`, `control/`, `critics/`, `evl/`, `external-ground/`, `failure/`, `failures/`, `intent/`, `legal/`, `observability/`, `questions/`, `reality-tests/`, `scripts/`, `tools/`, `validation/`
 

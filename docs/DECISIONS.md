@@ -18,3 +18,4 @@ Short records of decisions that shape the code, each with the evidence that back
 | 11 | Deployment is FastAPI Cloud only; keys come from environment variables. | Other hosts required a payment card. | README |
 | 12 | Memory never certifies the system's own output or a user's bare assertion, and repetition is not evidence. | Principles of the continuity note, verified in code. | F-54, `test_epistemic_principles.py` |
 | 13 | Tamper detection compares against a stored hash. Without one the verifier says BASELINE_ESTABLISHED, never PASSED. | A first-call-always-passes check detects nothing. | F-53, `test_seal_tamper_detection.py` |
+| 14 | Continuity experiments live in `research/`, outside the shipped package, with predictions written before the first run. | New concept layers without evidence were the project's recurring risk. | `research/continuity_phase0.py`, `docs/CONTINUITY_PHASE0.md` |

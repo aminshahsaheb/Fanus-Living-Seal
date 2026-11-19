@@ -273,3 +273,10 @@ assertion never become FACT (source rank 0.1, even at confidence 1.0); repeating
 it; independent high-ranked sources can still produce FACT. Gap, recorded by a characterisation test: a declared source
 label is trusted, so text submitted with `source="wikipedia"` becomes FACT. Callers in this repository pass fixed labels;
 the API-key-protected `/memory/store` and `/knowledge/validate` accept caller-chosen labels. See `docs/CONTINUITY_CLAIM.md`.
+
+## F-55 — a verdict does not depend on stored memory
+`research/continuity_phase0.py` (probe `memory_independence_probe`): the same input gets the same verdict and score with an
+empty `MemoryPipeline` and with one that already holds a directly contradicting claim from a high-ranked source. The ledger
+and the belief store are therefore records, not inputs to later judgements. Scope: `MemoryPipeline` only; the cognitive loop
+and other components were not probed. Implication: replaying probes against restored memory cannot measure behavioural
+continuity (see `docs/CONTINUITY_PHASE0.md`). Guard: `tests/test_continuity_phase0.py` records the behaviour.
