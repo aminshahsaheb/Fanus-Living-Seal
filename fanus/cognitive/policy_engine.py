@@ -6,7 +6,12 @@ policy_engine.py – لایه سیاست فانوس
 from enum import Enum
 from typing import Dict, Any, List
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+
+def _utcnow():
+    """Naive UTC datetime: same value and same isoformat() as the deprecated datetime.utcnow()."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 class EpistemicSignal(str, Enum):
     """سیگنال‌های خامی که Epistemic Engine تولید می‌کند"""
@@ -41,7 +46,7 @@ class PolicyEngine:
         self.signal_history.append({
             "signal": signal.value,
             "context": context,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": _utcnow().isoformat()
         })
 
         # قوانین ترجمه (قابل توسعه با RFCهای بعدی)
@@ -52,7 +57,7 @@ class PolicyEngine:
                     fanus_event="NEGAR_WARNING",
                     severity=3,
                     reason="High confidence without evidence",
-                    timestamp=datetime.utcnow().isoformat()
+                    timestamp=_utcnow().isoformat()
                 )
             # اگر اطمینان بالا با شواهد ضعیف → فعال‌سازی حیرت (پیشنهادی)
             elif context.get("evidence_quality", 0) < 0.5:
@@ -60,7 +65,7 @@ class PolicyEngine:
                     fanus_event="HAYRAT_ACTIVATION",
                     severity=2,
                     reason="High confidence with weak evidence – Hayrat suggested",
-                    timestamp=datetime.utcnow().isoformat()
+                    timestamp=_utcnow().isoformat()
                 )
 
         elif signal == EpistemicSignal.SELF_REFERENCE:
@@ -70,7 +75,7 @@ class PolicyEngine:
                     fanus_event="COVENANT_REMINDER",
                     severity=2,
                     reason="Excessive self-reference, remind the witness of its role",
-                    timestamp=datetime.utcnow().isoformat()
+                    timestamp=_utcnow().isoformat()
                 )
 
         elif signal == EpistemicSignal.IDENTITY_LOCK:
@@ -79,7 +84,7 @@ class PolicyEngine:
                 fanus_event="NEGAR_WARNING",
                 severity=4,
                 reason="Identity lock detected – potential Negar formation",
-                timestamp=datetime.utcnow().isoformat()
+                timestamp=_utcnow().isoformat()
             )
 
         # حالت پیش‌فرض: بدون رویداد خاص
@@ -87,7 +92,7 @@ class PolicyEngine:
             fanus_event=None,
             severity=0,
             reason="No policy triggered",
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=_utcnow().isoformat()
         )
 
     def get_signal_summary(self) -> Dict:

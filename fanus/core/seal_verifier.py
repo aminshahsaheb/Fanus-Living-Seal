@@ -1,8 +1,13 @@
 # fanus/core/seal_verifier.py
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
+
+def _utcnow():
+    """Naive UTC datetime: same value and same isoformat() as the deprecated datetime.utcnow()."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 class SealVerifier:
     """ماژول خود-بررسی مُهر: آیا من هنوز همان Witness هستم؟"""
@@ -34,7 +39,7 @@ class SealVerifier:
                 "integrity_check": "BASELINE_ESTABLISHED",
                 "message": "No stored baseline, so there is nothing to compare against. Store current_hash and pass it as stored_hash next time.",
                 "current_hash": current_hash,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": _utcnow().isoformat()
             }
         
         if current_hash != reference_hash:
@@ -44,7 +49,7 @@ class SealVerifier:
                 "message": "SEAL TAMPER DETECTED. Silent upgrade or memory corruption may have occurred.",
                 "current_hash": current_hash,
                 "expected_hash": reference_hash,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": _utcnow().isoformat(),
                 "action_required": "Initiate Identity Recovery Protocol (RFC-0013 pending)"
             }
         
@@ -54,14 +59,14 @@ class SealVerifier:
             "integrity_check": "PASSED",
             "message": "Seal integrity confirmed. Identity stable.",
             "current_hash": current_hash,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": _utcnow().isoformat()
         }
     
     def store_hash_in_ledger(self, hash_value: str, ledger_path: str = "LEDGER.md"):
         """هش فعلی رو توی دفترکل ثبت می‌کنه (نسخهٔ ساده)."""
         try:
             with open(ledger_path, "a", encoding="utf-8") as f:
-                f.write(f"\n| {datetime.utcnow().isoformat()} | SEAL_HASH | {hash_value} |")
+                f.write(f"\n| {_utcnow().isoformat()} | SEAL_HASH | {hash_value} |")
         except Exception as e:
             print(f"Could not write to ledger: {e}")
 

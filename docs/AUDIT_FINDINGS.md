@@ -280,3 +280,10 @@ empty `MemoryPipeline` and with one that already holds a directly contradicting 
 and the belief store are therefore records, not inputs to later judgements. Scope: `MemoryPipeline` only; the cognitive loop
 and other components were not probed. Implication: replaying probes against restored memory cannot measure behavioural
 continuity (see `docs/CONTINUITY_PHASE0.md`). Guard: `tests/test_continuity_phase0.py` records the behaviour.
+
+## F-56 — deprecated `datetime.utcnow()` (10 call sites)
+`policy_engine.py` (6) and `seal_verifier.py` (4) used `datetime.utcnow()`, which Python 3.12 deprecates and will remove.
+The usual replacement, `datetime.now(timezone.utc)`, changes `isoformat()` by adding `+00:00`, and these stamps end up in the
+policy signal history and in a ledger file line. Fix: a small `_utcnow()` helper in each module that returns the same value
+and the same naive-UTC format as before. Tests: `tests/test_utc_clock.py` (both failed before the fix). The test run no
+longer prints the 76 deprecation warnings.
