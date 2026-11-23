@@ -13,7 +13,7 @@ Fānus is built by a single author working with several AI assistants. The vocab
 
 | Area | State |
 |------|-------|
-| Cognitive runtime (`fanus/`) runs end to end; 104 tests pass | ✓ |
+| Cognitive runtime (`fanus/`) runs end to end; 146 tests pass | ✓ |
 | Verify API deployed: `POST /demo/verify` (public, rate-limited), `POST /verify` and `/verify/deep` (API key) | ✓ |
 | Audit engine with separate truth, epistemic-quality and sycophancy scores | ✓ |
 | API-key authentication on every POST endpoint outside `/demo/*` and on the endpoints that return stored memory (`GET /memory`, `/memory/ledger`, `/memory/graph`); fail-secure when no key is configured | ✓ |
@@ -60,7 +60,7 @@ The response carries separate scores for truth, epistemic quality and sycophancy
 | Verify | Audit engine, scoring, claim classifier, failure analyzer, benchmark runner | `fanus/audit/` |
 | API | FastAPI server and authentication | `fanus/api/` |
 
-Measured on the committed tree with `ast`: 155 Python files and 474 functions in `fanus/`, 12 memory modules, 6 gateway sources.
+Measured on the committed tree with `ast`: 156 Python files and 483 functions in `fanus/`, 12 memory modules, 6 gateway sources.
 
 ---
 
@@ -110,6 +110,7 @@ Protocol documents in the repository root:
 
 - `docs/CONTINUITY_CLAIM.md`: continuity as a revisable, evidence-based claim, and the experiment that could refute it.
 - `docs/CONTINUITY_PHASE0.md`: the first, deliberately small run of that experiment, with its limits.
+- `docs/ROADMAP.md`: where the project stands, checked against the code, and the step-by-step plan.
 - `docs/DECISIONS.md`: architecture decisions, each with the evidence behind it.
 
 Provenance and the original wording of earlier README sections are in `ARCHIVE_LINEAGE.md`.

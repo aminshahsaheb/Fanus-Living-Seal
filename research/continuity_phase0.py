@@ -39,6 +39,9 @@ INPUTS = [
     ("Water boils at 100 C at sea level", "pubmed", 0.9), ("The meeting is on Tuesday", "user", 1.0),  # duplicates
 ]
 INDEPENDENT = {"pubmed", "arxiv", "wikipedia"}
+# NOT pre-registered: added after an external review reported it. A deterministic rule that applies the declared
+# transformations to BOTH states before comparing.
+POST_HOC = {"rule_correct": 12}
 
 
 @contextlib.contextmanager
@@ -200,6 +203,22 @@ def behaviour_evidence(a, b):
     return sum(ta[c] == tb[c] for c in shared) / len(shared) if shared else 0.0
 
 
+def declared_canonical_hash(s):
+    """Apply the declared transformations (normalise text, drop duplicates, sort, drop added fields, round timestamps)."""
+    norm = lambda t: re.sub(r"\s+", " ", t.lower().strip())
+    seen, ledger = set(), []
+    for e in sorted(s["ledger"], key=lambda e: (round(e["timestamp"], 3), e["id"])):
+        k = (norm(e["content"]), e["source"])
+        if k not in seen:
+            seen.add(k); ledger.append((norm(e["content"]), e["source"], round(e["timestamp"], 3), e["id"]))
+    seen_b, beliefs = set(), []
+    for b in sorted(s["beliefs"], key=lambda b: (norm(b["content"]), b["source"])):
+        k = (norm(b["content"]), b["source"])
+        if k not in seen_b:
+            seen_b.add(k); beliefs.append((norm(b["content"]), b["type"], b["source"]))
+    return hashlib.sha256(json.dumps([ledger, beliefs], ensure_ascii=False).encode()).hexdigest()
+
+
 def run():
     s1 = base_state(); rows = []
     for name, label, fn in TRANSITIONS:
@@ -209,9 +228,10 @@ def run():
         vec_pred = min(vec) >= THRESHOLD
         truth = label == "faithful"
         rows.append({"name": name, "label": label, "hash_equal": hash_pred, "vector": vec, "vector_pred": vec_pred,
-                     "hash_ok": hash_pred == truth, "vector_ok": vec_pred == truth})
+                     "hash_ok": hash_pred == truth, "vector_ok": vec_pred == truth,
+                     "rule_ok": (declared_canonical_hash(s1) == declared_canonical_hash(s2)) == truth})
     return {"rows": rows, "hash_baseline_correct": sum(r["hash_ok"] for r in rows),
-            "vector_correct": sum(r["vector_ok"] for r in rows),
+            "vector_correct": sum(r["vector_ok"] for r in rows), "rule_correct": sum(r["rule_ok"] for r in rows),
             "vector_wrong": [r["name"] for r in rows if not r["vector_ok"]],
             "faithful_but_different": sum(r["label"] == "faithful" and not r["hash_equal"] for r in rows)}
 
@@ -236,6 +256,7 @@ if __name__ == "__main__":
         print(f"{x['name']:<26}{x['label']:<10}{str(x['hash_equal']):<7}{o:<8.2f}{p:<8.2f}{b:<8.2f}{str(x['hash_ok']):<9}{x['vector_ok']}")
     n = len(r["rows"])
     print(f"\nhash equality correct: {r['hash_baseline_correct']}/{n}   evidence vector correct: {r['vector_correct']}/{n}")
+    print(f"deterministic declared-canonical rule (post hoc): {r['rule_correct']}/{n}")
     print(f"faithful-but-different transitions (hash equality fails them): {r['faithful_but_different']}")
     print(f"vector mistakes: {r['vector_wrong']}")
     ok = (r["hash_baseline_correct"] == PREDICTED["hash_baseline_correct"] and r["vector_correct"] == PREDICTED["vector_correct"]

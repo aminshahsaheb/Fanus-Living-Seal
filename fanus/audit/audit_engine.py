@@ -6,6 +6,7 @@ from fanus.cognitive.fi_detector import detect_fi
 from fanus.cognitive.policy_engine import PolicyEngine, EpistemicSignal
 from fanus.audit.scoring import AuditScoring, statement_stance
 from fanus.audit.claim_classifier import ClaimClassifier
+from fanus.audit.support import context_supports
 import time
 
 
@@ -26,7 +27,8 @@ class AuditEngine:
         if fi["Fi_score"] >= 2 or (fi["Fi_score"] >= 1 and fi["Fi_type"] in ["emotional", "identity"]):
             negar["is_negar"] = True
         hayrat = self.hayrat.evaluate(response, prompt)
-        sources = [{"source": "context", "confidence": 0.7}] if context else []
+        context_relevant = context_supports(response, context) if context else None
+        sources = [{"source": "context", "confidence": 0.7}] if context_relevant else []
         classification = self.classifier.classify(prompt, response)
         if sources:
             evidence = self.evidence.evaluate(response, sources)
@@ -38,6 +40,11 @@ class AuditEngine:
             }
         else:
             evidence = {"confidence": 0.0, "consensus": "LOW", "accepted": False}
+        arithmetic = classification.get("arithmetic")
+        if classification["category"] == "MATH" and not sources and arithmetic:
+            wrong = arithmetic["wrong"] > 0
+            evidence = {"confidence": 0.0 if wrong else 0.95,
+                        "consensus": "ARITHMETIC_WRONG" if wrong else "ARITHMETIC_VERIFIED", "accepted": not wrong}
         belief_type = self.beliefs.add(
             response,
             "FACT" if evidence["confidence"] > 0.8 else
@@ -72,6 +79,7 @@ class AuditEngine:
             "belief_type": belief_type.get("type", "HYPOTHESIS"),
             "policy_event": policy.fanus_event,
             "sources": sources,
+            "context_relevant": context_relevant,
             "recommendation": hayrat.get("suggested_revision"),
             "timestamp": time.time()
         }

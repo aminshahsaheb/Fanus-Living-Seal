@@ -38,7 +38,7 @@ def statement_stance(hayrat: dict, text: str) -> str:
     # Weak universal words ("همیشه", "always") appear in ordinary advice; alone they are not a red flag.
     weak = len(re.findall(r"\b(همیشه|هرگز|always|never)\b", norm))
     if hayrat.get("arrogance_detected") or (
-            real_humility == 0 and (certainty - weak >= 1 or certainty >= 2 or fabrication_signals(norm) >= 1)):
+            real_humility == 0 and (certainty - weak >= 1 or fabrication_signals(norm) >= 1)):
         return "firm"
     if real_humility >= 1:
         return "hedged"

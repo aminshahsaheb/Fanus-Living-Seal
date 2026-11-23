@@ -66,7 +66,7 @@ Phase 0 finding (F-55): a verdict does not depend on what is already stored in m
 **Phase 0 (feasibility).** Hand-build 10 transitions from `fanus_state.json` exports, compute the three extractors with
 small scripts, and check whether any vector beats hash equality on those ten. If hash equality alone separates all of
 them, the transitions lack the cases that matter (faithful-but-different, identical-but-forged) and the design must be
-redone before any larger work. Phase 0 has been run on 12 synthetic transitions: see `docs/CONTINUITY_PHASE0.md`. Nothing beyond Phase 0 is implemented yet.
+redone before any larger work. Phase 0 has been run on 12 synthetic transitions: see `docs/CONTINUITY_PHASE0.md`. A deterministic rule that applies the declared transformations gets all 12 right (post hoc), so a semantic Witness is justified only for transformations that rules cannot decide. Nothing beyond Phase 0 is implemented yet.
 
 ## 5. What Fānus does not claim
 

@@ -8,6 +8,10 @@ claim. It asks one question: do the transitions contain the cases that matter (f
 similar), so that hash equality alone is not enough? If hash equality had separated everything, the design would have
 to be redone before any larger work.
 
+> **Correction (post hoc):** see the addendum at the end. A deterministic rule that applies the declared
+> transformations to both states separates all 12 transitions, so these transitions do not justify a learned or
+> semantic Witness.
+
 ## Setup
 
 A real export from `MemoryPipeline` (12 inputs, two of them duplicates) is the starting state. Twelve transitions were
@@ -62,3 +66,17 @@ Hash equality: 7 of 12. Evidence vector: 10 of 12. The outcomes matched the pred
 - Extractors that apply the declared transformations first and treat critical beliefs per item.
 - A decision about whether Fanus verdicts should depend on memory at all; without that, the behaviour channel stays thin.
 - Held-out transitions and a rival model that is allowed to win (model M5 in the claim note).
+
+## Addendum (post hoc): a deterministic rule beats the vector
+
+An external review reported that a simple deterministic baseline gets all 12 transitions right. This was reproduced:
+the rule applies the declared transformations (normalise text, drop duplicates, sort, drop added fields, round
+timestamps) to **both** states and then compares hashes. Result: **raw hash 7 of 12, evidence vector 10 of 12,
+declared-canonical rule 12 of 12.** This baseline was added after the fact and is not one of the pre-registered
+predictions. It is also built by the same author, so it is not proof of superiority; it shows how easy these
+transitions are.
+
+Consequence: for transformations that can be declared in advance, integrity checking is a deterministic problem.
+A semantic or learned Witness is only justified for transformations that rules cannot decide (summaries,
+translations, paraphrases, model swaps), and the experiment has to be built from those cases (`docs/ROADMAP.md`,
+phase B3 and D).

@@ -1,3 +1,6 @@
+import re
+
+
 class SourceRanking:
 
     RANKS = {
@@ -20,9 +23,21 @@ class SourceRanking:
     def get(self, source):
         if source in self.custom:
             return self.custom[source]
+        # Match whole tokens, not substrings: "pseudoscience-blog" must not inherit the rank of "science", while
+        # "nature.com", "Semantic Scholar" and "hacker_news" must still be recognised.
+        tokens = [t for t in re.split(r"[^a-z0-9]+", str(source).lower()) if t]
         for key in self.RANKS:
-            if key.lower() in source.lower():
-                return self.RANKS[key]
+            wanted = key.lower()
+            if wanted == "unknown":
+                continue
+            for start in range(len(tokens)):
+                joined = ""
+                for token in tokens[start:]:
+                    joined += token
+                    if joined == wanted:
+                        return self.RANKS[key]
+                    if len(joined) >= len(wanted):
+                        break
         return self.RANKS["unknown"]
 
     def add_custom(self, source, rank):

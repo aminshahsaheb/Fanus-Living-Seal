@@ -287,3 +287,38 @@ The usual replacement, `datetime.now(timezone.utc)`, changes `isoformat()` by ad
 policy signal history and in a ledger file line. Fix: a small `_utcnow()` helper in each module that returns the same value
 and the same naive-UTC format as before. Tests: `tests/test_utc_clock.py` (both failed before the fix). The test run no
 longer prints the 76 deprecation warnings.
+
+## F-57 to F-61 — Verify could be bypassed or fooled (found by independent reviews, confirmed on the live code, fixed)
+- **F-57** A year or percentage range ("2019-2021", "87-90%") was read as subtraction, so a fabricated, overconfident claim
+  containing one scored `low` (0.85 confidence). Arithmetic expressions are now recognised as expressions, not ranges.
+- **F-61** Arithmetic was never computed: "2 + 2 = 5", "17 * 3 = 50" and "دو به علاوه دو می‌شود پنج" all scored `low`.
+  `fanus/audit/support.py` now evaluates explicit equations in the response (digits and Persian number words, rounding
+  tolerance for decimals). Wrong arithmetic is `high`, verified arithmetic `low`. A response that corrects a wrong equation
+  in the prompt is not penalised.
+- **F-58** Any non-empty `context` became a fixed 0.7-confidence source, so unrelated text lowered the risk. Context now counts
+  only if it shares content words with the claim; the response reports `context_relevant`. Relevance is lexical, not
+  entailment: whether the context actually *supports* the claim is still open (roadmap, phase C).
+- **F-59** `SourceRanking` used substring matching: "pseudoscience-blog" and "natureblog-fake" received the top rank
+  (1.0, FACT). The reverse also happened: "Semantic Scholar" and "hacker news" were unranked. Matching is now by whole tokens.
+  The declared label is still trusted (F-54).
+- **F-60** Two weak universal words ("همیشه", "هرگز", "always", "never") counted as firm certainty, so ordinary advice raised
+  a warning, and `risk` and `policy_event` could disagree. Weak words alone no longer count.
+Tests: `tests/test_verify_integrity.py` (25 of its 41 tests failed before; 11 of those only because the new module did not
+exist yet). Benchmark 40/50 unchanged, all 17 expected-high cases still caught, held-out sets B 12/16 and C 6/6 unchanged.
+
+## Open findings, verified on `main` but not yet fixed (see docs/ROADMAP.md)
+- **F-62** Retrieved knowledge never reaches the model: all three chat entry points append only `[sources: N]`.
+- **F-63** Thirteen GET endpoints are readable without a key (`/auto/stats`, `/decision/*`, `/goals`, `/knowledge/beliefs`,
+  `/knowledge/graph`, `/memory/beliefs`, `/memory/version/{key}`, `/reason/stats`, `/research/*`). A stored chat message did not leak
+  through them (tested); the problem is inconsistent protection and exposed internal state. No consumer in the other three
+  repositories calls them.
+- **F-64** Four containers grow by one entry per runtime tick and never stop (`self_model.observation_history`,
+  `execution.applied`, `observer.logs`, `safety_bus.events`), and every `/chat` request triggers a tick.
+- **F-65** An LLM error becomes the "response" in all three callers, is stored in memory with confidence 0.9 and is passed
+  through the guards. The adapter itself has no timeout.
+- **F-66** The guards detect but do not change the reply (the policy and ISP results are discarded), and the chat logic is copied
+  in three places.
+- **F-67** `fanus-app` is not connected to the engine: it calls LLM providers directly, without any Fānus guard.
+- **F-68** Hygiene: `verify_router` included twice, CORS `*`, unpinned `requirements.txt` without pytest, Dockerfile without
+  `USER` or a health check, `failure/` and `failures/` both present, 28 Markdown files in the root, and the `fanus-presence`
+  README still shows a keyed `/verify` example.

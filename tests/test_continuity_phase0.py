@@ -23,3 +23,9 @@ def test_a_verdict_does_not_depend_on_what_is_already_stored():
     """Characterisation (F-55): the same probe gets the same verdict with empty memory and with contradicting memory.
     If memory ever starts to influence verdicts, update docs/CONTINUITY_PHASE0.md and this test."""
     assert phase0.memory_independence_probe()["identical"] is True
+
+
+def test_a_deterministic_rule_that_applies_the_declared_transformations_gets_every_transition_right():
+    """Post hoc (not pre-registered): the simplest rule beats the evidence vector, so these transitions do not justify
+    a learned or semantic Witness. See docs/CONTINUITY_PHASE0.md, addendum."""
+    assert phase0.run()["rule_correct"] == phase0.POST_HOC["rule_correct"]
